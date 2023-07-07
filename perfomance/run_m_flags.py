@@ -239,7 +239,7 @@ while 1 == 1:
 
         if (r_act == 'cancelALL'):
             # res_api = ...
-            # list_orders = reas_api['data']
+            # list_orders = reas_api['src_data']
             orderCount = 0
             # За время рассчетов мог сработать ордер
             # Проверять, если был установлен флаг
