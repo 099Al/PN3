@@ -2,11 +2,11 @@
 
 
 
-import function.exchangeFunction as exchf
+import PN3.function.exchangeFunction as exchf
 
-import function.transacFunction as transf
-import deposit.function.depoMoneyInOut as depof
-from   util.calcUtil import cutX
+import PN3.function.transacFunction as transf
+import PN3.deposit.depoMoneyInOut as depof
+from   PN3.util.calcUtil import cutX
 
 #dtime = unix_to_date(p.get('timestamp'))
 
@@ -22,11 +22,11 @@ class InfoCalcFromDep():
 
     def __init__(self):
 
-        from deposit.feeslimits.constant import com_out_pr_u,com_out_f_u #Комиссия вывод USD
-        from deposit.feeslimits.constant import com_out_pr_r,com_out_f_r #Комиссия вывод RUB
-        from deposit.feeslimits.constant import com_in_pr_u,com_in_f_u   # Комиссия ввод USD
-        from deposit.feeslimits.constant import com_in_pr_r, com_in_f_r  # Комиссия ввод RUB
-        from deposit.feeslimits.constant import limit_usd,limit_rub
+        from PN3.configs.feeslimits.constant import com_out_pr_u,com_out_f_u #Комиссия вывод USD
+        from PN3.configs.feeslimits.constant import com_out_pr_r,com_out_f_r #Комиссия вывод RUB
+        from PN3.configs.feeslimits.constant import com_in_pr_u,com_in_f_u   # Комиссия ввод USD
+        from PN3.configs.feeslimits.constant import com_in_pr_r, com_in_f_r  # Комиссия ввод RUB
+        from PN3.configs.feeslimits.constant import limit_usd,limit_rub
 
 
         self.u_out_dep_prc = com_out_pr_u

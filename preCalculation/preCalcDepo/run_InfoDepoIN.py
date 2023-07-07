@@ -75,9 +75,9 @@ def info_RUB_to_DEPOSIT_buy_BTC_2var(class_info_in):
 if __name__ == '__main__':
 
     # Параметры
-    from deposit.feeslimits.constant import taker
-    from function.info.infocalc.depositCalcIN import InfoCalcToDep
-    from function.utilF import last_prices, current_price
+    from PN3.configs.feeslimits.constant import taker
+    from depositCalcIN import InfoCalcToDep
+    from PN3.function.utilF import last_prices, current_price
 
 
     # Комиссии при транзакции

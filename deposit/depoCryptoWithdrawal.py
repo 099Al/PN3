@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 
-'''Функции для расчета вывода крипты В RUB и USD'''
+'''Функции для расчета вывода крипты в RUB и USD'''
 
 
 from function.transacFunction import sellBTC

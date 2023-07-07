@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 
-import deposit.function.depoMoneyInOut as depof
-import function.exchangeFunction as exchf
+import PN3.deposit.depoMoneyInOut as depof
+import PN3.function.exchangeFunction as exchf
 
-import function.transacFunction as transf
+import PN3.function.transacFunction as transf
 
 #dtime = unix_to_date(p.get('timestamp'))
 
@@ -22,8 +22,8 @@ class InfoCalcToDep():
 
     def __init__(self):
 
-        from deposit.feeslimits.constant import com_in_pr_u ,com_in_f_u #Комиссия ввод USD
-        from deposit.feeslimits.constant import com_in_pr_r ,com_in_f_r #Комиссия ввод RUB
+        from PN3.configs.feeslimits.constant import com_in_pr_u ,com_in_f_u #Комиссия ввод USD
+        from PN3.configs.feeslimits.constant import com_in_pr_r ,com_in_f_r #Комиссия ввод RUB
 
         # Комиссия на Ввод USD
         self.u_dep_prc = com_in_pr_u

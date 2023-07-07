@@ -31,7 +31,7 @@ def sellUSD_revers(r, bank_buy):
 def buyUSD_revers(u, bank_sell):
     if(bank_sell==0):
         print('Курс не задан')
-        return r
+        return None
     r = u*bank_sell
     r= round(r,2)
     return r

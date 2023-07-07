@@ -36,3 +36,6 @@ def history(X,Y):
     return data
 
 
+if __name__ == '__main__':
+    print (lastprice('UTS','BTC'))
+

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import api.data as cexdata
+import PN3.api.data as cexdata
 
 #Последняя цена
 def last_prices(base='BTC',quote='USD',delta_price=0):
@@ -25,6 +25,5 @@ def current_price(base='BTC',quote='USD'):
 
 
 if  __name__ == '__main__':
-
     print(current_price(base='BTC',quote='USD')['bids'])
     print(current_price(base='BTC',quote='USD')['asks'])

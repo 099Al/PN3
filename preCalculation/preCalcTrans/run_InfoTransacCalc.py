@@ -2,7 +2,7 @@
 
 #Параметры для установки ордера на покупку
 def infoParametersToBuyBTC(price,x):
-    from  function.transacFunction import maxBTC
+    from  PN3.function.transacFunction import maxBTC
     step = 10
     btc_n = maxBTC(x, price)
     print('BTC_max_0=', btc_n, 'price=', price)
@@ -16,7 +16,7 @@ def infoParametersToBuyBTC(price,x):
 
 #Параметры для установки ордера на продажу
 def infoParametersToSellBTC(btc,price,mk_tk,taker):
-    from function.transacFunction import presellBTC,sellBTC
+    from PN3.function.transacFunction import presellBTC,sellBTC
 
     step=10
 
@@ -36,7 +36,7 @@ def infoParametersToSellBTC(btc,price,mk_tk,taker):
 #Изменение BTC при продаже по текущей цене и покупке по новой
 def infoDeltaBTC(btc,price_to_sell,price_exp_to_buy,mk_tk,taker):
 
-    from function.calcDeltas import deltaBTC
+    from PN3.function.calcDeltas import deltaBTC
 
     dBTC = deltaBTC(btc,price_to_sell,price_exp_to_buy,mk_tk)
     dBTC1 = deltaBTC(btc, price_to_sell, price_exp_to_buy, taker)
@@ -48,7 +48,7 @@ def infoDeltaBTC(btc,price_to_sell,price_exp_to_buy,mk_tk,taker):
 
 
 def infoDeltaX(x0,price_to_buy,price_exp_to_sell,mk_tk):
-    from function.calcDeltas import deltaX
+    from PN3.function.calcDeltas import deltaX
 
     dx = deltaX(x0,price_to_buy,price_exp_to_sell,mk_tk)['dx']
     print()
@@ -60,7 +60,7 @@ def infoDeltaX(x0,price_to_buy,price_exp_to_sell,mk_tk):
 
 #Продать сейчас BTC и найти цену, по которой можно получить btc_exp
 def infoExpPrice_sellBTC0_buyBTC(btc0, current_price, btc_expected,commis):
-    from function.calcDeltas import priceForExpectBTC
+    from PN3.function.calcDeltas import priceForExpectBTC
 
     r = priceForExpectBTC(btc0, current_price, btc_expected,commis)
 
@@ -75,7 +75,7 @@ def infoExpPrice_sellBTC0_buyBTC(btc0, current_price, btc_expected,commis):
 
 #Купить BTC  на X. Найти цену, по которой продать BTC для X
 def infoExpPrice_buyBTC_sellBTC(x0,current_price,x_expected,commis):
-    from function.calcDeltas import priceForExpectX
+    from PN3.function.calcDeltas import priceForExpectX
 
     r = priceForExpectX(x0,current_price,x_expected,commis)
 
@@ -87,7 +87,7 @@ def infoExpPrice_buyBTC_sellBTC(x0,current_price,x_expected,commis):
 
 #Поиск цены для покупки BTC0
 def infoExpPrice_buyBTC(X, btc_exp):
-    from function.transacFunction import priceForBuyBTC
+    from PN3.function.transacFunction import priceForBuyBTC
 
     p = priceForBuyBTC(btc_exp, X)
 
@@ -95,7 +95,7 @@ def infoExpPrice_buyBTC(X, btc_exp):
     print('Цена должна снизиться до', p)
 
 def infoExpPrice_sellBTC(x_exp, btc, commis):
-    from function.transacFunction import priceForSellBTC
+    from PN3.function.transacFunction import priceForSellBTC
 
     # продажа имеющихся btc
     p_exp = priceForSellBTC(x_exp, btc, commis)
@@ -110,8 +110,8 @@ def infoExpPrice_sellBTC(x_exp, btc, commis):
 if __name__ == '__main__':
 
     # Параметры
-    from deposit.feeslimits.constant import mk_tk,taker
-    from function.utilF import last_prices,current_price
+    from PN3.configs.feeslimits.constant import mk_tk,taker
+    from PN3.function.utilF import last_prices,current_price
 
     # Комиссии при транзакции
     mk_tk_usd = mk_tk

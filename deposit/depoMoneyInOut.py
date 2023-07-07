@@ -35,5 +35,5 @@ def Xdepo_for_Xout(Xout,percent,fix):
 if __name__ == '__main__':
 
     #r = X_to_DEPO(75.19, 2.99, 0)
-    r= Xdepo_for_Xout(1000,3,50)
+    r = Xdepo_for_Xout(1000,3,50)
     print(r)
