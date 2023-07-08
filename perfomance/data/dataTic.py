@@ -55,7 +55,7 @@ def f_data_tic_imitation(connect, datetm):
 
 
 # Поиск последнего tid в таблице с историей tik
-def his_last_tik(connect):
+def hist_last_tik(connect):
     curr = connect.cursor()
     sql = "SELECT MAX(tid) FROM "+cex_history_tbl
     res = curr.execute(sql)

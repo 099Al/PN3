@@ -9,7 +9,7 @@ import time
 from datetime import datetime
 
 from perfomance.data.dataTic import *
-from perfomance.entityes.TikQueue import TikQueue
+from perfomance.data.TikQueue import TikQueue
 
 from perfomance.order.checkOrders import checkOrder
 
