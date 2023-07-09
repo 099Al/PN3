@@ -26,6 +26,6 @@ print(signature)
 
 if __name__ == '__main__':
     print(1)
-    dt = datetime.datetime.now()
+    dt = datetime.now()
     print(dt)
 

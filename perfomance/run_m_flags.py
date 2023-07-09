@@ -8,7 +8,7 @@
 import time
 from datetime import datetime
 
-from perfomance.data.dataTic import *
+from emulatorApi.dataTic import *
 from perfomance.data.TikQueue import TikQueue
 
 from perfomance.order.checkOrders import checkOrder
@@ -18,7 +18,7 @@ import perfomance.loging.logAction as log
 from algorithms.orders import ActiveOrders
 from perfomance.balance.balance import DepoBalance
 
-from api.cexio import Api
+from api.cexioApi import Api
 
 # Константы
 
