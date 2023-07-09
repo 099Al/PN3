@@ -8,7 +8,7 @@
 import time
 from datetime import datetime
 
-from emulatorApi.dataTic import *
+from emulatorApi.queriesIm import *
 from perfomance.data.TikQueue import TikQueue
 
 from perfomance.order.checkOrders import checkOrder

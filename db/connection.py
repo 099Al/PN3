@@ -5,53 +5,21 @@ import sys
 
 import sqlite3
 
-import configparser
-
-#from PN3.configs import config
+from configs import config
 
 
-'''
-def getConnect():
-    db_path = config.getPathDB()
-    conn = sqlite3.connect(db_path)
-    return conn
+db_name = config.DB__DB_NAME
 
-
-def closeConnect(connect):
-    connect.close()
-
-'''
-
-conf_data = configparser.ConfigParser()
-conf_data.read('../configs/config.ini')
-db_name = conf_data['DB']['DB_NAME']
-
-
-def getPathDB(dir=None):
-    if dir == None:
-        basedir = os.path.abspath(os.path.dirname(__file__))
-    else:
-        basedir = dir
-    path = os.path.join(basedir, f'../{db_name}')
-    print(basedir)
-    return path
-
-
-class DBConnect():
-
-    conn = None
-
+class DBConnect:
     def getConnect(self):
-        if (DBConnect.conn==None):
-            db_path = getPathDB()
-            DBConnect.conn = sqlite3.connect(db_path)
-            return DBConnect.conn
-        else:
-            return DBConnect.conn
-
+        basedir = os.path.abspath(os.path.dirname(__file__))
+        db_path = os.path.join(basedir, f'../{db_name}')
+        conn = sqlite3.connect(db_path)
+        return conn
 
     def closeConnect(self,connect):
         connect.close()
+
 
 
     def check_connect(self):
@@ -63,11 +31,16 @@ class DBConnect():
         print('version:',res.fetchone()[0])
         conn.close()
 
+
+
+
 if __name__ == '__main__':
 
     DBConnect().check_connect()
 
-    print(conf_data['DB']['DB_NAME'])
+
+
+
 
 
     '''

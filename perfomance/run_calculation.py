@@ -1,11 +1,15 @@
 from datetime import datetime
+import configparser
+
 from data.data import get_new_data
 
-import configparser
 
 MODE = 'TEST'
 t_start = '2023-07-05 12:30:01'
 time_step = 120
+
+
+valid_pairs = ['BTC/USD']
 
 
 if __name__ == '__main__':
@@ -20,7 +24,6 @@ if __name__ == '__main__':
 
 
 
-
     n=0
     curr_unix_time=dt_unix_start
 
@@ -29,7 +32,7 @@ if __name__ == '__main__':
         curr_unix_time=curr_unix_time+period
 
 
-        get_new_data(MODE,'',curr_unix_time)
+        get_new_data(MODE,'BTC/USD',curr_unix_time,)
 
         #check flags
 
@@ -37,5 +40,5 @@ if __name__ == '__main__':
         #algorithms
 
 
-        if n>100:
+        if n>5:
             break
