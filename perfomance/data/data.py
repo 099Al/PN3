@@ -21,10 +21,7 @@ def get_new_data(mode,pair,curr_time=None):
         res = customApi.history(p1,p1)
 
         #save data into db
-        from db.connection import DBConnect
-        conn = DBConnect().getConnect()
-        qdb.save_history_tik(conn,res)
-        conn.close()
+        qdb.save_history_tik(res)
 
         #or save into Memory
 

@@ -4,6 +4,8 @@ import configparser
 from data.data import get_new_data
 
 
+
+
 MODE = 'TEST'
 t_start = '2023-07-05 12:30:01'
 time_step = 120
