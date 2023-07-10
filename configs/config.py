@@ -12,6 +12,9 @@ conf_data.read(path_config)
 
 
 DB__DB_NAME = conf_data['DB']['DB_NAME']
+DB__HISTORY_TABLE = conf_data['DB']['HISTORY_TABLE']
+SRC__SRC_HISTORY = conf_data['SRC']['SRC_HISTORY']
+
 
 
 if __name__ == '__main__':

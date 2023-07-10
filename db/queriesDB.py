@@ -2,13 +2,9 @@ from datetime import datetime
 
 from perfomance.cache.cacheData import DBValues
 
+from configs import config
 
-import configparser
-
-conf_data = configparser.ConfigParser()
-conf_data.read('../configs/config.ini')
-cex_history_tbl = conf_data['SRC']['SRC_HISTORY']
-queriesIm
+cex_history_tbl = config.DB__HISTORY_TABLE
 
 
 
@@ -23,22 +19,37 @@ def hist_last_tik(cursor):
 
     return m_tik
 
+#Оставить только новые данные в массиве
+def find_new_tiks(tik_list, h_last_tik):
+    f = filter(lambda x: x['tid'] > h_last_tik, tik_list)
+    return list(f)
 
-def save_history_tik(newTiks):
+
+
+def save_history_tik(tiks):
 
 
     from db.connection import DBConnect
     conn = DBConnect().getConnect()
     cursor = conn.cursor()
 
-    DBValues.last_history_tik = 1000
+    last_tik = hist_last_tik(cursor)
+    #or
+    #last_tik = DBValues.last_history_tik
 
-    return
+    newTiks = find_new_tiks(tiks,last_tik)
+    if not newTiks:   #empty list
+        conn.close()
+        return
 
-    curr = connect.cursor()
+    new_last_tik = max(newTiks, key= lambda x: x['tid'])['tid']
+    DBValues.last_history_tik = new_last_tik
+
+
+
     for x in newTiks:
         res = [(x['tid'],x['type'],x['date'],datetime.fromtimestamp(x['date']),x['amount'],x['price'])]
-        curr.executemany("INSERT INTO cex_history_tik (tid,type,unixdate,date,amount,price) VALUES (?,?,?,?,?,?)",res)
-    connect.commit()
+        cursor.executemany("INSERT INTO cex_history_tik (tid,type,unixdate,date,amount,price) VALUES (?,?,?,?,?,?)",res)
+    conn.commit()
 
     conn.close()

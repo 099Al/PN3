@@ -20,10 +20,10 @@ def get_new_data(mode,pair,curr_time=None):
 
         res = customApi.history(p1,p1)
 
-        #save data into db
+        #save data into db  #or save into Memory #Запись в cache реализовывать в функйии не отдельно
         qdb.save_history_tik(res)
 
-        #or save into Memory
+
 
 
 

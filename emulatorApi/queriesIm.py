@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 
-import configparser
+from configs import config
 
-conf_data = configparser.ConfigParser()
-conf_data.read('../configs/config.ini')
-cex_history_tbl = conf_data['SRC']['SRC_HISTORY']
+
+cex_history_tbl = config.SRC__SRC_HISTORY
 
 # имитация получения данных с CEX
 # Получение 1000 последних тиков на заданную дату
@@ -42,8 +41,6 @@ def f_history_tic_imitation(connect, curr_dttime):
                "WHERE  unixdate < '{dt}' " \
                "ORDER BY tid desc limit 1000"
     sql_2 = sql_2.format(dt=curr_dttime)
-
-    print(sql_2)
 
     r = curr.execute(sql_2)
     res = r.fetchall()
