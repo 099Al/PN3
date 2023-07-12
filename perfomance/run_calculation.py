@@ -39,8 +39,10 @@ if __name__ == '__main__':
         #check flags
 
 
-        #algorithms
+        #algorithms (set flags/ remove flags)
 
+        #set_flag -> return id order
+        #save order in db
 
         if n>5:
             break
