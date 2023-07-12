@@ -12,7 +12,7 @@ def get_new_data(mode,pair,curr_time=None):
 
 
     if mode == 'TEST':
-        from emulatorApi.customApi import CustomApi
+        from emulatorApi.publicApi import CustomApi
 
         #Делается запрос к источнику(либо к сайту, либо к эмулятору)
         customApi=CustomApi()
@@ -28,7 +28,7 @@ def get_new_data(mode,pair,curr_time=None):
 
 
     else:
-        from api.customApi import CustomApi
+        from api.publicApi import CustomApi
 
         customApi = CustomApi()
         res = customApi.history(p1,p2)

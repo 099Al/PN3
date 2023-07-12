@@ -15,9 +15,9 @@ PUBLIC_COMMANDS = {
     'currency_limits',
     'ticker',
     'last_price',
-    'last_prices',
+    # 'last_prices',
     'convert',
-    'price_stats',
+    # 'price_stats',
     'order_book',
     'trade_history'
 }
@@ -35,25 +35,34 @@ class Api:
 
     @property
     def __nonce(self):
+        """Всегда должна увеличиваться. Время оптимальный вариант"""
         return str(int(time.time() * 1000))
 
     def __signature(self, nonce):
+        """зависит от nonce, который всегда меняется, следовательно signature всегда должна меняться
+           зависит от api_key и secret_key
+        """
+
         message = nonce + self.username + self.api_key
         signature = hmac.new(bytearray(self.api_secret.encode('utf-8')), message.encode('utf-8'),
                              digestmod=hashlib.sha256).hexdigest().upper()
         return signature
 
-    def api_call(self, command, param=None, action=''):
+    def api_call(self, command, param=None, market=''):
         """
-        :param command: Query command for getting info
+        Если команда не public, тогда параметры передаются как есть
+        Если private, то добавляются key, signature в params
+
+        :param command: Query command for getting info   example:trade_history
         :type commmand: str
 
-        :param param: Extra options for query
+        :param param: Extra options for query  example: {}
         :type options: dict
 
         :return: JSON response from CEX.IO
         :rtype : dict
         """
+
         if param is None:
             param = {}
 
@@ -65,35 +74,27 @@ class Api:
                 'nonce': nonce
             })
 
-        request_url = (BASE_URL % command) + action
+        request_url = (BASE_URL % command) + market
+
         result = self.__post(request_url, param)
 
         return result
 
-    def last_price(self, market='BTC/USD'):
-        return self.api_call('last_price', None, market)
+    def __post(self, url, param):
 
-    def ticker(self, market='BTC/USD'):
-        """
-        :param market: String literal for the market (ex: BTC/ETH)
-        :type market: str
+        result = requests.post(url, data=param, headers={'User-agent': 'bot-' + self.username}).json()
+        return result
 
-        :return: Current values for given market in JSON
-        :rtype : dict
-        """
-        return self.api_call('ticker', None, market)
-
-    @property
-    def balance(self):
-        return self.api_call('balance')
-
-    @property
-    def get_myfee(self):
-        return self.api_call('get_myfee')
-
+    # PUBLIC COMMANDS
     @property
     def currency_limits(self):
         return self.api_call('currency_limits')
+
+    def ticker(self, market='BTC/USD'):
+        return self.api_call('ticker', None, market)
+
+    def last_price(self, market='BTC/USD'):
+        return self.api_call('last_price', None, market)
 
     def convert(self, amount=1, market='BTC/USD'):
         """
@@ -107,6 +108,20 @@ class Api:
         :rtype: dict
         """
         return self.api_call('convert', {'amnt': amount}, market)
+
+    def order_book(self, depth=1, market='BTC/USD'):
+        return self.api_call('order_book', None, market + '/?depth=' + str(depth))
+
+    def trade_history(self, market):
+        return self.api_call('trade_history', None, market)
+
+    # PRIVATE COMMANDS
+    # @property
+    def balance(self):
+        return self.api_call('balance')
+
+    def get_myfee(self):
+        return self.api_call('get_myfee')
 
     def open_orders(self, market):
         return self.api_call('open_orders', None, market)
@@ -167,12 +182,29 @@ class Api:
     def get_order(self, order_id):
         return self.api_call('get_order', {'id': order_id})
 
-    def order_book(self, depth=1, market='BTC/USD'):
-        return self.api_call('order_book', None, market + '/?depth=' + str(depth))
 
-    def trade_history(self, since=1, market='BTC/USD'):
-        return self.api_call('trade_history', None, market + '/?since=' + str(since))
+if __name__ == '__main__':
+    """
+    example
+    result = requests.post('https://cex.io/api/convert', data={'amnt': 1}, headers={'User-agent': 'bot-' + self.username}).json()
 
-    def __post(self, url, param):
-        result = requests.post(url, data=param, headers={'User-agent': 'bot-cex.io-' + self.username}).json()
-        return result
+    result = requests.post('https://cex.io/api/balance/', data={'key': 'api_key'
+                                       , 'signature': '3477A04...'
+                                       , 'nonce': '1689185788390'}
+                              , headers={'User-agent': 'bot-' + self.username}).json()
+
+    """
+
+    from configs import config
+
+    api = Api(config.API_USER, config.API_KEY, config.API_SECRET)
+
+    # test public
+    last_price = api.last_price()
+
+    # test private
+    balance = api.balance()
+
+
+    print(last_price)
+
