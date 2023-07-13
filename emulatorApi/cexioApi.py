@@ -128,7 +128,7 @@ class Api:
     def get_myfee(self):
         return self.api_call('get_myfee')
 
-    def open_orders(self, market):
+    def open_orders(self, market='BTC/USD'):
         return self.api_call('open_orders', None, market)
 
     def cancel_order(self, order_id):
@@ -178,8 +178,8 @@ class Api:
 
         return self.api_call('open_position', params, market)
 
-    def open_positions(self, market='BTC/USD'):
-        return self.api_call('open_positions', None, market)
+    def open_position(self, market='BTC/USD'):
+        return self.api_call('open_position', None, market)
 
     def close_position(self, position_id, market='BTC/USD'):
         return self.api_call('close_position', {'id': position_id}, market)
@@ -194,16 +194,7 @@ class Api:
 
 if __name__ == '__main__':
 
-    """
-    example
-    result = requests.post('https://cex.io/api/convert', data={'amnt': 1}, headers={'User-agent': 'bot-' + self.username}).json()
-    
-    result = requests.post('https://cex.io/api/balance/', data={'key': 'api_key'
-                                       , 'signature': '3477A04...'
-                                       , 'nonce': '1689185788390'}
-                              , headers={'User-agent': 'bot-' + self.username}).json()
-    
-    """
+
 
     from configs import config
 
@@ -214,9 +205,32 @@ if __name__ == '__main__':
 
     #test private
     balance = api.balance()
-
+    print(balance)
     #last_price = api.convert(1)
 
+    #buy_result = api.buy_limit_order(0.00065, 30501.9, 'BTC/USD')
+    #{'complete': False, 'id': '68789274177', 'time': 1689188414842, 'pending': '0.00065000', 'amount': '0.00065000', 'type': 'buy', 'price': '30501.9'}
+    #{'error': 'Error: Place order error: Insufficient funds.'}
+    #print(buy_result)
 
-    print(result)
+    #close = api.cancel_order(68789274177)
+    #true
+    #{'error': 'Error: Order not found'}
+    #print(close)
 
+
+    open = api.open_orders('BTC/USD')
+    #[{'id': '68789274177', 'time': '1689188414842', 'type': 'buy', 'price': '30501.9', 'amount': '0.00065000', 'pending': '0.00065000'}]
+    #[]
+    print(open)
+
+    """
+    example
+    result = requests.post('https://cex.io/api/convert', data={'amnt': 1}, headers={'User-agent': 'bot-' + self.username}).json()
+
+    result = requests.post('https://cex.io/api/balance/', data={'key': 'api_key'
+                                       , 'signature': '3477A04...'
+                                       , 'nonce': '1689185788390'}
+                              , headers={'User-agent': 'bot-' + self.username}).json()
+
+    """
