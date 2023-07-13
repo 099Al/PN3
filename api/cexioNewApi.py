@@ -1,27 +1,26 @@
 # -*- coding: utf-8 -*-
 
-"""
-    See https://cex.io/rest-api
-    copy cexio __init__ file from cexio package
-"""
 import hmac
 import hashlib
 import time
 import requests
 
-BASE_URL = 'https://cex.io/api/%s/'
+BASE_PUBLIC_URL = 'https://api.plus.cex.io/rest-public/%s'  #do not use / at the end
+BASE_PRIVATE_URL = 'https://api.plus.cex.io/rest/%s'
 
 PUBLIC_COMMANDS = {
-    'currency_limits',
-    'ticker',
-    'last_price',
-    #'last_prices',
-    'convert',
-    #'price_stats',
-    'order_book',
-    'trade_history'
+     'get_order_book'
+    ,'get_candles'
+    ,'get_trade_history'
+    ,'get_ticker'
+    ,'get_server_time'
+    ,'get_pairs_info'
+    ,'get_currencies_info'
+    ,'get_processing_info'
 }
 
+VALID_RESOLUTIONS = {"1m", "5m", "15m", "30m", "1h", "2h", "4h", "1d"}
+VALID_DATATYPE = {"bestAsk", "bestBid"}
 
 class Api:
     """
@@ -48,7 +47,7 @@ class Api:
                              digestmod=hashlib.sha256).hexdigest().upper()
         return signature
 
-    def api_call(self, command, param=None, market=''):
+    def api_call(self, command, param=None):
         """
         Если команда не public, тогда параметры передаются как есть
         Если private, то добавляются key, signature в params
@@ -66,36 +65,76 @@ class Api:
         if param is None:
             param = {}
 
-        if command not in PUBLIC_COMMANDS:
+        if command in PUBLIC_COMMANDS:
+            headers = {
+                'Content-type': 'application/json',
+                'User-Agent': 'client'
+            }
+            request_url = (BASE_PUBLIC_URL % command)
+
+        else:
+
             nonce = self.__nonce
-            param.update({
-                'key': self.api_key,
-                'signature': self.__signature(nonce),
-                'nonce': nonce
-            })
+            signature = self.__signature(nonce)
+            headers = {
+                'X-AGGR-KEY': this.apiKey,
+                'X-AGGR-TIMESTAMP': timestamp,
+                'X-AGGR-SIGNATURE': signature,
+                'Content-Type': 'application/json',
+                'User-Agent': 'client'
+            }
 
-        request_url = (BASE_URL % command) + market
+            request_url = (BASE_PRIVATE_URL % command)
 
-        result = self.__post(request_url, param)
-
+        result = self.__post(request_url,param,headers)
 
         return result
 
-    def __post(self, url, param):
-
-        result = requests.post(url, data=param, headers={'User-agent': 'bot-' + self.username}).json()
+    def __post(self, url, param, headers):
+        #print(url)
+        #print(param)
+        #print(headers)
+        result = requests.post(url, json=param, headers=headers).json()
         return result
 
 
-    #PUBLIC COMMANDS
-    @property
-    def currency_limits(self):
-        return self.api_call('currency_limits')
-    def ticker(self, market='BTC/USD'):
-        return self.api_call('ticker', None, market)
+    # PUBLIC COMMANDS
+    def currencies_info(self):
+        return self.api_call('get_currencies_info')
 
-    def last_price(self, market='BTC/USD'):
-        return self.api_call('last_price', None, market)
+    def candles(self,dataType,pair='BTC-USD',limit=None,resolution='1h',fromDT=None,toDT=None):
+
+        if dataType:
+            if dataType not in VALID_DATATYPE:
+                return {'Bad data Type'}
+
+        if resolution:
+            if resolution not in VALID_RESOLUTIONS:
+                return {'Not valid resolution'}
+
+        param = {
+            "pair": pair,
+            "fromISO": fromDT,
+            "toISO": toDT,
+           # "limit": limit,
+            "dataType": dataType,
+            "resolution": resolution
+        }
+
+        return self.api_call('get_candles',param)
+
+    def trade_history(self,pair='BTC-USD'):
+
+        pair = pair.replace(',','-')
+
+        param = {'pair':pair}
+        return self.api_call('get_trade_history', param)
+
+
+
+
+
+
 
     def convert(self, amount=1, market='BTC/USD'):
         """
@@ -110,27 +149,20 @@ class Api:
         """
         return self.api_call('convert', {'amnt': amount}, market)
 
-
     def order_book(self, depth=1, market='BTC/USD'):
         return self.api_call('order_book', None, market + '/?depth=' + str(depth))
 
-    def trade_history(self,market):
-        return self.api_call('trade_history', None, market)
 
 
-
-
-
-
-    #PRIVATE COMMANDS
-    #@property
+    # PRIVATE COMMANDS
+    # @property
     def balance(self):
         return self.api_call('balance')
 
     def get_myfee(self):
         return self.api_call('get_myfee')
 
-    def open_orders(self, market='BTC/USD'):
+    def open_orders(self, market):
         return self.api_call('open_orders', None, market)
 
     def cancel_order(self, order_id):
@@ -180,8 +212,8 @@ class Api:
 
         return self.api_call('open_position', params, market)
 
-    def open_position(self, market='BTC/USD'):
-        return self.api_call('open_position', None, market)
+    def open_positions(self, market='BTC/USD'):
+        return self.api_call('open_positions', None, market)
 
     def close_position(self, position_id, market='BTC/USD'):
         return self.api_call('close_position', {'id': position_id}, market)
@@ -190,52 +222,29 @@ class Api:
         return self.api_call('get_order', {'id': order_id})
 
 
-
-
-
-
 if __name__ == '__main__':
-
-
+    from datetime import datetime
 
     from configs import config
 
+
+
     api = Api(config.API_USER, config.API_KEY, config.API_SECRET)
 
-    #test public
-    #last_price = api.last_price()
+    # test public
+    #currencies_info = api.currencies_info()
 
-    #test private
-    balance = api.balance()
-    print(balance)
-    #last_price = api.convert(1)
+    #fromDT = int(datetime.now().timestamp())-3600*2
+    #toDT = int(datetime.now().timestamp()) - 5
+    #currencies_info = api.candles(dataType='bestAsk',fromDT=fromDT,toDT=toDT)
+    #print(currencies_info)
 
-    #buy_result = api.buy_limit_order(0.00065, 30501.9, 'BTC/USD')
-    #{'complete': False, 'id': '68789274177', 'time': 1689188414842, 'pending': '0.00065000', 'amount': '0.00065000', 'type': 'buy', 'price': '30501.9'}
-    #{'error': 'Error: Place order error: Insufficient funds.'}
-    #print(buy_result)
+    trade_hist = api.trade_history()
+    print(trade_hist)
 
-    #close = api.cancel_order(68789274177)
-    #true
-    #{'error': 'Error: Order not found'}
-    #print(close)
+    # test private
+    #balance = api.balance()
 
 
-    #open = api.open_orders('BTC/USD')
-    #[{'id': '68789274177', 'time': '1689188414842', 'type': 'buy', 'price': '30501.9', 'amount': '0.00065000', 'pending': '0.00065000'}]
-    #[]
-    #print(open)
 
-    #hist = api.trade_history('BTC/USD')
-    #print(hist)
 
-    """
-    example
-    result = requests.post('https://cex.io/api/convert', data={'amnt': 1}, headers={'User-agent': 'bot-' + self.username}).json()
-
-    result = requests.post('https://cex.io/api/balance/', data={'key': 'api_key'
-                                       , 'signature': '3477A04...'
-                                       , 'nonce': '1689185788390'}
-                              , headers={'User-agent': 'bot-' + self.username}).json()
-
-    """
