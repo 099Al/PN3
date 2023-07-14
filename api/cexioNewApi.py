@@ -4,6 +4,7 @@ import hmac
 import hashlib
 import time
 import requests
+import json
 
 BASE_PUBLIC_URL = 'https://api.plus.cex.io/rest-public/%s'  #do not use / at the end
 BASE_PRIVATE_URL = 'https://api.plus.cex.io/rest/%s'
@@ -32,17 +33,20 @@ class Api:
         self.api_key = api_key
         self.api_secret = api_secret
 
-    @property
-    def __nonce(self):
-        """Всегда должна увеличиваться. Время оптимальный вариант"""
-        return str(int(time.time() * 1000))
 
-    def __signature(self, nonce):
+    def __nonce(self,tmstamp=None):
+        """Всегда должна увеличиваться. Время оптимальный вариант"""
+        if tmstamp is None:
+            tm = time.time()
+        else:
+            tm=tmstamp
+        return str(int(tm * 1000))
+
+    def __signature(self, nonce,action,param):
         """зависит от nonce, который всегда меняется, следовательно signature всегда должна меняться
            зависит от api_key и secret_key
         """
-
-        message = nonce + self.username + self.api_key
+        message = action+nonce+json.dumps(param)
         signature = hmac.new(bytearray(self.api_secret.encode('utf-8')), message.encode('utf-8'),
                              digestmod=hashlib.sha256).hexdigest().upper()
         return signature
@@ -74,16 +78,18 @@ class Api:
 
         else:
 
-            nonce = self.__nonce
-            signature = self.__signature(nonce)
+            now_stamp = time.time()
+            print(now_stamp,type(now_stamp))
+            nonce = self.__nonce(now_stamp)
+            signature = self.__signature(nonce,command,param)
             headers = {
-                'X-AGGR-KEY': this.apiKey,
-                'X-AGGR-TIMESTAMP': timestamp,
+                'X-AGGR-KEY': self.api_key,
+                'X-AGGR-TIMESTAMP': str(now_stamp),
                 'X-AGGR-SIGNATURE': signature,
                 'Content-Type': 'application/json',
                 'User-Agent': 'client'
             }
-
+            print('nonce',nonce)
             request_url = (BASE_PRIVATE_URL % command)
 
         result = self.__post(request_url,param,headers)
@@ -156,8 +162,9 @@ class Api:
 
     # PRIVATE COMMANDS
     # @property
-    def balance(self):
-        return self.api_call('balance')
+    def account_status(self):
+        param = {"accountIds": []}
+        return self.api_call('get_my_account_status_v2',param)
 
     def get_myfee(self):
         return self.api_call('get_myfee')
@@ -239,12 +246,13 @@ if __name__ == '__main__':
     #currencies_info = api.candles(dataType='bestAsk',fromDT=fromDT,toDT=toDT)
     #print(currencies_info)
 
-    trade_hist = api.trade_history()
-    print(trade_hist)
+    #trade_hist = api.trade_history()
+    #print(trade_hist)
 
     # test private
     #balance = api.balance()
-
+    status = api.account_status()
+    print(status)
 
 
 
