@@ -5,6 +5,7 @@ import hashlib
 import time
 import requests
 import json
+import base64
 
 BASE_PUBLIC_URL = 'https://api.plus.cex.io/rest-public/%s'  #do not use / at the end
 BASE_PRIVATE_URL = 'https://api.plus.cex.io/rest/%s'
@@ -46,9 +47,12 @@ class Api:
         """зависит от nonce, который всегда меняется, следовательно signature всегда должна меняться
            зависит от api_key и secret_key
         """
-        message = action+nonce+json.dumps(param)
-        signature = hmac.new(bytearray(self.api_secret.encode('utf-8')), message.encode('utf-8'),
-                             digestmod=hashlib.sha256).hexdigest().upper()
+        message = action+str(nonce)+json.dumps(param)
+        #signature = hmac.new(bytearray(self.api_secret.encode('utf-8')),digestmod=hashlib.sha256).update(message.encode('utf-8'))
+        signature = hmac.new(bytearray(self.api_secret.encode('utf-8')), message.encode('utf-8'), digestmod=hashlib.sha256)
+        signature = signature.digest()
+        signature = base64.b64encode((signature)).decode('utf-8')
+        print('s',signature)
         return signature
 
     def api_call(self, command, param=None):
@@ -78,20 +82,22 @@ class Api:
 
         else:
 
-            now_stamp = time.time()
+            now_stamp = int(time.time())
             print(now_stamp,type(now_stamp))
-            nonce = self.__nonce(now_stamp)
-            signature = self.__signature(nonce,command,param)
+            signature = self.__signature(now_stamp,command,param)
             headers = {
                 'X-AGGR-KEY': self.api_key,
                 'X-AGGR-TIMESTAMP': str(now_stamp),
                 'X-AGGR-SIGNATURE': signature,
-                'Content-Type': 'application/json',
-                'User-Agent': 'client'
+                'Content-Type': 'application/json'
+                #'User-Agent': 'client'
             }
-            print('nonce',nonce)
+            print('nonce',now_stamp)
+            print('command',command)
+            print('param',param)
+            print(signature)
             request_url = (BASE_PRIVATE_URL % command)
-
+            print(request_url)
         result = self.__post(request_url,param,headers)
 
         return result
@@ -100,8 +106,9 @@ class Api:
         #print(url)
         #print(param)
         #print(headers)
-        result = requests.post(url, json=param, headers=headers).json()
-        return result
+        result = requests.post(url, json=param, headers=headers)
+        print('res',result)
+        return result.json()
 
 
     # PUBLIC COMMANDS
@@ -169,8 +176,8 @@ class Api:
     def get_myfee(self):
         return self.api_call('get_myfee')
 
-    def open_orders(self, market):
-        return self.api_call('open_orders', None, market)
+    def open_orders(self, params=None):
+        return self.api_call('get_my_orders', params)
 
     def cancel_order(self, order_id):
         return self.api_call('cancel_order', {'id': order_id})
@@ -252,6 +259,8 @@ if __name__ == '__main__':
     # test private
     #balance = api.balance()
     status = api.account_status()
+
+    #status = api.open_orders()
     print(status)
 
 

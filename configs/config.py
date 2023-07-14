@@ -15,8 +15,9 @@ DB__DB_NAME = conf_data['DB']['DB_NAME']
 DB__HISTORY_TABLE = conf_data['DB']['HISTORY_TABLE']
 SRC__SRC_HISTORY = conf_data['SRC']['SRC_HISTORY']
 
-
-relative_path_credentials = os.path.join(curr_dir,'credentials.ini')
+cred_path = 'E:\\'
+relative_path_credentials = os.path.join(cred_path,'credentials.ini')
+#relative_path_credentials = os.path.join(curr_dir,'credentials.ini')
 path_credentials = os.path.realpath(relative_path_credentials)
 conf_cred = configparser.ConfigParser()
 conf_cred.read(path_credentials)
