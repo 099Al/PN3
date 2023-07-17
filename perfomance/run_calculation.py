@@ -6,7 +6,7 @@ from data.data import get_new_data
 
 
 
-MODE = 'TEST'
+MODE = 'TEST'  #TRAID
 t_start = '2023-07-05 12:30:01'
 time_step = 120
 
@@ -34,15 +34,21 @@ if __name__ == '__main__':
         curr_unix_time=curr_unix_time+period
 
 
-        get_new_data(MODE,'BTC/USD',curr_unix_time,)
+        get_new_data(MODE,'BTC/USD',curr_unix_time)
 
-        #check flags
+        #check flags(MODE)
+        #В PROD делаем запрос(по id) и возвращаем результат?
+        #В TEST делаем запрос к im_table на промежутке от времени установки флага до данного запроса
+
+
+        # set_flag -> return id order
+        # save order in db
+
 
 
         #algorithms (set flags/ remove flags)
 
-        #set_flag -> return id order
-        #save order in db
+
 
         if n>5:
             break

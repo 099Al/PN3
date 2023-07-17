@@ -24,10 +24,7 @@ def get_new_data(mode,pair,curr_time=None):
         qdb.save_history_tik(res)
 
 
-
-
-
-    else:
+    if mode == 'TRAID':
         from api.publicApi import CustomApi
 
         customApi = CustomApi()
