@@ -36,7 +36,10 @@ if __name__ == '__main__':
 
         get_new_data(MODE,'BTC/USD',curr_unix_time)
 
+        #Делаем вычесления
+
         #check flags(MODE)
+
         #В PROD делаем запрос(по id) и возвращаем результат?
         #В TEST делаем запрос к im_table на промежутке от времени установки флага до данного запроса
 
