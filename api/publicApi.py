@@ -34,7 +34,7 @@ class CustomApi:
         data = json.loads(resource.text)
         return data
 
-    def history(self,X,Y):
+    def trade_history(self, X, Y):
         resource = requests.get("https://cex.io/api/trade_history/{0}/{1}".format(X,Y))
         data = json.loads(resource.text)
         return data
@@ -44,4 +44,5 @@ if __name__ == '__main__':
 
     api = CustomApi()
     print (api.lastprice('BTC','USD'))
+    print(api.trade_history('BTC','USD'))
 

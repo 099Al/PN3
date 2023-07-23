@@ -28,7 +28,7 @@ class CustomApi:
     def currentTime(self, value):
         self._currentTime = value
 
-    def history(self,X,Y):
+    def trade_history(self, X, Y):
         #Эмуляция запроса к сайту. Время запроса current_time
         #resource = requests.get("https://cex.io/api/trade_history/{0}/{1}".format(X,Y))
         #data = json.loads(resource.text)

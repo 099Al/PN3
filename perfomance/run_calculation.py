@@ -3,7 +3,7 @@ import configparser
 
 from data.data import get_new_data
 
-
+#CLASSIC
 
 
 MODE = 'TEST'  #TRAID
