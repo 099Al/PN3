@@ -2,12 +2,13 @@
 import glob
 import os
 import json
+from datetime import datetime
 import configparser
 
 from dateutil.parser import parser
 
-from PN3.db.connection import DBConnect
-from PN3.util.util_datetime import unix_to_date
+from db.connection import DBConnect
+from util.util_datetime import unix_to_date
 
 conf_data = configparser.ConfigParser()
 conf_data.read('../configs/config.ini')
@@ -96,7 +97,9 @@ def save_cex_history_add(folder_path, new_date=0):
     #Список файлов в директории
     cex_files = glob.glob(folder_path+"\*.txt")
 
-    new_cex_files = [x for x in cex_files if int(os.path.basename(x)[date_slice])>=int(new_date)]
+    new_cex_files = [x for x in cex_files if os.path.basename(x).startswith(PREFIX)]
+
+    new_cex_files = [x for x in new_cex_files if int(os.path.basename(x)[date_slice]) >= int(new_date)]
 
     dbconn = DBConnect()
     conn = dbconn.getConnect()
@@ -106,17 +109,29 @@ def save_cex_history_add(folder_path, new_date=0):
     for hist_file in new_cex_files:
 
         with open(hist_file,'r') as fhist:
-            lines = fhist.readlines()
+            content = fhist.read()
+
+            trades_ids = json.loads(content)
 
             data=[]
-            for line in lines:
-                x = json.loads(line)
-                line_x = ((x['tid'], x['type'], x['date'], unix_to_date(x['date']), x['amount'], x['price']))
+            for trade in trades_ids:
+
+                tid = trade['tid']
+                unixdate = int(trade['date'])
+                date = datetime.fromtimestamp(unixdate)
+                transaction = json.dumps(trade)
+
+                line_x = (tid, date, unixdate, transaction)  # row for insert
+
                 data.append(line_x)
 
-            cur.execute("DELETE FROM stg_cex_history_tik")
-            cur.executemany("INSERT INTO stg_cex_history_tik (tid,type,unixdate,date,amount,price) VALUES (?,?,?,?,?,?)",data)
-            cur.execute(f"INSERT OR IGNORE INTO {cex_history_tbl} SELECT DISTINCT * FROM stg_cex_history_tik")
+            cur.execute("DELETE FROM im_stg_cex_history_tik")
+            cur.executemany("INSERT INTO im_stg_cex_history_tik (tid,date,unixdate,trade_data) VALUES (?,?,?,?)", data)
+            cur.execute(f"""INSERT INTO im_cex_history_tik (tid,unixdate,date,trade_data) 
+                                        SELECT DISTINCT stg.tid,stg.unixdate,stg.date,stg.trade_data 
+                                        FROM im_stg_cex_history_tik as stg
+                                        LEFT JOIN im_cex_history_tik as trg ON stg.tid = trg.tid
+                                        where trg.tid is null """)
             conn.commit()
     dbconn.closeConnect(conn)
 
@@ -125,7 +140,8 @@ def save_cex_history_add(folder_path, new_date=0):
 
 
 if __name__ == '__main__':
-
+    PREFIX = 'v1_'
+    date_slice = slice(len(PREFIX),len(PREFIX) + 8)  # Часть файла с датой формирования. В названии файл должна быть дата формирования
 
     cur_path = os.getcwd()
     print(cur_path)
