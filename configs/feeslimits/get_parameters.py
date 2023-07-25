@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import api.publicApi as cexdata
+import api.publicApi_DEL as cexdata
 from db.connection import DBConnect
 import deposit.feeslimits.comission_db as fee
 

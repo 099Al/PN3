@@ -268,8 +268,10 @@ if __name__ == '__main__':
     #currencies_info = api.candles(dataType='bestAsk',fromDT=fromDT,toDT=toDT)
     #print(currencies_info)
 
-    #trade_hist = api.trade_history()
-    #print(trade_hist)
+    trade_hist = api.trade_history()
+    print(trade_hist)
+
+    exit()
 
     # test private
     #balance = api.balance()

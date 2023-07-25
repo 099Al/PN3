@@ -6,8 +6,10 @@ from data.data import get_new_data
 
 
 
-MODE = 'TEST'  #TRAID
-t_start = '2023-07-05 12:30:01'
+MODE = 'TEST'
+#MODE = 'TRAID'
+
+t_start = '2023-07-22 15:00:00'
 time_step = 120
 
 
@@ -15,6 +17,8 @@ valid_pairs = ['BTC/USD']
 
 
 if __name__ == '__main__':
+
+
 
     conf_data = configparser.ConfigParser()
     conf_data.read('../configs/config.ini')

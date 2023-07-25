@@ -12,13 +12,18 @@ def get_new_data(mode,pair,curr_time=None):
 
 
     if mode == 'TEST':
-        from emulatorApi.publicApi import CustomApi
+
+        from emulatorApi.cexioEmNewApi import emulatorApi
 
         #Делается запрос к источнику(либо к сайту, либо к эмулятору)
-        customApi=CustomApi()
-        customApi.currentTime=curr_time  #Вслучае эмуляции ставим время, в которое делается запрос
+        emApi = emulatorApi(curr_time)
+        #emApi.currentTime=curr_time  #Вслучае эмуляции ставим время, в которое делается запрос
 
-        res = customApi.history(p1,p1)
+        res = emApi.trade_history(f'{p1}-{p2}')
+        print(res)
+
+        exit()
+
 
         #save data into db  #or save into Memory #Запись в cache реализовывать в функйии не отдельно
         qdb.save_history_tik(res)
@@ -27,9 +32,9 @@ def get_new_data(mode,pair,curr_time=None):
     if mode == 'TRAID':
         from api.cexioNewApi import Api
 
-        api = Api()
+        api = Api(None,None,None)
 
-        res = api.trade_history(p1,p2)
+        res = api.trade_history(f'{p1}-{p2}')
 
         print('curr',res)
 
