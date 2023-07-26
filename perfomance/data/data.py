@@ -32,7 +32,7 @@ def get_new_data(mode,pair,curr_time=None):
     if mode == 'TRAID':
         from api.cexioNewApi import Api
 
-        api = Api(None,None,None)
+        api = Api(config.API_USER, config.API_KEY, config.API_SECRET)
 
         res = api.trade_history(f'{p1}-{p2}')
 
