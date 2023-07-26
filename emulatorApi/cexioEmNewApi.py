@@ -72,9 +72,9 @@ class emulatorApi:
     def trade_history(self,pair='BTC-USD'):
 
         cur = self.conn.cursor()
-        sel_res = cur.execute(f"SELECT trade_data FROM im_cex_history_tik where unixdate<= {self.unix_curr_time} limit 1000");
+        sel_res = cur.execute(f"SELECT trade_data FROM im_cex_history_tik where unixdate<= {self.unix_curr_time} order by unixdate desc limit 1000");
 
-        res = {'ok': 'ok', 'data': {'pageSize': 1000, 'trades': [x[0] for x in sel_res.fetchall()] }}
+        res = {'ok': 'ok', 'data': {'pageSize': 1000, 'trades': [ json.loads(x[0]) for x in sel_res.fetchall()] }}
 
 
         return res

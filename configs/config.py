@@ -23,9 +23,9 @@ path_credentials = os.path.realpath(relative_path_credentials)
 conf_cred = configparser.ConfigParser()
 conf_cred.read(path_credentials)
 
-API_USER = conf_cred['CREDENTIALS']['user']
-API_KEY = conf_cred['CREDENTIALS']['key']
-API_SECRET = conf_cred['CREDENTIALS']['secret']
+API_USER = None#conf_cred['CREDENTIALS']['user']
+API_KEY = None#conf_cred['CREDENTIALS']['key']
+API_SECRET = None#conf_cred['CREDENTIALS']['secret']
 
 if __name__ == '__main__':
     db_name = conf_data['DB']['DB_NAME']
