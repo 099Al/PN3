@@ -130,14 +130,17 @@ def save_cex_history_add(folder_path, new_date=0):
 
                 data.append(line_x)
 
-            data_rev = data.reverse()
+            #print(data[0:5])
+            data.reverse()
+            #print(data[0:5])
             cur.execute("DELETE FROM im_stg_cex_history_tik")
-            cur.executemany("INSERT INTO im_stg_cex_history_tik (tid,date,unixdate,trade_data) VALUES (?,?,?,?)",data_rev)
+            cur.executemany("INSERT INTO im_stg_cex_history_tik (tid,date,unixdate,trade_data) VALUES (?,?,?,?)",data)
             cur.execute(f"""INSERT INTO im_cex_history_tik (tid,unixdate,date,trade_data) 
                             SELECT DISTINCT stg.tid,stg.unixdate,stg.date,stg.trade_data 
                             FROM im_stg_cex_history_tik as stg
                             LEFT JOIN im_cex_history_tik as trg ON stg.tid = trg.tid
-                            where trg.tid is null """)
+                            where trg.tid is null 
+                            order by stg.unixdate desc""")
             conn.commit()
     dbconn.closeConnect(conn)
 
