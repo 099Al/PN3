@@ -37,7 +37,7 @@ if __name__ == '__main__':
         n=n+1
         curr_unix_time=curr_unix_time+period
 
-
+        curr_unix_time = 1690089409.298
         get_new_data(MODE,'BTC/USD',curr_unix_time)
 
         #Делаем вычесления
