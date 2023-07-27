@@ -43,6 +43,57 @@ queries_d ={
     order_type VARCHAR (10)   CHECK (order_type IN ('market', 'limit') ),
     sys_date   DATETIME
 )"""
+,'log_orders':"""CREATE TABLE log_orders (
+    activity   CHAR (15),
+    id         CHAR (20),
+    date       DATETIME,
+    unixdate   INTEGER,
+    base       CHAR (5),
+    quote      CHAR (5),
+    amount     DECIMAL (15, 8),
+    price      DECIMAL (15, 8),
+    total      DECIMAL (15, 8),
+    fee        DECIAML (15, 2),
+    side       CHAR (5),
+    expire     INTEGER,
+    full_traid TEXT,
+    alg        CHAR (20),
+    CONSTRAINT PK_ID_ACTIVITY PRIMARY KEY (
+        activity,
+        id
+    )
+)"""
+,'log_balance':"""CREATE TABLE log_balance (
+    date      DATETIME,
+    curr      CHAR (5),
+    oper_type CHAR (20),
+    amount    DECIMAL (15, 8),
+    alg_name  CHAR (20),
+    tid       CHAR (30) 
+)"""
+,'orders':"""CREATE TABLE orders (
+    id         CHAR (20),
+    date       DATETIME,
+    unixdate   INTEGER,
+    base       CHAR (5),
+    quote      CHAR (5),
+    amount     DECIMAL (15, 8),
+    price      DECIMAL (15, 8),
+    total      DECIMAL (15, 8),
+    fee        DECIAML (15, 2),
+    side       CHAR (5),
+    expire     INTEGER,
+    full_traid TEXT,
+    alg        CHAR (20),
+    CONSTRAINT PK_ID_ACTIVITY PRIMARY KEY (
+        id
+    ))"""
+,'balance':"""CREATE TABLE balance (
+    curr      CHAR (5),
+    amount    decimal(15,8),
+    reserved  decimal(15,8)
+    , CONSTRAINT PK_ID PRIMARY KEY (curr)
+)"""
 }
 #Очистка таблиц перед тестированием
 
