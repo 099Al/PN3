@@ -40,16 +40,22 @@ if __name__ == '__main__':
         curr_unix_time = 1690089409.298
         get_new_data(MODE,'BTC/USD',curr_unix_time)
 
-        #Делаем вычесления
+        #---Вычесления------------
+        #.....
+        # set_flag -> return id order
+        buy_req = api.buy_limit_order(0.00042277, 30100.0, 1)
+        # save order in db
 
+        #---вычисления------------
         #check flags(MODE)
+
+
 
         #В PROD делаем запрос(по id) и возвращаем результат?
         #В TEST делаем запрос к im_table на промежутке от времени установки флага до данного запроса
 
 
-        # set_flag -> return id order
-        # save order in db
+
 
 
 

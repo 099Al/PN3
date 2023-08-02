@@ -269,9 +269,7 @@ if __name__ == '__main__':
     #print(currencies_info)
 
     trade_hist = api.trade_history()
-    print(trade_hist)
 
-    exit()
 
     # test private
     #balance = api.balance()
