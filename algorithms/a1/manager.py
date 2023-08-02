@@ -11,6 +11,7 @@ def f_alg1():
         api = API_TEST
 
 
+
     values = calculations
 
     res = set (price,amount,side)
