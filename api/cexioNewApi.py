@@ -260,6 +260,12 @@ if __name__ == '__main__':
 
     api = Api(config.API_USER, config.API_KEY, config.API_SECRET)
 
+    buy_req = api.buy_limit_order(0.00042277, 28000.0, 1)
+
+    print(buy_req)
+
+    exit()
+
     # test public
     #currencies_info = api.currencies_info()
 
@@ -292,6 +298,10 @@ if __name__ == '__main__':
     #{'ok': 'ok', 'data': {'messageType': 'executionReport', 'clientId': 'up112344963', 'orderId': '114360', 'clientOrderId': '1689533488860', 'accountId': '', 'status': 'NEW', 'currency1': 'BTC', 'currency2': 'USD', 'side': 'BUY', 'executedAmountCcy1': '0.00000000', 'executedAmountCcy2': '0.00000000', 'requestedAmountCcy1': '0.00042277', 'requestedAmountCcy2': None, 'orderType': 'Limit', 'timeInForce': 'GTC', 'comment': None, 'executionType': 'New', 'executionId': '1689360312873_101_8153', 'transactTime': '2023-07-16T18:51:30.071Z', 'expireTime': None, 'effectiveTime': None, 'price': '30100.0', 'averagePrice': None, 'feeAmount': '0.00000000', 'feeCurrency': 'USD', 'clientCreateTimestamp': 1689533488860, 'serverCreateTimestamp': 1689533489970, 'lastUpdateTimestamp': 1689533490064}}
     #{'ok': 'ok', 'data': {'messageType': 'executionReport', 'clientId': 'up112344963', 'orderId': '114372', 'clientOrderId': '1689533832780', 'accountId': '', 'status': 'REJECTED', 'currency1': 'BTC', 'currency2': 'USD', 'side': 'BUY', 'executedAmountCcy1': '0.00000000', 'executedAmountCcy2': '0.00000000', 'requestedAmountCcy1': '0.00042277', 'requestedAmountCcy2': None, 'orderType': 'Limit', 'timeInForce': 'GTC', 'comment': None, 'executionType': 'Rejected', 'executionId': '1689360312346_100_7727', 'transactTime': '2023-07-16T18:57:14.241Z', 'expireTime': None, 'effectiveTime': None, 'price': '30100.0', 'averagePrice': None, 'feeAmount': None, 'feeCurrency': None, 'orderRejectReason': '{"code":403,"reason":"Insufficient funds"}', 'rejectCode': 403, 'rejectReason': 'Insufficient funds', 'clientCreateTimestamp': 1689533832780, 'serverCreateTimestamp': 1689533834141, 'lastUpdateTimestamp': 1689533834233}}
     #{'ok': 'ok', 'data': {'messageType': 'executionReport', 'clientId': 'up112344963', 'orderId': '114374', 'clientOrderId': '1689533870474', 'accountId': '', 'status': 'REJECTED', 'currency1': 'BTC', 'currency2': 'USD', 'side': 'BUY', 'executedAmountCcy1': '0.00000000', 'executedAmountCcy2': '0.00000000', 'requestedAmountCcy1': '0.00042277', 'requestedAmountCcy2': None, 'orderType': 'Limit', 'timeInForce': 'GTC', 'comment': None, 'executionType': 'Rejected', 'executionId': '1689360312873_101_8161', 'transactTime': '2023-07-16T18:57:51.698Z', 'expireTime': None, 'effectiveTime': None, 'price': '30100.0', 'averagePrice': None, 'feeAmount': None, 'feeCurrency': None, 'orderRejectReason': '{"code":403,"reason":"Insufficient funds"}', 'rejectCode': 403, 'rejectReason': 'Insufficient funds', 'clientCreateTimestamp': 1689533870474, 'serverCreateTimestamp': 1689533871582, 'lastUpdateTimestamp': 1689533871678}}
+
+    #
+    #2023-08-07 10:22  {'ok': 'ok', 'data': {'messageType': 'executionReport', 'clientId': 'up112344963', 'orderId': '159410', 'clientOrderId': '1691382131250', 'accountId': '', 'status': 'NEW', 'currency1': 'BTC', 'currency2': 'USD', 'side': 'BUY', 'executedAmountCcy1': '0.00000000', 'executedAmountCcy2': '0.00000000', 'requestedAmountCcy1': '0.00042277', 'requestedAmountCcy2': None, 'orderType': 'Limit', 'timeInForce': 'GTC', 'comment': None, 'executionType': 'New', 'executionId': '1691079661474_101_7342', 'transactTime': '2023-08-07T04:22:13.513Z', 'expireTime': None, 'effectiveTime': None, 'price': '29000.0', 'averagePrice': None, 'feeAmount': '0.00000000', 'feeCurrency': 'USD', 'clientCreateTimestamp': 1691382131250, 'serverCreateTimestamp': 1691382133405, 'lastUpdateTimestamp': 1691382133504}}
+    #2023-08-07 10:24  {'ok': 'ok', 'data': {'messageType': 'executionReport', 'clientId': 'up112344963', 'orderId': '159411', 'clientOrderId': '1691382230740', 'accountId': '', 'status': 'NEW', 'currency1': 'BTC', 'currency2': 'USD', 'side': 'BUY', 'executedAmountCcy1': '0.00000000', 'executedAmountCcy2': '0.00000000', 'requestedAmountCcy1': '0.00042277', 'requestedAmountCcy2': None, 'orderType': 'Limit', 'timeInForce': 'GTC', 'comment': None, 'executionType': 'New', 'executionId': '1691079661474_101_7345', 'transactTime': '2023-08-07T04:23:52.974Z', 'expireTime': None, 'effectiveTime': None, 'price': '28000.0', 'averagePrice': None, 'feeAmount': '0.00000000', 'feeCurrency': 'USD', 'clientCreateTimestamp': 1691382230740, 'serverCreateTimestamp': 1691382232820, 'lastUpdateTimestamp': 1691382232969}}
 
 
     #print(buy_req)

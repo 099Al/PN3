@@ -4,9 +4,9 @@ import configparser
 from data.data import get_new_data
 
 from configs import config
+import algorithms as algo
 
-
-MODE = 'TEST'
+MODE = config.MODE
 #MODE = 'TRAID'
 
 t_start = '2023-07-22 15:00:00'
@@ -43,6 +43,9 @@ if __name__ == '__main__':
         #---Вычесления------------
         #.....
         # set_flag -> return id order
+        algo.a1.manager.f_alg1(curr_unix_time)
+
+
         buy_req = api.buy_limit_order(0.00042277, 30100.0, 1)
         # save order in db
 

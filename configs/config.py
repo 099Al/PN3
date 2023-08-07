@@ -10,6 +10,7 @@ path_config = os.path.realpath(relative_path_config)
 conf_data = configparser.ConfigParser()
 conf_data.read(path_config)
 
+MODE = 'TEST'
 
 DB__DB_NAME = conf_data['DB']['DB_NAME']
 DB__HISTORY_TABLE = conf_data['DB']['HISTORY_TABLE']
@@ -23,9 +24,20 @@ path_credentials = os.path.realpath(relative_path_credentials)
 conf_cred = configparser.ConfigParser()
 conf_cred.read(path_credentials)
 
-API_USER = None#conf_cred['CREDENTIALS']['user']
-API_KEY = None#conf_cred['CREDENTIALS']['key']
-API_SECRET = None#conf_cred['CREDENTIALS']['secret']
+
+
+API_USER = None
+API_KEY = None
+API_SECRET = None
+
+
+API_USER = conf_cred['CREDENTIALS']['user']
+API_KEY = conf_cred['CREDENTIALS']['key']
+API_SECRET = conf_cred['CREDENTIALS']['secret']
+
+
+
+
 
 if __name__ == '__main__':
     db_name = conf_data['DB']['DB_NAME']

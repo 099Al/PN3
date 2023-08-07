@@ -6,6 +6,7 @@ import time
 import requests
 import json
 import base64
+from datetime import datetime
 
 
 from db.connection import DBConnect
@@ -31,7 +32,8 @@ class emulatorApi:
     """
     #conn=None
     #curr_time=0
-    def __init__(self,unix_curr_time):
+    def __init__(self,username,unix_curr_time,api_key=None, api_secret=None):
+        self.username = username
         self.unix_curr_time=unix_curr_time
         dbconn = DBConnect()
         self.conn = dbconn.getConnect()
@@ -153,26 +155,50 @@ class emulatorApi:
 
     def buy_limit_order(self, amount, price, clientOrderId=None, market='BTC/USD'):
 
+        """ко времени self.unix_curr_time добавляется несколько секунд.
+        Т.к. на самом деле, время транзакции происходит с задержкой"""
+
         pairs = market.split('/')
-        unix_dt = int(datetime.now().timestamp() * 1000)  #выводит по времени UTC+0
+        #unix_dt = int(datetime.now().timestamp() * 1000)  #выводит по времени UTC+0
 
-        params = {
-            "clientOrderId": f'{unix_dt}'
-            ,"currency1": pairs[0]
-            ,"currency2": pairs[1]
-            ,"side": "BUY"
-            ,"timestamp": unix_dt
-            ,"orderType": "Limit"
-            ,"timeInForce": "GTC"
-            ,"amountCcy1": amount
-            ,"price": price
-            #"comment": "v_overdraft_test"
-        }
 
-        #if clientOrderId is not None:
-        #    params.update({"clientOrderId":clientOrderId})
+        transactTime = datetime.utcfromtimestamp((self.unix_curr_time+2000) / 1000).strftime('%Y-%m-%dT%H:%M:%S.') + f'{(self.unix_curr_time+2000) % 1000:03d}Z'
 
-        return self.api_call('do_my_new_order',params)
+        from perfomance.cache.values import ValuesOrder
+        ValuesOrder.orderId = ValuesOrder.orderId + 1
+
+        !!!CHECK BALANCE
+
+        res = {'ok': 'ok', 'data': {'messageType': 'executionReport'
+                                    , 'clientId': self.username
+                                    , 'orderId': ValuesOrder.orderId
+                                    , 'clientOrderId': self.unix_curr_time
+                                    , 'accountId': ''
+                                    , 'status': 'NEW'
+                                    , 'currency1': pairs[0]
+                                    , 'currency2': pairs[1]
+                                    , 'side': 'BUY'
+                                    , 'executedAmountCcy1': '0.00000000'
+                                    , 'executedAmountCcy2': '0.00000000'
+                                    , 'requestedAmountCcy1': amount
+                                    , 'requestedAmountCcy2': None
+                                    , 'orderType': 'Limit'
+                                    , 'timeInForce': 'GTC'
+                                    , 'comment': None
+                                    , 'executionType': 'New'
+                                    , 'executionId':  f'{str(self.unix_curr_time)}_X_{ValuesOrder.orderId}'  #Просто число. Логика формирования не понятно. Но и не нужна
+                                    , 'transactTime': transactTime
+                                    , 'expireTime': None
+                                    , 'effectiveTime': None
+                                    , 'price': price
+                                    , 'averagePrice': None
+                                    , 'feeAmount': '0.00000000'
+                                    , 'feeCurrency': pairs[1]   #USD
+                                    , 'clientCreateTimestamp':  self.unix_curr_time
+                                    , 'serverCreateTimestamp': self.unix_curr_time+1000
+                                    , 'lastUpdateTimestamp':    self.unix_curr_time+10000}}
+
+        return res
 
     def cancel_order(self, clientOrderId):
 
@@ -192,10 +218,14 @@ class emulatorApi:
 
 if __name__ == '__main__':
     from datetime import datetime
-
     from configs import config
 
+    #api = Api()
 
+    #dt = datetime.fromtimestamp(1689533488)
+    dt = datetime.utcfromtimestamp(1689533488860/1000).strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+    dt2 = datetime.utcfromtimestamp(1689533488860 / 1000).strftime('%Y-%m-%dT%H:%M:%S.')+f'{1689533488860 % 1000:03d}Z'
 
-    api = Api()
-
+    formatted_datetime_with_milliseconds = dt[:-1] + f"{1689533488860 % 1000:03d}Z"
+    print(dt)
+    print(dt2)
