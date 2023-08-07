@@ -16,7 +16,24 @@ time_step = 120
 valid_pairs = ['BTC/USD']
 
 
+#init_balance
+init_btc = 0.0015
+init_usd = 100
+
+
 if __name__ == '__main__':
+
+    #INIT BALANCE
+    from db.connection import DBConnect
+    conn = DBConnect().getConnect()
+    cursor = conn.cursor()
+    cursor.execute('DELETE FROM BALANCE')
+    cursor.execute('INSERT INTO BALANCE (CURR,AMOUNT) VALUES(?,?)',('BTC',init_btc))
+    cursor.execute('INSERT INTO BALANCE (CURR,AMOUNT) VALUES(?,?)',('USD',init_usd))
+    conn.commit()
+    conn.close()
+
+    exit()
 
 
 
