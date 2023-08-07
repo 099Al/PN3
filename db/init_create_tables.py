@@ -35,34 +35,50 @@ queries_d ={
 ,'active_orders':
     """CREATE TABLE active_orders (
     id         INTEGER        PRIMARY KEY,
+    date       DATETIME,
     unix_date  INTEGER,
-    pair       VARCHAR (20)   CHECK (pair IN ('BTC/USD') ),
-    type       VARCHAR (5)    CHECK (type IN ('sell', 'buy') ),
+    base       CHAR (5),
+    quote      CHAR (5),
+    side       VARCHAR (5)    CHECK (side IN ('sell', 'buy') ),
     amount     DOUBLE (20, 8),
     price      DOUBLE (20, 4),
+    reserved   DOUBLE (20, 4),
     order_type VARCHAR (10)   CHECK (order_type IN ('market', 'limit') ),
+    full_traid TEXT,
+    algo        CHAR (20),
     sys_date   DATETIME
 )"""
 ,'log_orders':"""CREATE TABLE log_orders (
-    activity   CHAR (15),
+    activity   CHAR (15)  CHECK (activity IN ('ACTIVE','CANCELED','DONE','REJECTED') ),
     id         CHAR (20),
+    side       CHAR (5)  CHECK (side IN ('sell', 'buy') ),
     date       DATETIME,
     unixdate   INTEGER,
+    upd_date   DATETIME,
     base       CHAR (5),
     quote      CHAR (5),
     amount     DECIMAL (15, 8),
     price      DECIMAL (15, 8),
     total      DECIMAL (15, 8),
     fee        DECIAML (15, 2),
-    side       CHAR (5),
+    order_type VARCHAR (10)   CHECK (order_type IN ('market', 'limit') ),
     expire     INTEGER,
     full_traid TEXT,
-    alg        CHAR (20),
+    algo        CHAR (20),
     CONSTRAINT PK_ID_ACTIVITY PRIMARY KEY (
         activity,
         id
     )
 )"""
+
+
+,'balance':"""CREATE TABLE balance (
+    curr      CHAR (5),
+    amount    decimal(15,8),
+    reserved  decimal(15,8)
+    , CONSTRAINT PK_ID PRIMARY KEY (curr)
+)"""
+
 ,'log_balance':"""CREATE TABLE log_balance (
     date      DATETIME,
     curr      CHAR (5),
@@ -71,29 +87,7 @@ queries_d ={
     alg_name  CHAR (20),
     tid       CHAR (30) 
 )"""
-,'orders':"""CREATE TABLE orders (
-    id         CHAR (20),
-    date       DATETIME,
-    unixdate   INTEGER,
-    base       CHAR (5),
-    quote      CHAR (5),
-    amount     DECIMAL (15, 8),
-    price      DECIMAL (15, 8),
-    total      DECIMAL (15, 8),
-    fee        DECIAML (15, 2),
-    side       CHAR (5),
-    expire     INTEGER,
-    full_traid TEXT,
-    alg        CHAR (20),
-    CONSTRAINT PK_ID_ACTIVITY PRIMARY KEY (
-        id
-    ))"""
-,'balance':"""CREATE TABLE balance (
-    curr      CHAR (5),
-    amount    decimal(15,8),
-    reserved  decimal(15,8)
-    , CONSTRAINT PK_ID PRIMARY KEY (curr)
-)"""
+
 }
 #Очистка таблиц перед тестированием
 
