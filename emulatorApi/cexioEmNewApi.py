@@ -166,7 +166,7 @@ class emulatorApi:
         from db.connection import DBConnect
         conn = DBConnect().getConnect()
         cursor = conn.cursor()
-        res = cursor.execute('SELECT AMOUNT FROM BALANCE WHERE CURR = ?',(p2,))
+        res = cursor.execute('SELECT AMOUNT FROM IM_BALANCE WHERE CURR = ?',(p2,))
         balance_sum = res.fetchone()[0]
 
 
@@ -212,13 +212,11 @@ class emulatorApi:
                                         , 'lastUpdateTimestamp':    self.unix_curr_time+10000}}
 
             #change balance
-
             new_balance = balance_sum - need_amt
 
-            cursor.execute('UPDATE BALANCE SET AMOUNT = ?, RESERVED = ? WHERE CURR = ?', (new_balance,need_amt,p2))
+            cursor.execute('UPDATE IM_BALANCE SET AMOUNT = ?, RESERVED = ? WHERE CURR = ?', (new_balance,need_amt,p2))
 
-            !!!
-            #add to balance log
+
 
             conn.comit()
 

@@ -1,7 +1,24 @@
 #Создание таблиц в Базе
 
 queries_d ={
-'history_tik':
+  'im_history_tik':
+    """CREATE TABLE im_cex_history_tik (
+    tid      BIGINT          PRIMARY KEY ASC ON CONFLICT ROLLBACK,
+    type     CHAR (6),
+    unixdate BIGINT,
+    date     DATETIME,
+    amount   DECIMAL (11, 8),
+    price    DECIMAL (9, 2) 
+)"""
+
+,'im_balance':"""CREATE TABLE balance (
+    curr      CHAR (5),
+    amount    decimal(15,8),
+    reserved  decimal(15,8)
+    , CONSTRAINT PK_ID PRIMARY KEY (curr)
+)"""
+
+,'history_tik':
     """CREATE TABLE cex_history_tik (
     tid        BIGINT          PRIMARY KEY ASC ON CONFLICT ROLLBACK,
     type       CHAR (6),
@@ -10,16 +27,6 @@ queries_d ={
     amount     DECIMAL (11, 8),
     price      DECIMAL (9, 2),
     sys_insert DATETIME
-)"""
-
-, 'im_history_tik':
-    """CREATE TABLE im_cex_history_tik (
-    tid      BIGINT          PRIMARY KEY ASC ON CONFLICT ROLLBACK,
-    type     CHAR (6),
-    unixdate BIGINT,
-    date     DATETIME,
-    amount   DECIMAL (11, 8),
-    price    DECIMAL (9, 2) 
 )"""
 
 ,'stg_history_tik':

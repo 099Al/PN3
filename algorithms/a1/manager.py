@@ -35,6 +35,15 @@ def f_alg1(unix_curr_time):
     res = api.buy_limit_order(amount=0.00042277, price=3000)
     print(res)
 
+    !!!
+    # add to balance log
+    from db.connection import DBConnect
+    conn = DBConnect().getConnect()
+    cursor = conn.cursor()
+    res = cursor.execute()
+    conn.comit()
+
+
     #api.buy_limit_order(amount=0.00042277, price=3000)
     #save buy order to DB  db/queriesDB.py
 
