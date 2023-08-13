@@ -11,12 +11,14 @@ queries_d ={
     price    DECIMAL (9, 2) 
 )"""
 
-,'im_balance':"""CREATE TABLE balance (
+,'im_balance':"""CREATE TABLE im_balance (
     curr      CHAR (5),
     amount    decimal(15,8),
     reserved  decimal(15,8)
-    , CONSTRAINT PK_ID PRIMARY KEY (curr)
-)"""
+    , CONSTRAINT PK_ID PRIMARY KEY (curr));
+   insert into im_balance valuest('BTC',0,0);
+   insert into im_balance valuest('USD',0,0);
+    """
 
 ,'history_tik':
     """CREATE TABLE cex_history_tik (
@@ -56,12 +58,11 @@ queries_d ={
     sys_date   DATETIME
 )"""
 ,'log_orders':"""CREATE TABLE log_orders (
-    activity   CHAR (15)  CHECK (activity IN ('ACTIVE','CANCELED','DONE','REJECTED') ),
+    status   CHAR (15)  CHECK (status IN ('NEW','CANCELED','DONE','REJECTED') ),
     id         CHAR (20),
-    side       CHAR (5)  CHECK (side IN ('sell', 'buy') ),
+    side       CHAR (5)  CHECK (side IN ('SELL', 'BUY') ),
     date       DATETIME,
     unixdate   INTEGER,
-    upd_date   DATETIME,
     base       CHAR (5),
     quote      CHAR (5),
     amount     DECIMAL (15, 8),
@@ -72,8 +73,8 @@ queries_d ={
     expire     INTEGER,
     full_traid TEXT,
     algo        CHAR (20),
-    CONSTRAINT PK_ID_ACTIVITY PRIMARY KEY (
-        activity,
+    CONSTRAINT PK_ID_STATUS PRIMARY KEY (
+        status,
         id
     )
 )"""
@@ -88,12 +89,15 @@ queries_d ={
 
 ,'log_balance':"""CREATE TABLE log_balance (
     date      DATETIME,
+    unix_date INTEGER,
     curr      CHAR (5),
-    oper_type CHAR (20),
     amount    DECIMAL (15, 8),
-    alg_name  CHAR (20),
-    tid       CHAR (30) 
-)"""
+    algo_name  CHAR (20),
+    tid       CHAR (30),
+    activity CHAR (20)   CHECK (activity IN ('BUY', 'SELL','DONE','CANCELED') ),
+    sys_date DATETIME
+    )
+    """
 
 }
 #Очистка таблиц перед тестированием

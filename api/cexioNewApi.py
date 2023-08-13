@@ -190,13 +190,14 @@ class Api:
 
         return self.api_call('do_my_new_order', params)
 
-    def sell_limit_order(self, amount, price, market='BTC/USD',clientOrderId=None):
+    def sell_limit_order(self, amount, price,clientOrderId=None,market='BTC/USD'):
 
         pairs = market.split('/')
-        unix_dt = int(datetime.now().timestamp())  #выводит по времени UTC+0
+        unix_dt = int(datetime.now().timestamp()* 1000)  #выводит по времени UTC+0
 
         params = {
-            "currency1": pairs[0]
+            "clientOrderId": f'{unix_dt}'
+            ,"currency1": pairs[0]
             ,"currency2": pairs[1]
             ,"side": "SELL"
             ,"timestamp": unix_dt
@@ -207,8 +208,8 @@ class Api:
             #"comment": "v_overdraft_test"
         }
 
-        if clientOrderId is not None:
-            params.update({"clientOrderId":clientOrderId})
+        #if clientOrderId is not None:
+        #    params.update({"clientOrderId":clientOrderId})
 
         return self.api_call('do_my_new_order',params)
 
@@ -260,7 +261,9 @@ if __name__ == '__main__':
 
     api = Api(config.API_USER, config.API_KEY, config.API_SECRET)
 
-    buy_req = api.buy_limit_order(0.00042277, 28000.0, 1)
+    buy_req = api.buy_limit_order(0.0005, 28000.0, 1)
+
+    #sell_req = api.sell_limit_order(0.0005, 300000.0, 1)
 
     print(buy_req)
 
@@ -303,6 +306,9 @@ if __name__ == '__main__':
     #2023-08-07 10:22  {'ok': 'ok', 'data': {'messageType': 'executionReport', 'clientId': 'up112344963', 'orderId': '159410', 'clientOrderId': '1691382131250', 'accountId': '', 'status': 'NEW', 'currency1': 'BTC', 'currency2': 'USD', 'side': 'BUY', 'executedAmountCcy1': '0.00000000', 'executedAmountCcy2': '0.00000000', 'requestedAmountCcy1': '0.00042277', 'requestedAmountCcy2': None, 'orderType': 'Limit', 'timeInForce': 'GTC', 'comment': None, 'executionType': 'New', 'executionId': '1691079661474_101_7342', 'transactTime': '2023-08-07T04:22:13.513Z', 'expireTime': None, 'effectiveTime': None, 'price': '29000.0', 'averagePrice': None, 'feeAmount': '0.00000000', 'feeCurrency': 'USD', 'clientCreateTimestamp': 1691382131250, 'serverCreateTimestamp': 1691382133405, 'lastUpdateTimestamp': 1691382133504}}
     #2023-08-07 10:24  {'ok': 'ok', 'data': {'messageType': 'executionReport', 'clientId': 'up112344963', 'orderId': '159411', 'clientOrderId': '1691382230740', 'accountId': '', 'status': 'NEW', 'currency1': 'BTC', 'currency2': 'USD', 'side': 'BUY', 'executedAmountCcy1': '0.00000000', 'executedAmountCcy2': '0.00000000', 'requestedAmountCcy1': '0.00042277', 'requestedAmountCcy2': None, 'orderType': 'Limit', 'timeInForce': 'GTC', 'comment': None, 'executionType': 'New', 'executionId': '1691079661474_101_7345', 'transactTime': '2023-08-07T04:23:52.974Z', 'expireTime': None, 'effectiveTime': None, 'price': '28000.0', 'averagePrice': None, 'feeAmount': '0.00000000', 'feeCurrency': 'USD', 'clientCreateTimestamp': 1691382230740, 'serverCreateTimestamp': 1691382232820, 'lastUpdateTimestamp': 1691382232969}}
 
+    #sell
+    #{'ok': 'ok', 'data': {'messageType': 'executionReport', 'clientId': 'up112344963', 'orderId': '167916', 'clientOrderId': '1691909475451', 'accountId': '', 'status': 'NEW', 'currency1': 'BTC', 'currency2': 'USD', 'side': 'SELL', 'executedAmountCcy1': '0.00000000', 'executedAmountCcy2': '0.00000000', 'requestedAmountCcy1': '0.00050000', 'requestedAmountCcy2': None, 'orderType': 'Limit', 'timeInForce': 'GTC', 'comment': None, 'executionType': 'New', 'executionId': '1691752724241_100_3167', 'transactTime': '2023-08-13T06:51:16.901Z', 'expireTime': None, 'effectiveTime': None, 'price': '30000.0', 'averagePrice': None, 'feeAmount': '0.00000000', 'feeCurrency': 'USD', 'clientCreateTimestamp': 1691909475451, 'serverCreateTimestamp': 1691909476783, 'lastUpdateTimestamp': 1691909476896}}
+
 
     #print(buy_req)
     #status = api.open_orders()
@@ -317,4 +323,4 @@ if __name__ == '__main__':
     print(cancel_all)
     #{'ok': 'ok', 'data': {'clientOrderIds': ['1689534607845']}}
 
-
+    #'orderRejectReason': '{"code":414,"reason":"minOrderAmountCcy1 check failed. amountCcy1 0.00040000 is less than minOrderAmountCcy1 0.00042277"

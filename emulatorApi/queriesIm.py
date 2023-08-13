@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+"""
+Запросы к таблицам im_...
+
+"""
 
 from configs import config
 

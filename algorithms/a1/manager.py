@@ -1,7 +1,8 @@
 from configs import config
-
+from db.queriesDB import upd_balance,add_to_orders, log_orders,log_balance,log_orders
 
 MODE = config.MODE
+ALGO_NAME = 'A1'
 
 
 def f_alg1(unix_curr_time):
@@ -14,6 +15,8 @@ def f_alg1(unix_curr_time):
         calc_res = CALCULTAION
 
         api = Api(config.API_USER, config.API_KEY, config.API_SECRET)
+        #set or cancel
+        #save into db
 
 
     if MODE == 'TEST':
@@ -23,7 +26,7 @@ def f_alg1(unix_curr_time):
 
 
 
-    # if res ==buy:
+    # if res == buy:
     #     api.buy_lmit_otder
     # if res == sell:
     #     api.sell_limit order
@@ -33,15 +36,22 @@ def f_alg1(unix_curr_time):
     # api.buy_limit_order(amount=0.000003, price=3000)
 
     res = api.buy_limit_order(amount=0.00042277, price=3000)
-    print(res)
 
-    !!!
-    # add to balance log
+    data = res['data']
+    status = data['status']
+
     from db.connection import DBConnect
     conn = DBConnect().getConnect()
-    cursor = conn.cursor()
-    res = cursor.execute()
+
+    if status != 'REJECTED':
+        upd_balance(data,conn)
+        add_to_orders(data,ALGO_NAME,conn)
+
+    log_orders(data,ALGO_NAME,conn)
+
     conn.comit()
+    conn.close()
+
 
 
     #api.buy_limit_order(amount=0.00042277, price=3000)

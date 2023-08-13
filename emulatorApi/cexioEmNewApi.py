@@ -166,8 +166,9 @@ class emulatorApi:
         from db.connection import DBConnect
         conn = DBConnect().getConnect()
         cursor = conn.cursor()
-        res = cursor.execute('SELECT AMOUNT FROM IM_BALANCE WHERE CURR = ?',(p2,))
-        balance_sum = res.fetchone()[0]
+        res = cursor.execute("SELECT AMOUNT FROM IM_BALANCE WHERE CURR = ?",(p2,))
+        row = res.fetchone()
+        balance_sum = row[0]
 
 
         need_amt=price*amount #+fee need to calc
@@ -216,12 +217,15 @@ class emulatorApi:
 
             cursor.execute('UPDATE IM_BALANCE SET AMOUNT = ?, RESERVED = ? WHERE CURR = ?', (new_balance,need_amt,p2))
 
+            conn.commit()
 
 
-            conn.comit()
+
+
 
 
         else:
+            #'orderRejectReason': '{"code":403,"reason":"Insufficient funds"}'
             res = {'ok': 'ok', 'data': {'messageType': 'executionReport'
                                         , 'clientId': self.username
                                         , 'orderId': ValuesOrder.orderId
@@ -254,7 +258,7 @@ class emulatorApi:
                                         , 'serverCreateTimestamp': self.unix_curr_time + 1000
                                         , 'lastUpdateTimestamp': self.unix_curr_time + 10000}}
 
-
+        conn.close()
         return res
 
     def cancel_order(self, clientOrderId):
