@@ -1,5 +1,5 @@
 from configs import config
-from db.queriesDB import upd_balance,add_to_orders, log_orders,log_balance,log_orders
+from db.queriesDB import upd_balance,upd_active_orders, log_orders,log_balance,log_orders
 
 MODE = config.MODE
 ALGO_NAME = 'A1'
@@ -37,6 +37,11 @@ def f_alg1(unix_curr_time):
 
     res = api.buy_limit_order(amount=0.00042277, price=3000)
 
+    #---------------------------------------
+    """
+    remove this block to one function (update_state)  !!!
+    UPDATE_STATE_AFTER_BUY_SELL
+    """
     data = res['data']
     status = data['status']
 
@@ -45,14 +50,40 @@ def f_alg1(unix_curr_time):
 
     if status != 'REJECTED':
         upd_balance(data,conn)
-        add_to_orders(data,ALGO_NAME,conn)
+        upd_active_orders(data, ALGO_NAME, conn)
+    if status == 'REJECTED':
+        pass
+        #save only in log_order
 
     log_orders(data,ALGO_NAME,conn)
 
     conn.comit()
     conn.close()
+    #----------------------------------------
 
+    res = api.cancel_order(clientOrderId='')
+    #-------------------------------------
+    """
+    UPDATE_STATE_AFTER_CANCEL
+    #res = {'ok': 'ok', 'data': {}}    
+    """
+    data = res['data'] #empty
+    data['clientOrderId']=clientOrderId
+    data['serverCreateTimestamp'] = unix_curr_time
+    data['status']='CANCELED'
 
+    upd_balance(data, conn)
+    upd_active_orders(data, ALGO_NAME, conn)
+    log_orders(data, ALGO_NAME, conn)
+    #------------------------------------
+
+    res = api.order_book(clientOrderId='')
+    # -------------------------------------
+    """
+    UPDATE_STATE_AFTER_DONE
+
+    """
+    # ------------------------------------
 
     #api.buy_limit_order(amount=0.00042277, price=3000)
     #save buy order to DB  db/queriesDB.py

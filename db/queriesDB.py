@@ -99,7 +99,7 @@ def upd_balance(data,conn=None):
         #возможно надо будет добавить fee из ответа
         cursor = conn.cursor()
         res = cursor.execute("SELECT  AMOUNT,PRICE,SIDE,= FROM LOG_ORDERS WHERE ID = ? AND STATUS = 'NEW' ",(id,))
-        #fined by id
+        #found amount by id
         #update
         #cursor.commit()
         pass
@@ -113,15 +113,14 @@ def upd_balance(data,conn=None):
         if r_side == 'SELL':
             cursor.execute('UPDATE BALANCE SET AMOUNT = AMOUNT+?, ifnull(RESERVED,0) = RESERVED-? WHERE CURR = ?',
                        (r_amount, r_amount, base))
-        # cursor.commit()
-        pass
+        cursor.commit()
 
     if flag_con == 1:
         cursor.close()
         conn.close()
 
 
-def add_to_orders(data,algo_nm,conn=None):
+def upd_active_orders(data, algo_nm, conn=None):
     flag_con = 0 # 1- коннект не передавался, а создался внутри функции
     if conn is None:
         flag_con = 0
@@ -131,47 +130,36 @@ def add_to_orders(data,algo_nm,conn=None):
     id = data['clientOrderId']
     unix_date = data['serverCreateTimestamp']
     date = datetime.fromtimestamp(unix_date/1000)
-    currency1 = data['currency1']  # BTC
-    currency2 = data['currency2']  # USD
-    side = data['side']  # buy sell
-    amount = data['requestedAmountCcy1']
-    price = data['price']
-    order_type = data['orderType']
-    sys_date = datetime.now()
+    status = data['status']
 
-    values = (id,date,unix_date,currency1,currency2,side,amount,price,order_type,data,algo_nm,sys_date)
+    if status == 'NEW':
 
+        currency1 = data['currency1']  # BTC
+        currency2 = data['currency2']  # USD
+        side = data['side']  # buy sell
+        amount = data['requestedAmountCcy1']
+        price = data['price']
+        order_type = data['orderType']
+        sys_date = datetime.now()
 
+        values = (id,date,unix_date,currency1,currency2,side,amount,price,order_type,data,algo_nm,sys_date)
+        cursor = conn.cursor()
+        cursor.execute("""INSERT INTO ACTIVE_ORDERS (id,date,unix_date,base,quote,side,amount,price,order_type,full_traid,algo,sys_date)
+                          VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""",values)
 
-    cursor = conn.cursor()
-
-    cursor.execute("""INSERT INTO ACTIVE_ORDERS (id,date,unix_date,base,quote,side,amount,price,order_type,full_traid,algo,sys_date)
-                      VALUES (?,?,?,?,?,?,?,?,?,?,?,?""",values)
-
-    cursor.commit()
-    conn.commit()
-
-    if flag_con == 1:
-        cursor.close()
-        conn.close()
+        cursor.commit()
 
 
-def remove_from_orders(order_id,conn=None):
-    flag_con = 0 # 1- коннект не передавался, а создался внутри функции
-    if conn is None:
-        flag_con = 0
-        from db.connection import DBConnect
-        conn = DBConnect().getConnect()
 
-
-    cursor = conn.cursor()
-    cursor.execute('DELETE FROM ACTIVE_ORDERS where id = ?',(order_id,))
-    cursor.commit()
-    conn.commit()
+    if status == 'DONE' | 'CANCELED':
+        cursor = conn.cursor()
+        cursor.execute('DELETE FROM ACTIVE_ORDERS where id = ?', (order_id,))
+        cursor.commit()
 
     if flag_con == 1:
-        cursor.close()
+        conn.commit()
         conn.close()
+
 
 
 def log_orders(data, algo_nm, conn=None):
@@ -206,9 +194,26 @@ def log_orders(data, algo_nm, conn=None):
         values = (id, status, side, date, unix_date, currency1, currency2, side, amount, price, total,order_type,data, algo_nm, sys_date)
 
         cursor = conn.cursor()
-        cursor.execute("""INSERT INTO ACTIVE_ORDERS (id,status,side, date,unixdate,base,quote,amount,price,total,order_type,full_traid,algo,sys_date)
-                          VALUES (?,?,?,?,?,?,?,?,?,?,?,?""", values)
+        cursor.execute("""INSERT INTO LOG_ORDERS (id,status,side, date,unixdate,base,quote,amount,price,total,order_type,full_traid,algo,sys_date)
+                          VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""", values)
         cursor.commit()
+
+    if status == 'REJECTED':
+        currency1 = data['currency1']  # BTC
+        currency2 = data['currency2']  # USD
+        side = data['side']  # buy sell
+        amount = data['requestedAmountCcy1']
+        price = data['price']
+        order_type = data['orderType']
+        reject_reason = data['orderRejectReason']
+
+        values = (id, status, side, date, unix_date, currency1, currency2, side, amount, price, total, reject_reason, order_type, data, algo_nm,sys_date)
+
+        cursor = conn.cursor()
+        cursor.execute("""INSERT INTO LOG_ORDERS (id,status,side, date,unixdate,base,quote,amount,price,total,reject_reason, order_type,full_traid,algo,sys_date)
+                                  VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""", values)
+        cursor.commit()
+
 
     if status == 'DONE':
         pass
@@ -216,10 +221,14 @@ def log_orders(data, algo_nm, conn=None):
         # Добавить запись в таблице
         # values = id, status, side, date, unix_date
     if status == 'CANCELED':
-        pass
-        # Надо определить, как возвращается order в статусе DONE
-        # Добавить запись в таблице
-        # values = id, status, side, date, unix_date
+        sys_date = datetime.now()
+        values = (id, status, date, unix_date, algo_nm, sys_date)
+
+        cursor = conn.cursor()
+        cursor.execute("""INSERT INTO LOG_ORDERS (id, status, date, unix_date, algo_nm, sys_date)
+                                          VALUES (?,?,?,?,?,?)""", values)
+        cursor.commit()
+
 
 
     conn.commit()

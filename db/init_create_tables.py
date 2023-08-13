@@ -69,10 +69,12 @@ queries_d ={
     price      DECIMAL (15, 8),
     total      DECIMAL (15, 8),
     fee        DECIAML (15, 2),
+    reject_reason TEXT,
     order_type VARCHAR (10)   CHECK (order_type IN ('market', 'limit') ),
     expire     INTEGER,
     full_traid TEXT,
     algo        CHAR (20),
+    flag_reason TEXT,
     CONSTRAINT PK_ID_STATUS PRIMARY KEY (
         status,
         id
