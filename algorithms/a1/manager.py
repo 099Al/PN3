@@ -39,7 +39,7 @@ def f_alg1(unix_curr_time):
 
     #---------------------------------------
     """
-    remove this block to one function (update_state)  !!!
+    remove this block to one functions (update_state)  !!!
     UPDATE_STATE_AFTER_BUY_SELL
     """
     data = res['_data']

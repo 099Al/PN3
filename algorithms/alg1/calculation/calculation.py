@@ -5,7 +5,7 @@
 import algorithms.alg1.parameters.orderParams as prmt
 import deposit.feeslimits.constant as cons
 from perfomance._balance.balance import DepoBalance
-import function.transacFunction as trns
+import functions.trade as trns
 from algorithms.orders import ActiveOrders,ProcessLine
 import numpy as np
 

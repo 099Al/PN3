@@ -24,7 +24,7 @@ def setOrder(order):
     flag_dict.update(f)
 
     # режим эмуляции
-    import function.calcflag.order as ord
+    import functions._calcflag.order as ord
 
     ord.order_price = order['price']
     ord.order_btc_value = order['value']
@@ -45,7 +45,7 @@ def check_flag_period(TikQueue):
 def check_flag_imulation(connect, from_Tf, to_Tf2):
     curr = connect.cursor()
 
-    import function.calcflag.order as order
+    import functions._calcflag.order as order
     sql = ''
     status = order.order_status
     type = order.order_type
@@ -94,7 +94,7 @@ def setOrder(order):
     flag_dict.update(f)
 
     #режим эмуляции
-    import function.calcflag.order as ord
+    import functions._calcflag.order as ord
 
     ord.order_price = order['price']
     ord.order_btc_value = order['value']
@@ -114,7 +114,7 @@ def check_flag_period(TikQueue):
 def check_flag_imulation(connect,from_Tf, to_Tf2):
     curr = connect.cursor()
 
-    import function.calcflag.order as order
+    import functions._calcflag.order as order
     sql = ''
     status = order.order_status
     type =   order.order_type

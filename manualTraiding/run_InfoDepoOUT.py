@@ -112,7 +112,7 @@ def info_Need_X_on_DEPOSIT_to_GET_X0(class_info_out,x_out,type):
 
         exch_price = class_info_out.usd_b
         def exch_curr(x, exch_price):
-            import function.exchangeFunction as exchf
+            import functions.exchange as exchf
             return exchf.sellUSD_revers(x, exch_price)
 
         xcur = exch_curr(x_out, exch_price) #надо продать xcur по цене usd_b, чтобы получить x_out
@@ -128,7 +128,7 @@ def info_Need_X_on_DEPOSIT_to_GET_X0(class_info_out,x_out,type):
         exch_price = class_info_out.usd_s
 
         def exch_curr(x, exch_price):
-            import function.exchangeFunction as exchf
+            import functions.exchange as exchf
             return exchf.buyUSD_revers(x, exch_price)
 
         xcur = exch_curr(x_out, exch_price)  #надо купить x_out по цене usd_s
@@ -144,8 +144,8 @@ if __name__ == '__main__':
 
     # Параметры
     from deposit.feeslimits.constant import taker, mk_tk
-    from function.info.infocalc.depositCalcOUT import InfoCalcFromDep
-    from function.utilF import last_prices, current_price
+    from functions.info.infocalc.depositCalcOUT import InfoCalcFromDep
+    from functions.price import last_prices, current_price
 
 
     # Комиссии при транзакции

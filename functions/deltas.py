@@ -5,7 +5,7 @@
 
 import numpy as np
 
-from function.transacFunction import sellBTC,presellBTC,maxBTC,priceForBuyBTC,X_for_buyBTC,priceForSellBTC
+from functions.trade import sellBTC,presellBTC,maxBTC,priceForBuyBTC,X_for_buyBTC,priceForSellBTC
 from deposit.feeslimits.constant import mk_tk, taker
 
 
