@@ -1,59 +1,73 @@
 # -*- coding: utf-8 -*-
-
-
-
-'''
+"""
 Функции для расчета транзакций (покупки/продажи)
-'''
+"""
 
 import numpy as np
 import math
 
-from util.calcUtil import cutX
 
-from deposit.feeslimits.constant import taker
+from configs.config import MAKER_TAKER
 
-#Покупка BTC по цене P на X usd
-def buyBTC(x, price, comiss):
-    #comiss = 0.18513 #Примерная комиссия, по которой резервируется сумма
+#Оставить n знаков после запятой
+def cutX(x,n):
+    s = str(x)
+    x = s[0:s.index('.')+n+1]  # оставить только n знаков после ,
+    return float(x)
 
-
-    btc = maxBTC(x,price)
-    x1 = X_for_buyBTC(btc,price,comiss)
-    dx = np.round(x-x1,2)
-
-    return {'btc':btc,'dx':dx}
 
 
 #Покупка BTC
-#сумма списания X при покупки btc
-def X_for_buyBTC(btc,price,mk_tk_comiss):
+#сумма списания X при покупке заданного кол-ва BTC
+def X_for_buyBTC(btc,price,comiss):
     # comis = 0.25%
     # mk_tk_comiss - maker taker commission
 
-    if (mk_tk_comiss == 0):
-        mk_tk_comiss = taker
+    if comiss is None:
+        comiss = MAKER_TAKER
 
     a = math.ceil(btc * price * 100) / 100  # сумма при покупке по цене P (без комиссии)  Округление вверх до двух знаков
-    k = math.ceil((a * mk_tk_comiss/100) * 100) / 100
+    k = math.ceil((a * comiss/100) * 100) / 100
     x = a + k  # сумма, необходимая для покупки BTC (с учетом комиссии)
     x = int(x*100)/100
     return x
 
-
 #Покупка BTC
-# max BTC, которое можно взять, если на балансе X
-def maxBTC(X,price):
-    taker_comis = taker
+
+# max BTC, которое можно взять, если на балансе X. Грубой приблежение, но быстрее считается
+def maxBTC_aprox(X,price,comiss=None):
+    if comiss is None:
+        comiss = MAKER_TAKER
 
     # Расположение на координатной оси
     #  Xl------X--------Xr
     #  Bl------B0-------Br
 
     #taker_comis=0.25%
-    Br = X/(price*(1+taker_comis/100))
-    Br = cutX(Br,8)   # максимально возможная величина (не дастигается из-за округлений)
-    Xr = X_for_buyBTC(Br,price,taker_comis)
+    Br = X/(price*(1+comiss/100))
+    Br = cutX(Br,8)   # максимально возможная величина (не достигается из-за округлений)
+    Xr = X_for_buyBTC(Br,price,comiss)
+
+    if(Xr<=X):   #если после округлений, суммы на балансе хватает
+        return Br
+
+    Bl = cutX(Br,6)   # отбрасывание 2-х знаков.
+    return Bl
+
+
+# max BTC, которое можно взять, если на балансе X
+def maxBTC(X,price,comiss=None):
+    if comiss is None:
+        comiss = MAKER_TAKER
+
+    # Расположение на координатной оси
+    #  Xl------X--------Xr
+    #  Bl------B0-------Br
+
+    #taker_comis=0.25%
+    Br = X/(price*(1+comiss/100))
+    Br = cutX(Br,8)   # максимально возможная величина (не достигается из-за округлений)
+    Xr = X_for_buyBTC(Br,price,comiss)
 
     if(Xr<=X):   #если после округлений, суммы на балансе хватает
         return Br
@@ -62,18 +76,18 @@ def maxBTC(X,price):
     #Для более быстрых расчетов надо остальную часть откинуть и выводить найденное Bl
     # return Bl
 
-    Xl = X_for_buyBTC(Bl,price,taker_comis)
+    Xl = X_for_buyBTC(Bl,price,comiss)
     while(Xl>X):                           # левая граница должна быть меньше чем есть на балансе
         Bl = Bl - 0.000001
-        Xl = X_for_buyBTC(Bl,price,taker_comis)
+        Xl = X_for_buyBTC(Bl,price,comiss)
 
-    #когда Bl и Br определены ищется B0 (максималбно возможный)
+    #когда Bl и Br определены ищется B0 (максимально возможный)
 
-    # т.к. B - записыввается до 8-ми знаков, то Br-Bl > 0.00000001
+    # т.к. B - записывается до 8-ми знаков, то Br-Bl > 0.00000001
     # Можно было делать услови X-Xn<0.01
     # , но тогда Bl мог бы получиться больше чем 8-ю знаками
     Bn_prev = -1
-    Bn =0
+    Bn = 0
     while(Br-Bl > 0.00000001):
 
         Bn = int((Bl+Br)*100000000/2)/100000000
@@ -81,7 +95,7 @@ def maxBTC(X,price):
         if(Bn==Bn_prev):
             return Bl
 
-        Xn = X_for_buyBTC(Bn,price,taker_comis)
+        Xn = X_for_buyBTC(Bn,price,comiss)
 
         if(Xn<=X):
             Bl = Bn
@@ -93,8 +107,56 @@ def maxBTC(X,price):
     return Bl
 
 
-#Есть X, необходимо взять BTC. Какая нужна цена (до какой виличины снизится, чтобы было можно взять)
-def priceForBuyBTC(btc_expected,X):
+
+
+#Покупка BTC по цене P на X usd
+"""
+btc max= 0.00076419 price= 26106
+total: 19.94994414 USD
+fee: 0.04987486 USD
+
+0.00076388 price= 26116
+total: 19.94949008 USD
+fee: 0.04987373 USD
+
+
+btc max= 0.00076359 price= 26126
+tatal: 19,94955234 USD
+fee: 0,04987388 USD
+
+0.00076361 BTC price = 26126 USD  !!!
+total: 19,95007486 USD
+fee: 0,04987519 USD
+
+
+
+0.00057340  price 26106  резервирует 15.01
+расчетный 0,00057304  
+и по  0,00057314 резервирует 15   (разница ~0.26 cents)
+
+"""
+def buyBTC(x, price, comiss=None):
+    #comiss = 0.18513 #Примерная комиссия, по которой резервируется сумма
+    if comiss is None:
+        comiss = MAKER_TAKER
+
+    btc = maxBTC(x,price,comiss)
+    x1 = X_for_buyBTC(btc,price,comiss) #Проверка
+
+    # Разница должна быть 0. Но из-за разницы комиссий, может отличаться. В данном случае комиссия одинакова.
+    # Но возможно для btc и x1 она должна быть разной
+    dx = np.round(x-x1,2)
+
+    return {'btc':btc,'dx':dx}
+
+
+
+
+
+
+
+#Есть X, необходимо взять BTC. Какая нужна цена (до какой величины снизится, чтобы было можно взять)
+def priceForBuyBTC(btc_expected,X, comiss=None):
     '''
         X вычисляется по формуле:
         fO(x) = округление_в_большую_сторону_до_2_знаков(x)
@@ -117,16 +179,18 @@ def priceForBuyBTC(btc_expected,X):
     '''Комиссия берется максимальной, т.к. на определенной кол-во X по цене P
        можно взять только одно значение BTC, может быть разный только остаток от X'''
 
+    if comiss is None:
+        comiss = MAKER_TAKER
 
     p_r = X / (btc_expected * (1 + taker / 100))  # будет больше искомой
-    p_l = (X - 0.0201) / (btc_expected * (1 + taker / 100))  # будет меньше искомой
+    p_l = (X - 0.0201) / (btc_expected * (1 + comiss / 100))  # будет меньше искомой
 
     #X_n = X_for_buyBTC(btc_expected, p_r,taker)
 
     while (p_r-p_l>0.01):  # т.к. X записывается до 2-х знаков после запятой
         #p_n = int((p_r + p_l) * 100 / 2) / 100
         p_n = (p_r + p_l) / 2
-        X_n = X_for_buyBTC(btc_expected, p_n, taker) # надо брать taker, т.к. по нему рассчитывается максимольно возможное BTC
+        X_n = X_for_buyBTC(btc_expected, p_n, comiss) # надо брать taker, т.к. по нему рассчитывается максимольно возможное BTC
         if (X_n > X):
             p_r = p_n
         else:
@@ -150,7 +214,9 @@ def presellBTC(btc, price):
     return btc
 
 #btc надо предрасчитывать, чтобы часть не терялась при округлении
-def sellBTC(btc,price,mk_tk):
+def sellBTC(btc,price,mk_tk=None):
+    if mk_tk is None:
+        mk_tk = MAKER_TAKER
     btc0 = presellBTC(btc, price)
     x = cutX(btc0*price,2)
     comis = np.round(mk_tk/100*x,2)
@@ -158,8 +224,9 @@ def sellBTC(btc,price,mk_tk):
     return {'x':x,'comis':comis}
 
 #Поиск btc, чтобы за имеющиеся btc, купить желаемые X
-def sellBTCForX(x_exp,price,mk_tk):
-
+def sellBTCForX(x_exp,price,mk_tk=None):
+    if mk_tk is None:
+        mk_tk = MAKER_TAKER
 
     bl = x_exp / (price*(1-mk_tk/100))
 
@@ -191,12 +258,12 @@ def sellBTCForX(x_exp,price,mk_tk):
 
 
 #Поиск цены p, чтобы за имеющиеся btc, получить желаемые X
-def priceForSellBTC(X_exp,btc,commis):
+def priceForSellBTC(X_exp,btc,comiss=None):
 
     '''
     :param X_exp: ожидаемое количество
     :param btc:   имеющееся кол-во btc
-    :param commis: комиссия при продаже
+    :param comiss: комиссия при продаже
     :return:
 
     решение данного уравнения имеет множество решений.
@@ -204,20 +271,23 @@ def priceForSellBTC(X_exp,btc,commis):
     не всегда удаться продать все btc (из-за округлений).
     чем выше p, тем меньше надо btc для получения X'''
 
-    pl = X_exp/(btc*(1-commis/100))
+    if comiss is None:
+        comiss = MAKER_TAKER
+
+    pl = X_exp/(btc*(1-comiss/100))
 
     pr = pl+0.01
-    xn = sellBTC(btc, pr, commis)['x']
+    xn = sellBTC(btc, pr, comiss)['x']
     while(xn<X_exp):
         pr = pr + 0.01
-        xn = sellBTC(btc, pr, commis)['x']
+        xn = sellBTC(btc, pr, comiss)['x']
 
     pn_prev=-1
     btcn = 0
     while(pr-pl>0.001):
         pn = (pr+pl)/2
         btcn = presellBTC(btc, pr)
-        xn = sellBTC(btcn, pr, commis)['x']
+        xn = sellBTC(btcn, pr, comiss)['x']
 
         if(pn==pn_prev):
             return {'p':np.round(pr,2),'btc':btcn}
@@ -236,14 +306,14 @@ def priceForSellBTC(X_exp,btc,commis):
 
 
 if __name__ == '__main__':
-    p = 7000
-    x = 82
+    p = 26000
+    x = 20
     b = maxBTC(x, p)
-    a,b = buyBTC(x,p,0.18).values()
-    x1 = X_for_buyBTC(a,p,0.18)
+    btc, dx = buyBTC(x, p, 0.18).values()
+    x1 = X_for_buyBTC(btc, p, 0.18)  # перепроверка
 
     print('b=', b)
-    print(a,b)
+    print('a,b', btc, dx)
     print(x1)
 
 

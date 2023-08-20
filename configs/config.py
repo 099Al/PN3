@@ -12,10 +12,19 @@ conf_data.read(path_config)
 
 MODE = 'TEST'
 
+#DATA BASE
 DB_NAME = conf_data['PARAMETERS']['DB_NAME']
+
+#LIMITS
+MAKER_TAKER = float(conf_data['FEES']['MAKER_TAKER'])
+TAKER = float(conf_data['FEES']['TAKER'])
+
+
+#PARAMETERS
 REQUEST_PERIOD = conf_data['PARAMETERS']['REQUEST_PERIOD']
 
 
+#CREDENTIALS
 #cred_path = 'E:\\'
 #relative_path_credentials = os.path.join(cred_path,'credentials.ini')
 
@@ -25,11 +34,10 @@ conf_cred = configparser.ConfigParser()
 conf_cred.read(path_credentials)
 
 
-
+#TEST
 # API_USER = None
 # API_KEY = None
 # API_SECRET = None
-
 
 API_USER = conf_cred['CREDENTIALS']['user']
 API_KEY = conf_cred['CREDENTIALS']['key']

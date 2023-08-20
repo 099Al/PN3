@@ -6,7 +6,7 @@
 import numpy as np
 
 from functions.trade import sellBTC,presellBTC,maxBTC,priceForBuyBTC,X_for_buyBTC,priceForSellBTC
-from deposit.feeslimits.constant import mk_tk, taker
+from configs.config import MAKER_TAKER, TAKER
 
 
 #Изменение BTC при изменении цены от текущей, до ожидаемой
@@ -65,7 +65,7 @@ def priceForExpectBTC(btc0, current_price, btc_expected,commis=0):
     '''
 
     if (commis == 0):
-        commis = taker
+        commis = TAKER
 
     x = sellBTC(btc0,current_price,commis)['x'] # получаем X при продаже
 
