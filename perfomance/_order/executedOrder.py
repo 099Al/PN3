@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from perfomance.balance.balance import DepoBalance
+from perfomance._balance.balance import DepoBalance
 from algorithms.orders import ActiveOrders,ProcessLine
-import perfomance.loging.logAction as log
+import perfomance._loging.logAction as log
 from db.connection import DBConnect
 
 
@@ -29,7 +29,7 @@ def executeOrders(orders,market):
 
 def executeOneOrder(order, market):
 
-    #На вход идет переменная order {'order_id':x,'tik_id':tik_id,'date_id':date_id,'price':market_price}
+    #На вход идет переменная _order {'order_id':x,'tik_id':tik_id,'date_id':date_id,'price':market_price}
 
     id = order['order_id']  # id сработавшего ордера
     tik_id = order['tik_id']  # tik на котором сработал ордер

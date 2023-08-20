@@ -25,25 +25,25 @@ def f_history_tic_imitation(connect, curr_dttime):
 
     # Получение 1000 последних тиков на заданную дату
     #Способ 1
-    sql = "WITH t " \
-          "as (" \
-          "SELECT MAX(tid) m_tid " \
-          "FROM "+cex_history_tbl+" " \
-          "WHERE unixdate <= '{dt}'" \
-          ") " \
-          "SELECT tid,type,unixdate,amount,price " \
-          "FROM "+cex_history_tbl+" " \
-          "WHERE tid <= (select m_tid from t) " \
-          "AND tid > (select m_tid from t)-1000 " \
-          "ORDER BY tid desc "
+    sql = """WITH t 
+          as (
+          SELECT MAX(tid) m_tid 
+          FROM im_cex_history_tik 
+          WHERE unixdate <= '{dt}'
+          ) 
+          SELECT tid,type,unixdate,amount,price 
+          FROM im_cex_history_tik 
+          WHERE tid <= (select m_tid from t) 
+          AND tid > (select m_tid from t)-1000 
+          ORDER BY tid desc """
 
     sql = sql.format(dt=curr_dttime)
 
     #Способ 2
-    sql_2 = "SELECT tid,type,unixdate,amount,price " \
-               "FROM "+cex_history_tbl+" " \
-               "WHERE  unixdate < '{dt}' " \
-               "ORDER BY tid desc limit 1000"
+    sql_2 = """SELECT tid,type,unixdate,amount,price 
+               FROM im_cex_history_tik 
+               WHERE  unixdate < '{dt}' 
+               ORDER BY tid desc limit 1000"""
     sql_2 = sql_2.format(dt=curr_dttime)
 
     r = curr.execute(sql_2)

@@ -82,7 +82,7 @@ queries_d ={
 )"""
 
 
-,'balance':"""CREATE TABLE balance (
+,'_balance':"""CREATE TABLE _balance (
     curr      CHAR (5),
     amount    decimal(15,8),
     reserved  decimal(15,8)

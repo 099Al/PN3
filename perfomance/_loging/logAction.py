@@ -4,14 +4,14 @@
 import time
 
 from algorithms.orders import ActiveOrders
-from perfomance.balance.balance import DepoBalance
+from perfomance._balance.balance import DepoBalance
 
 '''
 Словарь устанвленных ордеров
 Последовательность купли/продажи
 
-структура ордера order ={'id':id,'amount':amount,'price':price,'ord_time':ord_time, 'type': r_act, 'x':x_reserv}
-структура словаря order_list  = {id: order}
+структура ордера _order ={'id':id,'amount':amount,'price':price,'ord_time':ord_time, 'type': r_act, 'x':x_reserv}
+структура словаря order_list  = {id: _order}
 '''
 
 active_orders = ActiveOrders()  # активные ордера

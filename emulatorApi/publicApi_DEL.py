@@ -31,9 +31,9 @@ class CustomApi:
     def history(self,X,Y):
         #Эмуляция запроса к сайту. Время запроса current_time
         #resource = requests.get("https://cex.io/api/trade_history/{0}/{1}".format(X,Y))
-        #data = json.loads(resource.text)
+        #_data = json.loads(resource.text)
 
-        #connect to DB with emulation data
+        #connect to DB with emulation _data
         db=DBConnect()
         dbconn = db.getConnect()
         res = qr.f_history_tic_imitation(dbconn,self._currentTime)

@@ -29,8 +29,8 @@ def checkOrder(connect,start_period,end_period,order_list):
     '''
 
     #На вход подается список ордеров в ожидании order_list
-    # структура словаря order_list = {id: order}
-    # структура ордера order = {'id': id, 'amount': amount, 'price': price, 'ord_time': ord_time, 'type': r_act, 'mtype':}
+    # структура словаря order_list = {id: _order}
+    # структура ордера _order = {'id': id, 'amount': amount, 'price': price, 'ord_time': ord_time, 'type': r_act, 'mtype':}
 
     #В результате получаем list словарей {'order_id':x,'tik_id':tik_id}
     # order_id - id ордера в списке

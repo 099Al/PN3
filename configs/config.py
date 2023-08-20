@@ -12,9 +12,9 @@ conf_data.read(path_config)
 
 MODE = 'TEST'
 
-DB__DB_NAME = conf_data['DB']['DB_NAME']
-DB__HISTORY_TABLE = conf_data['DB']['HISTORY_TABLE']
-SRC__SRC_HISTORY = conf_data['SRC']['SRC_HISTORY']
+DB_NAME = conf_data['PARAMETERS']['DB_NAME']
+REQUEST_PERIOD = conf_data['PARAMETERS']['REQUEST_PERIOD']
+
 
 #cred_path = 'E:\\'
 #relative_path_credentials = os.path.join(cred_path,'credentials.ini')

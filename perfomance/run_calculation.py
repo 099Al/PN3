@@ -1,7 +1,7 @@
 from datetime import datetime
 import configparser
 
-from data.data import get_new_data
+from _data.data import get_new_data
 
 from configs import config
 import algorithms as algo
@@ -9,16 +9,18 @@ import algorithms as algo
 MODE = config.MODE
 #MODE = 'TRAID'
 
+#---Вынести в config ???
 t_start = '2023-07-22 15:00:00'
 time_step = 120
-
+#init_balance
+init_btc = 0.0015
+init_usd = 100
+#-----------------
 
 valid_pairs = ['BTC/USD']
 
 
-#init_balance
-init_btc = 0.0015
-init_usd = 100
+
 
 
 if __name__ == '__main__':
@@ -59,12 +61,12 @@ if __name__ == '__main__':
 
         #---Вычесления------------
         #.....
-        # set_flag -> return id order
+        # set_flag -> return id _order
         algo.a1.manager.f_alg1(curr_unix_time)
 
 
         buy_req = api.buy_limit_order(0.00042277, 30100.0, 1)
-        # save order in db
+        # save _order in db
 
         #---вычисления------------
         #check flags(MODE)

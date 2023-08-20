@@ -4,9 +4,9 @@
 
 '''Снятие ордера'''
 
-import perfomance.loging.logAction as log
+import perfomance._loging.logAction as log
 from algorithms.orders import ActiveOrders,SavedOrders,ProcessLine
-from perfomance.balance.balance import DepoBalance
+from perfomance._balance.balance import DepoBalance
 
 import algorithms.alg1.stop.resetMark as stopM
 

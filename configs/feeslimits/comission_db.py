@@ -10,7 +10,7 @@
 def alfa_curr(connect, X,Y):
     curs = connect.cursor()
     sql  = "SELECT BYE,SELL, DT FROM exchange " \
-           "WHERE BANK = 'ALFA' and base = '{X}' and quote = '{Y}' order by DT DESC limit 1".format(X=X,Y=Y)
+           "WHERE BANK = 'ALFA' and base = '{X}' and quote = '{Y}' _order by DT DESC limit 1".format(X=X,Y=Y)
     r = curs.execute(sql)
     res = r.fetchone()
     return res
@@ -19,7 +19,7 @@ def alfa_curr(connect, X,Y):
 def bank_curr(connect,bank, X,Y):
     curs = connect.cursor()
     sql  = "SELECT BYE,SELL, DT FROM exchange " \
-           "WHERE BANK = '{bank}' and base = '{X}' and quote = '{Y}' order by DT DESC limit 1".format(X=X,Y=Y,bank=bank)
+           "WHERE BANK = '{bank}' and base = '{X}' and quote = '{Y}' _order by DT DESC limit 1".format(X=X,Y=Y,bank=bank)
     r = curs.execute(sql)
     res = r.fetchone()
     return res

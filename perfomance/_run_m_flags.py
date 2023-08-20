@@ -9,14 +9,14 @@ import time
 from datetime import datetime
 
 from emulatorApi.queriesIm import *
-from perfomance.data.TikQueue import TikQueue
+from perfomance._data.TikQueue import TikQueue
 
-from perfomance.order.checkOrders import checkOrder
+from perfomance._order.checkOrders import checkOrder
 
 from algorithms.alg1 import calculation
-import perfomance.loging.logAction as log
+import perfomance._loging.logAction as log
 from algorithms.orders import ActiveOrders
-from perfomance.balance.balance import DepoBalance
+from perfomance._balance.balance import DepoBalance
 
 from api.cexioApi import Api
 
@@ -27,7 +27,7 @@ LIMIT_ORDER = 5 #5 - лимит на количество установленн
 START_DATE = '2019-02-03 11:05:17'  # Стартовое время
 
 # Класс с доступом к API
-import perfomance.keys as k
+#import perfomance.keys as k
 
 api = Api(k.username, k.api_key, k.api_secret)
 
@@ -77,7 +77,7 @@ def setOrder(res):
         price = res['price']  # по какой цене
         x_reserv = res['x']
 
-        # api set order   # установка ордера через API
+        # api set _order   # установка ордера через API
         # PRIVATE API place_order = api.buy_limit_order(amount,price,market)  # На выходе получается словарь с данными ордера
         # Попытка
         # time.sleep(1)
@@ -184,7 +184,7 @@ while 1 == 1:
                     log.log_action(conn, doneOrd, 'sold',market)
 
                 # get balace with API  and refresh
-                # Test calc balance
+                # Test calc _balance
 
                 orderCount = orderCount - 1
 

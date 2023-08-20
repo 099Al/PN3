@@ -3,9 +3,9 @@
 '''Установка ордера'''
 import time
 
-import perfomance.loging.logAction as log
+import perfomance._loging.logAction as log
 from algorithms.orders import ActiveOrders
-from perfomance.balance.balance import DepoBalance
+from perfomance._balance.balance import DepoBalance
 
 from db.connection import DBConnect
 

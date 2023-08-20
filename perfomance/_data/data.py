@@ -20,9 +20,9 @@ def get_new_data(mode,pair,curr_time=None):
         #emApi.currentTime=curr_time  #Вслучае эмуляции ставим время, в которое делается запрос
 
         res = emApi.trade_history(f'{p1}-{p2}')
-        tiks = res['data']['trades']
+        tiks = res['_data']['trades']
 
-        #save data into db  #or save into Memory #Запись в cache реализовывать в функйии не отдельно
+        #save _data into db  #or save into Memory #Запись в cache реализовывать в функйии не отдельно
         qdb.save_history_tik(tiks)
 
 

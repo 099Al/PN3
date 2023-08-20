@@ -54,7 +54,7 @@ class emulatorApi:
 
         if dataType:
             if dataType not in VALID_DATATYPE:
-                return {'Bad data Type'}
+                return {'Bad _data Type'}
 
         if resolution:
             if resolution not in VALID_RESOLUTIONS:
@@ -76,7 +76,7 @@ class emulatorApi:
         cur = self.conn.cursor()
         sel_res = cur.execute(f"SELECT trade_data FROM im_cex_history_tik where unixdate<= {self.unix_curr_time} order by unixdate desc limit 1000");
 
-        res = {'ok': 'ok', 'data': {'pageSize': 1000, 'trades': [ json.loads(x[0]) for x in sel_res.fetchall()] }}
+        res = {'ok': 'ok', '_data': {'pageSize': 1000, 'trades': [ json.loads(x[0]) for x in sel_res.fetchall()] }}
 
 
         return res
@@ -183,7 +183,7 @@ class emulatorApi:
         if balance_sum>=need_amt:
 
 
-            res = {'ok': 'ok', 'data': {'messageType': 'executionReport'
+            res = {'ok': 'ok', '_data': {'messageType': 'executionReport'
                                         , 'clientId': self.username
                                         , 'orderId': ValuesOrder.orderId
                                         , 'clientOrderId': self.unix_curr_time
@@ -212,7 +212,7 @@ class emulatorApi:
                                         , 'serverCreateTimestamp': self.unix_curr_time+1000
                                         , 'lastUpdateTimestamp':    self.unix_curr_time+10000}}
 
-            #change balance
+            #change _balance
             new_balance = balance_sum - need_amt
 
             cursor.execute('UPDATE IM_BALANCE SET AMOUNT = ?, RESERVED = ? WHERE CURR = ?', (new_balance,need_amt,p2))
@@ -226,7 +226,7 @@ class emulatorApi:
 
         else:
             #'orderRejectReason': '{"code":403,"reason":"Insufficient funds"}'
-            res = {'ok': 'ok', 'data': {'messageType': 'executionReport'
+            res = {'ok': 'ok', '_data': {'messageType': 'executionReport'
                                         , 'clientId': self.username
                                         , 'orderId': ValuesOrder.orderId
                                         , 'clientOrderId': self.unix_curr_time

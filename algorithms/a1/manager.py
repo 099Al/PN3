@@ -29,7 +29,7 @@ def f_alg1(unix_curr_time):
     # if res == buy:
     #     api.buy_lmit_otder
     # if res == sell:
-    #     api.sell_limit order
+    #     api.sell_limit _order
     # if res == ...
 
     # api.sell_limit_order(amount=0.000003,price=3000)
@@ -42,7 +42,7 @@ def f_alg1(unix_curr_time):
     remove this block to one function (update_state)  !!!
     UPDATE_STATE_AFTER_BUY_SELL
     """
-    data = res['data']
+    data = res['_data']
     status = data['status']
 
     from db.connection import DBConnect
@@ -65,9 +65,9 @@ def f_alg1(unix_curr_time):
     #-------------------------------------
     """
     UPDATE_STATE_AFTER_CANCEL
-    #res = {'ok': 'ok', 'data': {}}    
+    #res = {'ok': 'ok', '_data': {}}    
     """
-    data = res['data'] #empty
+    data = res['_data'] #empty
     data['clientOrderId']=clientOrderId
     data['serverCreateTimestamp'] = unix_curr_time
     data['status']='CANCELED'
@@ -86,7 +86,7 @@ def f_alg1(unix_curr_time):
     # ------------------------------------
 
     #api.buy_limit_order(amount=0.00042277, price=3000)
-    #save buy order to DB  db/queriesDB.py
+    #save buy _order to DB  db/queriesDB.py
 
 
 

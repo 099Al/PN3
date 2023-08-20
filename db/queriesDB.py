@@ -217,7 +217,7 @@ def log_orders(data, algo_nm, conn=None):
 
     if status == 'DONE':
         pass
-        # Надо определить, как возвращается order в статусе DONE
+        # Надо определить, как возвращается _order в статусе DONE
         # Добавить запись в таблице
         # values = id, status, side, date, unix_date
     if status == 'CANCELED':
@@ -242,10 +242,10 @@ def log_orders(data, algo_nm, conn=None):
 
 
 
-# def log_balance(data,algo_nm,conn=None):
+# def log_balance(_data,algo_nm,conn=None):
 #     """
 #     Возможно это логирование не нужно. Т.к. можно взять данные из log_orders
-#     :param data:
+#     :param _data:
 #     :param algo_nm:
 #     :param conn:
 #     :return:
@@ -256,18 +256,18 @@ def log_orders(data, algo_nm, conn=None):
 #         from db.connection import DBConnect
 #         conn = DBConnect().getConnect()
 #
-#     id = data['clientOrderId']
-#     unix_date = data['serverCreateTimestamp']
+#     id = _data['clientOrderId']
+#     unix_date = _data['serverCreateTimestamp']
 #     date = datetime.fromtimestamp(unix_date / 1000)
-#     status = data['status']
+#     status = _data['status']
 #
 #     activity = ''
 #     if status == 'NEW':
-#         side = data['side']  # buy sell
-#         amount = data['requestedAmountCcy1']
-#         price = data['price']
-#         currency1 = data['currency1'] #BTC
-#         currency2 = data['currency2']  # USD
+#         side = _data['side']  # buy sell
+#         amount = _data['requestedAmountCcy1']
+#         price = _data['price']
+#         currency1 = _data['currency1'] #BTC
+#         currency2 = _data['currency2']  # USD
 #         sys_date = datetime.now()
 #
 #         if side == 'SELL':
@@ -283,11 +283,11 @@ def log_orders(data, algo_nm, conn=None):
 #
 #     if status == 'DONE':
 #         pass
-#         #Надо поределить, как возвращается order в статусе DONE
+#         #Надо поределить, как возвращается _order в статусе DONE
 #         #Добавить запись в таблице
 #     if status == 'CANCELED':
 #         pass
-#         #Надо поределить, как возвращается order в статусе DONE
+#         #Надо поределить, как возвращается _order в статусе DONE
 #         #Добавить запись в таблице
 #
 #

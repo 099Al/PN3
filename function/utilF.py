@@ -18,8 +18,8 @@ def last_prices(base='BTC',quote='USD',delta_price=0):
 def current_price(base='BTC',quote='USD'):
     ord = cexdata.orderbook(base, quote)
 
-    price_bids = ord['bids'][0][0]   #buy order
-    price_asks = ord['asks'][0][0]   #sell order
+    price_bids = ord['bids'][0][0]   #buy _order
+    price_asks = ord['asks'][0][0]   #sell _order
 
     return {'bids':price_bids,'asks':price_asks}
 

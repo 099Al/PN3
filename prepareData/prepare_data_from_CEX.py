@@ -111,7 +111,7 @@ def save_cex_history_add(folder_path, new_date=0):
         with open(hist_file,'r') as fhist:
             content = json.loads(fhist.read())
 
-            trades_ids = content['data']['trades']
+            trades_ids = content['_data']['trades']
 
 
             data=[]
@@ -130,9 +130,9 @@ def save_cex_history_add(folder_path, new_date=0):
 
                 data.append(line_x)
 
-            #print(data[0:5])
+            #print(_data[0:5])
             data.reverse()
-            #print(data[0:5])
+            #print(_data[0:5])
             cur.execute("DELETE FROM im_stg_cex_history_tik")
             cur.executemany("INSERT INTO im_stg_cex_history_tik (tid,date,unixdate,trade_data) VALUES (?,?,?,?)",data)
             cur.execute(f"""INSERT INTO im_cex_history_tik (tid,unixdate,date,trade_data) 
@@ -150,7 +150,7 @@ def save_cex_history_add(folder_path, new_date=0):
 
 if __name__ == '__main__':
 
-    PREFIX = 'cex_' #Prefix for filtering data. Get files with this prefix
+    PREFIX = 'cex_' #Prefix for filtering _data. Get files with this prefix
     date_slice = slice(len(PREFIX), len(PREFIX)+8)  # Часть файла с датой формирования. В названии файл должна быть дата формирования
 
 

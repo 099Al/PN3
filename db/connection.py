@@ -8,7 +8,7 @@ import sqlite3
 from configs import config
 
 
-db_name = config.DB__DB_NAME
+db_name = config.DB_NAME
 
 class DBConnect:
     def getConnect(self):
