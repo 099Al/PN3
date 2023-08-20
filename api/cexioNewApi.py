@@ -112,6 +112,7 @@ class Api:
     def currencies_info(self):
         return self.api_call('get_currencies_info')
 
+
     def candles(self,dataType,pair='BTC-USD',limit=None,resolution='1h',fromDT=None,toDT=None):
 
         if dataType:
@@ -146,6 +147,9 @@ class Api:
         pairs = list(map(lambda x:x.replace('/','-'),pairs))
         param = {'pairs':pairs}
         return self.api_call('get_ticker', param)
+
+
+
 
     # PRIVATE COMMANDS
 
@@ -252,6 +256,23 @@ class Api:
         return self.api_call('do_cancel_all_orders',param)
 
 
+    #CUSTOM COMMANDS
+    def limit_info(self,pairs = 'BTC/USD'):
+        pairs = pairs.replace('/','-')
+        base,quote = pairs.split('-')
+        data = self.api_call('get_pairs_info')['data']
+        info = list(filter(lambda x: x['base']==base and x['quote']==quote,data))[0]
+        return info
+
+
+    def current_prices(self,pair = 'BTC/USD'):
+        pairs = pair.replace('/', '-')
+        res = self.ticker(pairs=[pairs])['data'][pairs]
+        bestBid = res['bestBid']
+        bestAsk = res['bestAsk']
+        return {'bestBid':bestBid,'bestAsk':bestAsk}
+
+
 if __name__ == '__main__':
     from datetime import datetime
 
@@ -261,7 +282,18 @@ if __name__ == '__main__':
 
     api = Api(config.API_USER, config.API_KEY, config.API_SECRET)
 
-    buy_req = api.buy_limit_order(0.0005, 28000.0, 1)
+    #limit_info = api.limit_info('BTC-USD')
+    #print(limit_info)
+
+    #ticker = api.ticker()
+    #print(ticker)
+
+    last_price = api.current_prices('BTC/USD')
+    print(last_price)
+
+    exit()
+
+    #buy_req = api.buy_limit_order(0.0005, 28000.0, 1)
 
     #sell_req = api.sell_limit_order(0.0005, 300000.0, 1)
 
