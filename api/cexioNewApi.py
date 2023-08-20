@@ -158,7 +158,7 @@ class Api:
         return self.api_call('get_my_account_status_v2',param)
 
     def get_myfee(self):
-        return self.api_call('get_myfee')
+        return self.api_call('get_my_fee')
 
     def open_orders(self, params=None):
         return self.api_call('get_my_orders', params)
@@ -272,6 +272,11 @@ class Api:
         bestAsk = res['bestAsk']
         return {'bestBid':bestBid,'bestAsk':bestAsk}
 
+    def fee(self,pair='BTC/USD'):
+        pair = pair.replace('/', '-')
+        res = self.api_call('get_my_fee')
+        fee = res['data']['tradingFee'][pair]['percent']
+        return fee
 
 if __name__ == '__main__':
     from datetime import datetime
@@ -288,8 +293,10 @@ if __name__ == '__main__':
     #ticker = api.ticker()
     #print(ticker)
 
-    last_price = api.current_prices('BTC/USD')
-    print(last_price)
+    #last_price = api.current_prices('BTC/USD')
+    #print(last_price)
+    fee = api.fee()
+    print(fee)
 
     exit()
 

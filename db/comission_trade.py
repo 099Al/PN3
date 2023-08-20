@@ -1,30 +1,5 @@
 # -*- coding: utf-8 -*-
 
-'''
-Переименован из db.feeslimits
-
-Параметры комиссий за перевод, транзакции
-Параметры берутся из таблиц в БД
-'''
-# get alfa currency
-def alfa_curr(connect, X,Y):
-    curs = connect.cursor()
-    sql  = "SELECT BYE,SELL, DT FROM exchange " \
-           "WHERE BANK = 'ALFA' and base = '{X}' and quote = '{Y}' _order by DT DESC limit 1".format(X=X,Y=Y)
-    r = curs.execute(sql)
-    res = r.fetchone()
-    return res
-
-# get bank currency
-def bank_curr(connect,bank, X,Y):
-    curs = connect.cursor()
-    sql  = "SELECT BYE,SELL, DT FROM exchange " \
-           "WHERE BANK = '{bank}' and base = '{X}' and quote = '{Y}' _order by DT DESC limit 1".format(X=X,Y=Y,bank=bank)
-    r = curs.execute(sql)
-    res = r.fetchone()
-    return res
-
-# get cex fee
 def maker_taker(connect,vol30d):
     curs = connect.cursor()
     sql = "SELECT MAKER, TAKER FROM maker_taker WHERE VOL30d = {v}".format(v=vol30d)

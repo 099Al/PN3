@@ -26,9 +26,9 @@ conf_cred.read(path_credentials)
 
 
 
-API_USER = None
-API_KEY = None
-API_SECRET = None
+# API_USER = None
+# API_KEY = None
+# API_SECRET = None
 
 
 API_USER = conf_cred['CREDENTIALS']['user']
