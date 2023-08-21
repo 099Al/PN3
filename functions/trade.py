@@ -19,7 +19,7 @@ def cutX(x,n):
 
 #Покупка BTC
 #сумма списания X при покупке заданного кол-ва BTC
-def X_for_buyBTC(btc,price,comiss):
+def X_for_buyBTC(btc,price,comiss=None):
     # comis = 0.25%
     # mk_tk_comiss - maker taker commission
 
@@ -135,6 +135,13 @@ fee: 0,04987519 USD
 и по  0,00057314 резервирует 15   (разница ~0.26 cents)
 
 """
+
+def maxBTC_v2(X,price,comiss=None):
+    if comiss is None:
+        comiss = MAKER_TAKER
+    btc = (1-MAKER_TAKER/100)*X/price
+    return cutX(btc,8)
+
 def buyBTC(x, price, comiss=None):
     #comiss = 0.18513 #Примерная комиссия, по которой резервируется сумма
     if comiss is None:

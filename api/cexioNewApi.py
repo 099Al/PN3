@@ -160,14 +160,19 @@ class Api:
     def get_myfee(self):
         return self.api_call('get_my_fee')
 
+    #завершенные сделки
+    def transaction_history(self):
+        return self.api_call('get_my_transaction_history')
+
     def open_orders(self, params=None):
         return self.api_call('get_my_orders', params)
 
+    #стакан
     def order_book(self, params={'pair':'BTC-USD'}):
         return self.api_call('get_order_book',params)
 
-    def get_order(self, order_id):
-        return self.api_call('get_order', {'id': order_id})
+    def get_orders(self):
+        return self.api_call('get_my_orders')
 
     def set_order(self, amount, price, sell_buy, orderType='Limit',market='BTC/USD',clientOrderId=None):
 
@@ -295,8 +300,22 @@ if __name__ == '__main__':
 
     #last_price = api.current_prices('BTC/USD')
     #print(last_price)
-    fee = api.fee()
-    print(fee)
+    #fee = api.fee()
+    #print(fee)
+
+    #orders = api.open_orders()
+    #print('orders', orders)
+    #orders {'ok': 'ok', 'data': [{'orderId': '189237', 'clientOrderId': '72379967642F', 'clientId': 'up112344963', 'accountId': None, 'status': 'NEW', 'statusIsFinal': False, 'currency1': 'BTC', 'currency2': 'USD', 'side': 'SELL', 'orderType': 'Limit', 'timeInForce': 'GTC', 'comment': None, 'rejectCode': None, 'rejectReason': None, 'initialOnHoldAmountCcy1': '0.00057328', 'initialOnHoldAmountCcy2': None, 'executedAmountCcy1': None, 'executedAmountCcy2': None, 'requestedAmountCcy1': '0.00057328', 'requestedAmountCcy2': None, 'feeAmount': '0.00000000', 'feeCurrency': 'USD', 'price': '26200.0', 'averagePrice': None, 'clientCreateTimestamp': 1692594090681, 'serverCreateTimestamp': 1692594091638, 'lastUpdateTimestamp': 1692594091829, 'expireTime': None, 'effectiveTime': None}]}
+
+
+    order = api.get_orders()
+    print(order)
+
+    #transaction_history = api.transaction_history()
+    #print(transaction_history)
+    #   {'transactionId': '3221221', 'timestamp': '2023-08-21T04:41:43.434Z', 'accountId': '', 'type': 'commission','amount': '-0.03736367', 'details': "Commission for orderId='189231' for up112344963", 'currency': 'USD'}
+    # , {'transactionId': '3221215', 'timestamp': '2023-08-21T04:41:43.340Z', 'accountId': '', 'type': 'trade','amount': '0.00057328', 'details': "Trade orderId='189231' for up112344963", 'currency': 'BTC'}
+    # , {'transactionId': '3221206', 'timestamp': '2023-08-21T04:41:43.340Z', 'accountId': '', 'type': 'trade','amount': '-14.94546692', 'details': "Trade orderId='189231' for up112344963", 'currency': 'USD'}
 
     exit()
 

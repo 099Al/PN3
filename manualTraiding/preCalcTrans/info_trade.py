@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from functions.trade import maxBTC,presellBTC,sellBTC,priceForBuyBTC,priceForSellBTC
+from functions.trade import maxBTC,presellBTC,sellBTC,priceForBuyBTC,priceForSellBTC,maxBTC_v2,X_for_buyBTC
 from functions.deltas import deltaBTC,deltaX,priceForExpectBTC,priceForExpectX
 
 # Основные функции----------
@@ -21,6 +21,27 @@ def infoParametersToBuyBTC(price,x):
         else:
             print('btc max=', btc_n, 'price=', price_n)
     print('min')
+
+
+def infoParametersToBuyBTC_v2(price,x):
+    step = 10
+    btc_n = maxBTC_v2(x, price)
+    x_n = X_for_buyBTC(btc_n,price)
+    print(f'BTC_max_0={btc_n} price={price} x_for={x_n}')
+
+    print('max')
+    for i in range(-5,6):
+        dp = i*step
+        price_n = price+dp
+        btc_n = maxBTC_v2(x,price_n)
+        x_n = X_for_buyBTC(btc_n, price)
+        if i==0:
+            print(f'---BTC_max_0={btc_n} price={price} x_for={x_n}')
+        else:
+            print(f'BTC_max_0={btc_n} price={price} x_for={x_n}')
+    print('min')
+
+
 #Параметры для установки ордера на продажу
 def infoParametersToSellBTC(btc,price,mk_tk,taker):
 
