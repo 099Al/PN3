@@ -298,8 +298,8 @@ if __name__ == '__main__':
     #ticker = api.ticker()
     #print(ticker)
 
-    #last_price = api.current_prices('BTC/USD')
-    #print(last_price)
+    last_price = api.current_prices('BTC/USD')
+    print(last_price)
     #fee = api.fee()
     #print(fee)
 
@@ -311,11 +311,14 @@ if __name__ == '__main__':
     order = api.get_orders()
     print(order)
 
-    #transaction_history = api.transaction_history()
-    #print(transaction_history)
+    transaction_history = api.transaction_history()
+    print(transaction_history)
     #   {'transactionId': '3221221', 'timestamp': '2023-08-21T04:41:43.434Z', 'accountId': '', 'type': 'commission','amount': '-0.03736367', 'details': "Commission for orderId='189231' for up112344963", 'currency': 'USD'}
     # , {'transactionId': '3221215', 'timestamp': '2023-08-21T04:41:43.340Z', 'accountId': '', 'type': 'trade','amount': '0.00057328', 'details': "Trade orderId='189231' for up112344963", 'currency': 'BTC'}
     # , {'transactionId': '3221206', 'timestamp': '2023-08-21T04:41:43.340Z', 'accountId': '', 'type': 'trade','amount': '-14.94546692', 'details': "Trade orderId='189231' for up112344963", 'currency': 'USD'}
+
+    trade_hist = api.trade_history()
+    print(trade_hist)
 
     exit()
 
@@ -323,7 +326,7 @@ if __name__ == '__main__':
 
     #sell_req = api.sell_limit_order(0.0005, 300000.0, 1)
 
-    print(buy_req)
+
 
     exit()
 
@@ -335,7 +338,7 @@ if __name__ == '__main__':
     #currencies_info = api.candles(dataType='bestAsk',fromDT=fromDT,toDT=toDT)
     #print(currencies_info)
 
-    trade_hist = api.trade_history()
+
 
 
     # test private

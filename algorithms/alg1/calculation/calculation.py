@@ -57,7 +57,7 @@ def    calc(curr_prices,line):
         x = bln_x  #в этом варианте все
 
         #на эту сумму возможно взять btc
-        amount = trns.maxBTC(x,b_price)
+        amount = trns.buyBTC(x, b_price)
 
         return {'type': 'buy', 'mtype':'limit','crypt':'BTC', 'amount':amount, 'price':b_price, 'x':x}
 

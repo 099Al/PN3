@@ -1,21 +1,21 @@
 # -*- coding: utf-8 -*-
 
-from functions.trade import maxBTC,presellBTC,sellBTC,priceForBuyBTC,priceForSellBTC,maxBTC_v2,X_for_buyBTC
+from functions.trade import buyBTC,presellBTC,sellBTC,price_for_buy_btc,price_for_sell_btc,X_for_buyBTC
 from functions.deltas import deltaBTC,deltaX,priceForExpectBTC,priceForExpectX
 
 # Основные функции----------
 #Параметры для установки ордера на покупку
 #Какой кол-во btc и по какой цене, чтобы взять на X(на всю сумму)
-def infoParametersToBuyBTC(price,x):
+def infoParametersToBuyBTC(price,x,version=None):
     step = 10
-    btc_n = maxBTC(x, price)
+    btc_n = buyBTC(x, price,version=version)
     print('BTC_max_0=', btc_n, 'price=', price)
 
     print('max')
     for i in range(-5,6):
         dp = i*step
         price_n = price+dp
-        btc_n = maxBTC(x,price_n)
+        btc_n = buyBTC(x, price_n,version=version)
         if i==0:
             print('---btc max=',btc_n,'price=',price_n)
         else:
@@ -23,23 +23,7 @@ def infoParametersToBuyBTC(price,x):
     print('min')
 
 
-def infoParametersToBuyBTC_v2(price,x):
-    step = 10
-    btc_n = maxBTC_v2(x, price)
-    x_n = X_for_buyBTC(btc_n,price)
-    print(f'BTC_max_0={btc_n} price={price} x_for={x_n}')
 
-    print('max')
-    for i in range(-5,6):
-        dp = i*step
-        price_n = price+dp
-        btc_n = maxBTC_v2(x,price_n)
-        x_n = X_for_buyBTC(btc_n, price)
-        if i==0:
-            print(f'---BTC_max_0={btc_n} price={price} x_for={x_n}')
-        else:
-            print(f'BTC_max_0={btc_n} price={price} x_for={x_n}')
-    print('min')
 
 
 #Параметры для установки ордера на продажу
@@ -119,7 +103,7 @@ def infoExpPrice_buyBTC_sellBTC(x0,current_price,x_expected,commis):
 def infoExpPrice_buyBTC(X, btc_exp):
 
 
-    p = priceForBuyBTC(btc_exp, X)
+    p = price_for_buy_btc(btc_exp, X)
 
     print('Для покупки BTC:', btc_exp, 'На все X', X)
     print('Цена должна снизиться до', p)
@@ -128,7 +112,7 @@ def infoExpPrice_sellBTC(x_exp, btc, commis):
 
 
     # продажа имеющихся btc
-    p_exp = priceForSellBTC(x_exp, btc, commis)
+    p_exp = price_for_sell_btc(x_exp, btc, commis)
 
     print('Для получения X:',x_exp,'   за BTC=',btc)
     print('Цена продажи:',p_exp['price'],'   BTCpresell:',p_exp['sellbtc'])
@@ -139,6 +123,7 @@ def infoExpPrice_sellBTC(x_exp, btc, commis):
 
 if __name__ == '__main__':
 
-    price = 26156
-    x = 20
-    infoParametersToBuyBTC(price,x)
+    price = 26000
+    x = 15
+    infoParametersToBuyBTC(price,x,version=3)
+    infoParametersToBuyBTC(price, x, version=1)

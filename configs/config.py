@@ -18,10 +18,14 @@ DB_NAME = conf_data['PARAMETERS']['DB_NAME']
 #LIMITS
 MAKER_TAKER = float(conf_data['FEES']['MAKER_TAKER'])
 TAKER = float(conf_data['FEES']['TAKER'])
+#комиссия, при покупки. Для расчета резервирования средст с баланса
+BUY_FEE = float(conf_data['FEES']['BUY_FEE'])
+
 
 
 #PARAMETERS
-REQUEST_PERIOD = conf_data['PARAMETERS']['REQUEST_PERIOD']
+REQUEST_PERIOD = int(conf_data['PARAMETERS']['REQUEST_PERIOD'])
+BUYBTC_VERSION = int(conf_data['FUNCTIONS']['BUYBTC_VERSION'])
 
 
 #CREDENTIALS

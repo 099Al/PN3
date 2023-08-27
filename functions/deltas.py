@@ -5,7 +5,7 @@
 
 import numpy as np
 
-from functions.trade import sellBTC,presellBTC,maxBTC,priceForBuyBTC,X_for_buyBTC,priceForSellBTC
+from functions.trade import sellBTC,presellBTC,buyBTC,price_for_buy_btc,X_for_buyBTC,price_for_sell_btc
 from configs.config import MAKER_TAKER, TAKER
 
 
@@ -28,7 +28,7 @@ def deltaBTC(btc0,current_price,expected_price,commis=0):
     btc1 = presellBTC(btc0,current_price)
     dbtc = btc0-btc1  # остаток  на балансе
     x = sellBTC(btc0,current_price,commis)['x']    # получаем после продажи
-    btc = maxBTC(x,expected_price)                 # после покупки по новой цене
+    btc = buyBTC(x, expected_price)                 # после покупки по новой цене
 
     return {'delta':btc-btc0+dbtc, 'btc': btc}
 
@@ -39,7 +39,7 @@ def deltaBTC(btc0,current_price,expected_price,commis=0):
 #если взять btc по текущей цене
 def deltaX(x0,current_price,expected_price,commis):
 
-    btc1 = maxBTC(x0, current_price)
+    btc1 = buyBTC(x0, current_price)
     x1 = X_for_buyBTC(btc1,current_price,commis)
 
     #dx = x0 - x1 >0  # если комиссия меньше taker, то от x0 что-то должно остаться
@@ -69,7 +69,7 @@ def priceForExpectBTC(btc0, current_price, btc_expected,commis=0):
 
     x = sellBTC(btc0,current_price,commis)['x'] # получаем X при продаже
 
-    p = priceForBuyBTC(btc_expected, x)
+    p = price_for_buy_btc(btc_expected, x)
 
     return {'price',p,'x',x}
 
@@ -83,14 +83,14 @@ def priceForExpectX(x0,current_price,x_expected,commis):
     :param commis:      комиссия при транзакциях
     :return:
     '''
-    btc1 = maxBTC(x0, current_price)
+    btc1 = buyBTC(x0, current_price)
     x1 = X_for_buyBTC(btc1,current_price,commis)  #потратилось
     dx = x0-x1
 
     x_exp2 = x_expected-dx # т.к. на остатке, что-то останется, то необходимое кол-во X при продаже может быть меньше
 
     #Необходимая цена
-    price_exp = priceForSellBTC(x_exp2,btc1,commis) # продажа имеющихся btc
+    price_exp = price_for_sell_btc(x_exp2, btc1, commis) # продажа имеющихся btc
 
     return {'price':price_exp['price'],'maxbtc':btc1,'sellbtc':price_exp['btc']}
 

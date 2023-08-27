@@ -7,7 +7,7 @@ import numpy as np
 import math
 
 
-from configs.config import MAKER_TAKER
+from configs.config import MAKER_TAKER,BUYBTC_VERSION,BUY_FEE
 
 #Оставить n знаков после запятой
 def cutX(x,n):
@@ -34,31 +34,11 @@ def X_for_buyBTC(btc,price,comiss=None):
 
 #Покупка BTC
 
-# max BTC, которое можно взять, если на балансе X. Грубой приблежение, но быстрее считается
-def maxBTC_aprox(X,price,comiss=None):
-    if comiss is None:
-        comiss = MAKER_TAKER
-
-    # Расположение на координатной оси
-    #  Xl------X--------Xr
-    #  Bl------B0-------Br
-
-    #taker_comis=0.25%
-    Br = X/(price*(1+comiss/100))
-    Br = cutX(Br,8)   # максимально возможная величина (не достигается из-за округлений)
-    Xr = X_for_buyBTC(Br,price,comiss)
-
-    if(Xr<=X):   #если после округлений, суммы на балансе хватает
-        return Br
-
-    Bl = cutX(Br,6)   # отбрасывание 2-х знаков.
-    return Bl
-
 
 # max BTC, которое можно взять, если на балансе X
-def maxBTC(X,price,comiss=None):
+def buy_maxBTC_v1(X, price, comiss=None):
     if comiss is None:
-        comiss = MAKER_TAKER
+        comiss = BUY_FEE
 
     # Расположение на координатной оси
     #  Xl------X--------Xr
@@ -106,64 +86,88 @@ def maxBTC(X,price,comiss=None):
 
     return Bl
 
-
-
-
-#Покупка BTC по цене P на X usd
-"""
-btc max= 0.00076419 price= 26106
-total: 19.94994414 USD
-fee: 0.04987486 USD
-
-0.00076388 price= 26116
-total: 19.94949008 USD
-fee: 0.04987373 USD
-
-
-btc max= 0.00076359 price= 26126
-tatal: 19,94955234 USD
-fee: 0,04987388 USD
-
-0.00076361 BTC price = 26126 USD  !!!
-total: 19,95007486 USD
-fee: 0,04987519 USD
-
-
-
-0.00057340  price 26106  резервирует 15.01
-расчетный 0,00057304  
-и по  0,00057314 резервирует 15   (разница ~0.26 cents)
-
-"""
-
-def maxBTC_v2(X,price,comiss=None):
+# max BTC, которое можно взять, если на балансе X. Грубой приблежение, но быстрее считается
+def buy_maxBTC_v2(X,price,comiss=None):
     if comiss is None:
-        comiss = MAKER_TAKER
-    btc = (1-MAKER_TAKER/100)*X/price
+        comiss = BUY_FEE
+
+    # Расположение на координатной оси
+    #  Xl------X--------Xr
+    #  Bl------B0-------Br
+
+    #taker_comis=0.25%
+    Br = X/(price*(1+comiss/100))
+    Br = cutX(Br,8)   # максимально возможная величина (не достигается из-за округлений)
+    Xr = X_for_buyBTC(Br,price,comiss)
+
+    if(Xr<=X):   #если после округлений, суммы на балансе хватает
+        return Br
+
+    Bl = cutX(Br,6)   # отбрасывание 2-х знаков.
+    return Bl
+
+
+
+
+
+
+#Величина получается больше, чем при maxBTC. Так же ордер может выставиться
+#Но по обраьной формуле X_for_buyBTC величина X будет больше
+def buy_maxBTC_v3(X,price,comiss=None):
+    if comiss is None:
+        comiss = BUY_FEE
+    btc = (1-comiss/100)*X/price
     return cutX(btc,8)
 
-def buyBTC(x, price, comiss=None):
+
+def buyBTC(x, price, comiss=None,version=None):
     #comiss = 0.18513 #Примерная комиссия, по которой резервируется сумма
     if comiss is None:
-        comiss = MAKER_TAKER
+        comiss = BUY_FEE
 
-    btc = maxBTC(x,price,comiss)
-    x1 = X_for_buyBTC(btc,price,comiss) #Проверка
-
-    # Разница должна быть 0. Но из-за разницы комиссий, может отличаться. В данном случае комиссия одинакова.
-    # Но возможно для btc и x1 она должна быть разной
-    dx = np.round(x-x1,2)
-
-    return {'btc':btc,'dx':dx}
+    if version is None:
+        version = BUYBTC_VERSION
 
 
+    btc = None
+    if version == 1:
+        btc = buy_maxBTC_v1(x, price, comiss)
+    elif version == 2:
+        btc = buy_maxBTC_v2(x, price, comiss)
+    elif version == 3:
+        btc = buy_maxBTC_v3(x, price, comiss)
+
+    return btc
+
+
+
+
+#----Продажа BTC---------------------------------------------------------------
+#Рассчет суммы, которая полностью продастся без округления
+def presellBTC(btc, price):
+    x = btc*price
+    x = cutX(x, 2)
+    btc = x/price
+    btc = math.ceil(btc * 100000000) / 100000000
+    return btc
+
+#btc надо предрасчитывать, чтобы часть не терялась при округлении
+def sellBTC(btc,price,mk_tk=None):
+    if mk_tk is None:
+        mk_tk = MAKER_TAKER
+    btc0 = presellBTC(btc, price)
+    x = cutX(btc0*price,2)
+    comis = np.round(mk_tk/100*x,2)
+    x = cutX(x-comis,2)
+    return {'x':x,'comis':comis}
 
 
 
 
 
 #Есть X, необходимо взять BTC. Какая нужна цена (до какой величины снизится, чтобы было можно взять)
-def priceForBuyBTC(btc_expected,X, comiss=None):
+#----------------------------------------------------------
+def price_for_buy_btc(btc_expected, X, comiss=None):
     '''
         X вычисляется по формуле:
         fO(x) = округление_в_большую_сторону_до_2_знаков(x)
@@ -211,27 +215,8 @@ def priceForBuyBTC(btc_expected,X, comiss=None):
 
 
 
-#Продажа BTC
-#Рассчет суммы, которая полностью продастся без округления
-def presellBTC(btc, price):
-    x = btc*price
-    x = cutX(x, 2)
-    btc = x/price
-    btc = math.ceil(btc * 100000000) / 100000000
-    return btc
-
-#btc надо предрасчитывать, чтобы часть не терялась при округлении
-def sellBTC(btc,price,mk_tk=None):
-    if mk_tk is None:
-        mk_tk = MAKER_TAKER
-    btc0 = presellBTC(btc, price)
-    x = cutX(btc0*price,2)
-    comis = np.round(mk_tk/100*x,2)
-    x = cutX(x-comis,2)
-    return {'x':x,'comis':comis}
-
 #Поиск btc, чтобы за имеющиеся btc, купить желаемые X
-def sellBTCForX(x_exp,price,mk_tk=None):
+def sell_btc_for_x(x_exp, price, mk_tk=None):
     if mk_tk is None:
         mk_tk = MAKER_TAKER
 
@@ -265,7 +250,7 @@ def sellBTCForX(x_exp,price,mk_tk=None):
 
 
 #Поиск цены p, чтобы за имеющиеся btc, получить желаемые X
-def priceForSellBTC(X_exp,btc,comiss=None):
+def price_for_sell_btc(X_exp, btc, comiss=None):
 
     '''
     :param X_exp: ожидаемое количество
@@ -314,16 +299,19 @@ def priceForSellBTC(X_exp,btc,comiss=None):
 
 if __name__ == '__main__':
     p = 26000
-    x = 20
-    b = maxBTC(x, p)
-    btc, dx = buyBTC(x, p, 0.18).values()
-    x1 = X_for_buyBTC(btc, p, 0.18)  # перепроверка
+    x = 15
+    BUYBTC_VERSION = 3
+    b = buyBTC(x, p)
+    btc = buyBTC(x, p, 0.18513)
+    x1 = X_for_buyBTC(btc, p, 0.25)  # перепроверка
 
-    print('b=', b)
-    print('a,b', btc, dx)
-    print(x1)
+    print('btc=', btc)
+    print('x1=',x1)
 
+    btc2 = (1 - 0.18513 / 100) * x / p
+    print(btc2)
 
+    #0.00057586
 
     #x = X_for_buyBTC(b+0.0000000, p, 0.25)
     #print('x=',x)

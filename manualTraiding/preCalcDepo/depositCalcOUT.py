@@ -498,7 +498,7 @@ class InfoCalcFromDep():
         else:
             print('Введен не верный тип. RUB либо USD')
 
-        btc0 = transf.sellBTCForX(x_exp, price, mk_tk)
+        btc0 = transf.sell_btc_for_x(x_exp, price, mk_tk)
 
         return {'btc':btc0,'price':price}
 
