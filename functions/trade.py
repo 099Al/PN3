@@ -19,7 +19,7 @@ def cutX(x,n):
 
 #Покупка BTC
 #сумма списания X при покупке заданного кол-ва BTC
-def X_for_buyBTC(btc,price,comiss=None):
+def X_for_buyBTC_v1(btc,price,comiss=None):
     # comis = 0.25%
     # mk_tk_comiss - maker taker commission
 
@@ -41,6 +41,14 @@ def X_for_buyBTC_v3(btc,price,comiss=None):
 
     x = btc*price/(1 - comiss / 100)
     x = math.ceil(x*100)/100
+    return x
+
+def X_for_buyBTC(btc,price,comiss=None,version=3):
+    if version == 1:
+        x = X_for_buyBTC_v1(btc,price,comiss)
+    elif version == 3:
+        x = X_for_buyBTC_v3(btc,price,comiss)
+
     return x
 
 #Покупка BTC
@@ -311,11 +319,11 @@ def price_for_sell_btc(X_exp, btc, comiss=None):
 if __name__ == '__main__':
     p = 26000
     x = 15
-    BUYBTC_VERSION = 3
+    BUYBTC_VERSION = 1
 
 
-    btc = buyBTC(x, p, 0.18513)
-    x1 = X_for_buyBTC(btc, p, 0.25)  # перепроверка
+    btc = buyBTC(x, p, 0.18513,3)
+    x1 = X_for_buyBTC(btc, p, 0.18513)  # перепроверка
 
     print('btc=', btc)
     print('x1=',x1)
@@ -325,10 +333,8 @@ if __name__ == '__main__':
 
     #0.00057586
 
-    btc = 0.00057607
-    p = 25990
-    x2 = btc*p/(1 - 0.18513 / 100)
-    print('x',round(x2,2))
+    x = X_for_buyBTC_v3(btc,p,0.18513)
+    print('x',x)
 
     #x = X_for_buyBTC(b+0.0000000, p, 0.25)
     #print('x=',x)
