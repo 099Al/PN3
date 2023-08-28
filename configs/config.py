@@ -25,7 +25,7 @@ BUY_FEE = float(conf_data['FEES']['BUY_FEE'])
 
 #PARAMETERS
 REQUEST_PERIOD = int(conf_data['PARAMETERS']['REQUEST_PERIOD'])
-BUYBTC_VERSION = int(conf_data['FUNCTIONS']['BUYBTC_VERSION'])
+
 
 
 #CREDENTIALS

@@ -7,7 +7,21 @@ import numpy as np
 import math
 
 
-from configs.config import MAKER_TAKER,BUYBTC_VERSION,BUY_FEE
+from configs.config import MAKER_TAKER,BUY_FEE
+
+
+"""
+Версии функций для расчета
+Возможно их надо вынести в config
+
+Для расчета X для покупкт BTC наиболее верный результат выдает X_for_buyBTC_v3
+
+Для расчета максимольного BTC для заданного X наиболее верно высчитывает buy_maxBTC_v3
+buy_maxBTC_v1 тоже верно высчитывает, при использовании X_for_buyBTC_v3
+
+"""
+BUYBTC_VERSION=3
+X_FOR_BUY_VERSION = 3
 
 #Оставить n знаков после запятой
 def cutX(x,n):
@@ -43,10 +57,10 @@ def X_for_buyBTC_v3(btc,price,comiss=None):
     x = math.ceil(x*100)/100
     return x
 
-def X_for_buyBTC(btc,price,comiss=None,version=3):
-    if version == 1:
+def X_for_buyBTC(btc,price,comiss=None):
+    if X_FOR_BUY_VERSION == 1:
         x = X_for_buyBTC_v1(btc,price,comiss)
-    elif version == 3:
+    elif X_FOR_BUY_VERSION == 3:
         x = X_for_buyBTC_v3(btc,price,comiss)
 
     return x
@@ -139,21 +153,19 @@ def buy_maxBTC_v3(X,price,comiss=None):
     return cutX(btc,8)
 
 
-def buyBTC(x, price, comiss=None,version=None):
+def buyBTC(x, price, comiss=None):
     #comiss = 0.18513 #Примерная комиссия, по которой резервируется сумма
     if comiss is None:
         comiss = BUY_FEE
 
-    if version is None:
-        version = BUYBTC_VERSION
 
 
     btc = None
-    if version == 1:
+    if BUYBTC_VERSION == 1:
         btc = buy_maxBTC_v1(x, price, comiss)
-    elif version == 2:
+    elif BUYBTC_VERSION == 2:
         btc = buy_maxBTC_v2(x, price, comiss)
-    elif version == 3:
+    elif BUYBTC_VERSION == 3:
         btc = buy_maxBTC_v3(x, price, comiss)
 
     return btc
@@ -319,21 +331,21 @@ def price_for_sell_btc(X_exp, btc, comiss=None):
 if __name__ == '__main__':
     p = 26000
     x = 15
-    BUYBTC_VERSION = 1
+    BUYBTC_VERSION = 3
+    buy_commis = 0.18513
 
-
-    btc = buyBTC(x, p, 0.18513,3)
-    x1 = X_for_buyBTC(btc, p, 0.18513)  # перепроверка
+    btc = buyBTC(x, p, buy_commis)
+    x1 = X_for_buyBTC(btc, p, buy_commis)  # перепроверка
 
     print('btc=', btc)
     print('x1=',x1)
 
-    btc2 = (1 - 0.18513 / 100) * x / p
+    btc2 = (1 - buy_commis / 100) * x / p
     print(btc2)
 
     #0.00057586
 
-    x = X_for_buyBTC_v3(btc,p,0.18513)
+    x = X_for_buyBTC_v3(btc,p,buy_commis)
     print('x',x)
 
     #x = X_for_buyBTC(b+0.0000000, p, 0.25)

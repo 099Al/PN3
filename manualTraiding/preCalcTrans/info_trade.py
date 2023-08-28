@@ -6,18 +6,18 @@ from functions.deltas import deltaBTC,deltaX,priceForExpectBTC,priceForExpectX
 # Основные функции----------
 #Параметры для установки ордера на покупку
 #Какой кол-во btc и по какой цене, чтобы взять на X(на всю сумму)
-def infoParametersToBuyBTC(price,x,version=None):
+def infoParametersToBuyBTC(price,x):
     step = 10
-    btc_n = buyBTC(x, price,version=version)
+    btc_n = buyBTC(x, price)
     print('BTC_max_0=', btc_n, 'price=', price)
 
     print('max')
     for i in range(-5,6):
         dp = i*step
         price_n = price+dp
-        btc_n = buyBTC(x, price_n,version=version)
+        btc_n = buyBTC(x, price_n)
 
-        x1_n = X_for_buyBTC_v3(btc_n,price_n)
+        x1_n = X_for_buyBTC(btc_n,price_n)
 
         if i==0:
             print('---btc max=',btc_n,'price=',price_n,'x=',x1_n)
@@ -128,7 +128,7 @@ if __name__ == '__main__':
 
     price = 26000
     x = 15
-    infoParametersToBuyBTC(price,x,version=3)
+    infoParametersToBuyBTC(price,x)
     #infoParametersToBuyBTC(price, x, version=1)
     x_b = X_for_buyBTC(0.00057585,26000)
     print(x_b)
