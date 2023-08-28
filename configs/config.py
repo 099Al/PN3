@@ -20,7 +20,7 @@ MAKER_TAKER = float(conf_data['FEES']['MAKER_TAKER'])
 TAKER = float(conf_data['FEES']['TAKER'])
 #комиссия, при покупки. Для расчета резервирования средст с баланса
 BUY_FEE = float(conf_data['FEES']['BUY_FEE'])
-
+SELL_FEE = float(conf_data['FEES']['SELL_FEE'])
 
 
 #PARAMETERS

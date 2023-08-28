@@ -1,6 +1,6 @@
 from api.cexioNewApi import Api
 from configs import config
-from manualTraiding.preCalcTrans.info_trade import infoParametersToBuyBTC,infoParametersToBuyBTC_v2
+from manualTraiding.preCalcTrans.info_trade import info_parameters_to_buy_BTC,infoParametersToBuyBTC_v2
 
 if __name__ == '__main__':
 
@@ -15,7 +15,7 @@ if __name__ == '__main__':
 
     price = 26100
     x = 15
-    infoParametersToBuyBTC(price, x)
+    info_parameters_to_buy_BTC(price, x)
     print('------')
     infoParametersToBuyBTC_v2(price,x)
 

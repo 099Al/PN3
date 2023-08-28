@@ -7,7 +7,7 @@ import numpy as np
 import math
 
 
-from configs.config import MAKER_TAKER,BUY_FEE
+from configs.config import MAKER_TAKER,BUY_FEE,SELL_FEE
 
 
 """
@@ -64,8 +64,6 @@ def X_for_buyBTC(btc,price,comiss=None):
         x = X_for_buyBTC_v3(btc,price,comiss)
 
     return x
-
-#Покупка BTC
 
 
 # max BTC, которое можно взять, если на балансе X
@@ -170,11 +168,12 @@ def buyBTC(x, price, comiss=None):
 
     return btc
 
-
+#------------------------покупка BTC------------------------------------
 
 
 #----Продажа BTC---------------------------------------------------------------
 #Рассчет суммы, которая полностью продастся без округления
+#Есть вариант, что выставленная сумма при продаже округлится в меньшую сторону и именно эта величина будет умножаться на цену.
 def presellBTC(btc, price):
     x = btc*price
     x = cutX(x, 2)
@@ -183,16 +182,16 @@ def presellBTC(btc, price):
     return btc
 
 #btc надо предрасчитывать, чтобы часть не терялась при округлении
-def sellBTC(btc,price,mk_tk=None):
-    if mk_tk is None:
-        mk_tk = MAKER_TAKER
+def sellBTC(btc,price,comiss=None):
+    if comiss is None:
+        comiss = SELL_FEE
     btc0 = presellBTC(btc, price)
     x = cutX(btc0*price,2)
-    comis = np.round(mk_tk/100*x,2)
-    x = cutX(x-comis,2)
-    return {'x':x,'comis':comis}
+    comis_r = np.round(comiss/100*x,2)
+    x = cutX(x-comis_r,2)
+    return {'x':x,'comis':comis_r}
 
-
+#----------продажа BTC--------------------
 
 
 
@@ -222,9 +221,9 @@ def price_for_buy_btc(btc_expected, X, comiss=None):
        можно взять только одно значение BTC, может быть разный только остаток от X'''
 
     if comiss is None:
-        comiss = MAKER_TAKER
+        comiss = BUY_FEE
 
-    p_r = X / (btc_expected * (1 + taker / 100))  # будет больше искомой
+    p_r = X / (btc_expected * (1 + comiss / 100))  # будет больше искомой
     p_l = (X - 0.0201) / (btc_expected * (1 + comiss / 100))  # будет меньше искомой
 
     #X_n = X_for_buyBTC(btc_expected, p_r,taker)
@@ -249,7 +248,7 @@ def price_for_buy_btc(btc_expected, X, comiss=None):
 #Поиск btc, чтобы за имеющиеся btc, купить желаемые X
 def sell_btc_for_x(x_exp, price, mk_tk=None):
     if mk_tk is None:
-        mk_tk = MAKER_TAKER
+        mk_tk = SELL_FEE
 
     bl = x_exp / (price*(1-mk_tk/100))
 
@@ -348,6 +347,18 @@ if __name__ == '__main__':
     x = X_for_buyBTC_v3(btc,p,buy_commis)
     print('x',x)
 
+    sell_btc = 0.00150000
+    sell_price = 26200
+    x = sellBTC(sell_btc,sell_price)
+    print('sell',x)
+
+    btc_expected = 0.000576
+    x=15
+    price = price_for_buy_btc(btc_expected, x)
+    print('price',price)
+
+    btc = sell_btc_for_x(15, 26200, mk_tk=None)
+    print(btc)
     #x = X_for_buyBTC(b+0.0000000, p, 0.25)
     #print('x=',x)
 
