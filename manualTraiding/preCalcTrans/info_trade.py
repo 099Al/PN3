@@ -30,14 +30,14 @@ def info_parameters_to_buy_BTC(price, x):
 
 
 #Параметры для установки ордера на продажу
-def infoParametersToSellBTC(btc,price,mk_tk,taker):
+def info_parameters_to_sell_BTC(btc, price, mk_tk, taker):
 
     step=10
 
-    print('Продать btc:',btc)
+    print(f'Продать btc:{btc} по цене:{price}')
     btc_pre_n = presellBTC(btc, price)
     x_n = sellBTC(btc_pre_n, price, mk_tk)['x']
-    print('btc_pre_0:', btc_pre_n, 'цена:', price, 'X_mt:', x_n, '%_mt', mk_tk)
+    print(f'sell btc:{btc_pre_n} price:{price} result: {x_n} comiss mt:{mk_tk}%')
     for i in range(-5,6):
         dp =  i*step
         price_n = price+dp
@@ -45,29 +45,32 @@ def infoParametersToSellBTC(btc,price,mk_tk,taker):
         x_n = sellBTC(btc_pre_n,price_n,mk_tk)['x']
         x_n_taker = sellBTC(btc_pre_n,price_n,taker)['x']
 
-        print('btc_pre:',btc_pre_n,'цена:',price_n,' X_mt:',x_n,'X_tk:',x_n_taker,'%_mt:',mk_tk,)
+        if i == 0:
+            print(f'----sell btc:{btc_pre_n} price:{price_n} result: {x_n} - {x_n_taker} comiss_%: {mk_tk} - {taker}')
+        else:
+            print(f'sell btc:{btc_pre_n} price:{price_n} result: {x_n} - {x_n_taker} comiss_%: {mk_tk} - {taker}')
 
 
 #-------------------------
 
 
 #Изменение BTC при продаже по текущей цене и покупке по новой
-def infoDeltaBTC(btc,price_to_sell,price_exp_to_buy,mk_tk,taker):
+def info_delta_BTC(btc, price_to_sell, price_exp_to_buy, buy_fee, sell_fee):
 
 
-    dBTC = deltaBTC(btc,price_to_sell,price_exp_to_buy,mk_tk)
-    dBTC1 = deltaBTC(btc, price_to_sell, price_exp_to_buy, taker)
+    dBTC = deltaBTC(btc,price_to_sell,price_exp_to_buy,buy_fee)
+    dBTC1 = deltaBTC(btc, price_to_sell, price_exp_to_buy, sell_fee)
 
 
     print('BTC0=',btc,'текущая цена=',price_to_sell,'ожидаемая цена',price_exp_to_buy)
-    print('dBTC=',dBTC,'comiss=',mk_tk)
-    print('dBTC=', dBTC1, 'comiss=', taker)
+    print('dBTC=',dBTC,'comiss=',buy_fee)
+    print('dBTC=', dBTC1, 'comiss=', sell_fee)
 
 
-def infoDeltaX(x0,price_to_buy,price_exp_to_sell,mk_tk):
+def info_delta_X(x0, price_to_buy, price_exp_to_sell, sell_fee):
 
 
-    dx = deltaX(x0,price_to_buy,price_exp_to_sell,mk_tk)['dx']
+    dx = deltaX(x0,price_to_buy,price_exp_to_sell,sell_fee)['dx']
     print()
     print('x0=',x0,'Цена при покупке BTC на x0=',price_to_buy)
     print('Цена при продаже=',price_exp_to_sell)
@@ -91,7 +94,7 @@ def infoExpPrice_sellBTC0_buyBTC(btc0, current_price, btc_expected,commis):
 
 
 #Купить BTC  на X. Найти цену, по которой продать BTC для X
-def infoExpPrice_buyBTC_sellBTC(x0,current_price,x_expected,commis):
+def info_expected_price_buyBTC_sellBTC(x0, current_price, x_expected, commis):
 
 
     r = priceForExpectX(x0,current_price,x_expected,commis)
@@ -111,14 +114,14 @@ def infoExpPrice_buyBTC(X, btc_exp):
     print('Для покупки BTC:', btc_exp, 'На все X', X)
     print('Цена должна снизиться до', p)
 
-def infoExpPrice_sellBTC(x_exp, btc, commis):
+def info_expected_price_sellBTC(x_exp, btc, sell_commis):
 
 
     # продажа имеющихся btc
-    p_exp = price_for_sell_btc(x_exp, btc, commis)
+    p_exp = price_for_sell_btc(x_exp, btc, sell_commis)
 
-    print('Для получения X:',x_exp,'   за BTC=',btc)
-    print('Цена продажи:',p_exp['price'],'   BTCpresell:',p_exp['sellbtc'])
+    print(f'Для получения X:{x_exp} за BTC={btc} Цена продажи:{p_exp["price"]}  BTCpresell:{p_exp["btc"]}')
+
 
 
 #Остальные функции высчитывать на Практике
@@ -126,9 +129,17 @@ def infoExpPrice_sellBTC(x_exp, btc, commis):
 
 if __name__ == '__main__':
 
+    print('---BUY---')
     price = 26000
     x = 15
     info_parameters_to_buy_BTC(price, x)
-    #infoParametersToBuyBTC(price, x, version=1)
-    x_b = X_for_buyBTC(0.00057585,26000)
-    print(x_b)
+    print('----SELL----')
+    mk_tk = 0.25
+    taker = 0.16
+    info_parameters_to_sell_BTC(0.00057585, price, mk_tk, taker)
+
+    print('----PRICE------')
+    x_exp = 15
+    btc = 0.00057328
+    sell_commis=0.25
+    info_expected_price_sellBTC(x_exp, btc, sell_commis)
