@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from functions.trade import buyBTC,presellBTC,sellBTC,price_for_buy_btc,price_for_sell_btc,X_for_buyBTC
+from functions.trade import buyBTC,presellBTC,sellBTC,price_for_buy_btc,price_for_sell_btc,X_for_buyBTC,X_for_buyBTC_v3
 from functions.deltas import deltaBTC,deltaX,priceForExpectBTC,priceForExpectX
 
 # Основные функции----------
@@ -16,10 +16,13 @@ def infoParametersToBuyBTC(price,x,version=None):
         dp = i*step
         price_n = price+dp
         btc_n = buyBTC(x, price_n,version=version)
+
+        x1_n = X_for_buyBTC_v3(btc_n,price_n)
+
         if i==0:
-            print('---btc max=',btc_n,'price=',price_n)
+            print('---btc max=',btc_n,'price=',price_n,'x=',x1_n)
         else:
-            print('btc max=', btc_n, 'price=', price_n)
+            print('btc max=', btc_n, 'price=', price_n,'x=',x1_n)
     print('min')
 
 
@@ -126,4 +129,6 @@ if __name__ == '__main__':
     price = 26000
     x = 15
     infoParametersToBuyBTC(price,x,version=3)
-    infoParametersToBuyBTC(price, x, version=1)
+    #infoParametersToBuyBTC(price, x, version=1)
+    x_b = X_for_buyBTC(0.00057585,26000)
+    print(x_b)

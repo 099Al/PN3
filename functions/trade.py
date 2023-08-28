@@ -24,12 +24,23 @@ def X_for_buyBTC(btc,price,comiss=None):
     # mk_tk_comiss - maker taker commission
 
     if comiss is None:
-        comiss = MAKER_TAKER
+        comiss = BUY_FEE
 
     a = math.ceil(btc * price * 100) / 100  # сумма при покупке по цене P (без комиссии)  Округление вверх до двух знаков
     k = math.ceil((a * comiss/100) * 100) / 100
     x = a + k  # сумма, необходимая для покупки BTC (с учетом комиссии)
     x = int(x*100)/100
+    return x
+
+def X_for_buyBTC_v3(btc,price,comiss=None):
+    # comis = 0.25%
+    # mk_tk_comiss - maker taker commission
+
+    if comiss is None:
+        comiss = BUY_FEE
+
+    x = btc*price/(1 - comiss / 100)
+    x = math.ceil(x*100)/100
     return x
 
 #Покупка BTC
@@ -301,7 +312,8 @@ if __name__ == '__main__':
     p = 26000
     x = 15
     BUYBTC_VERSION = 3
-    b = buyBTC(x, p)
+
+
     btc = buyBTC(x, p, 0.18513)
     x1 = X_for_buyBTC(btc, p, 0.25)  # перепроверка
 
@@ -312,6 +324,11 @@ if __name__ == '__main__':
     print(btc2)
 
     #0.00057586
+
+    btc = 0.00057607
+    p = 25990
+    x2 = btc*p/(1 - 0.18513 / 100)
+    print('x',round(x2,2))
 
     #x = X_for_buyBTC(b+0.0000000, p, 0.25)
     #print('x=',x)
