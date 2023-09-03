@@ -12,9 +12,14 @@ def f_alg1(unix_curr_time):
     if MODE == "TRADE":
         from api.cexioNewApi import Api
 
-        calc_res = CALCULTAION
 
         api = Api(config.API_USER, config.API_KEY, config.API_SECRET)
+
+        #для тестирования, чтобы перейти в нужную функция
+        #В этом месте нужно ее убрать
+        api.buy_limit_order()
+        api.sell_limit_order()
+
         #set or cancel
         #save into db
 
@@ -24,10 +29,21 @@ def f_alg1(unix_curr_time):
 
         api = emulatorApi('TEST_USER',unix_curr_time)
 
+        # для тестирования, чтобы перейти в нужную функция
+        # В этом месте нужно ее убрать
+        api.buy_limit_order()  # Баланс im_balance меняется внутри функции. Аналогично как в реальности, после ордера меняется баланс сразу
+        api.sell_limit_order()
 
+
+    # CALCULATION
+    # reserved вычисляется в calculation(отдельный модуль)
+    # Проверка на минимум amount и есть сумма на балансе
+    # После установки изменить сумму на баласе im_balance в случае TEST
+    # Так же залогировать ордер
+    calc_res = {'flag': 'buy', 'amount': 0.005, 'price': 26000, 'reserved': 20}  # reserved includes fee
 
     # if res == buy:
-    #     api.buy_lmit_otder
+    #     api.buy_limit_order
     # if res == sell:
     #     api.sell_limit _order
     # if res == ...
@@ -42,7 +58,7 @@ def f_alg1(unix_curr_time):
     remove this block to one functions (update_state)  !!!
     UPDATE_STATE_AFTER_BUY_SELL
     """
-    data = res['_data']
+    data = res['data']
     status = data['status']
 
     from db.connection import DBConnect
@@ -61,13 +77,16 @@ def f_alg1(unix_curr_time):
     conn.close()
     #----------------------------------------
 
+
+
+
     res = api.cancel_order(clientOrderId='')
     #-------------------------------------
     """
     UPDATE_STATE_AFTER_CANCEL
-    #res = {'ok': 'ok', '_data': {}}    
+    #res = {'ok': 'ok', 'data': {}}    
     """
-    data = res['_data'] #empty
+    data = res['data'] #empty
     data['clientOrderId']=clientOrderId
     data['serverCreateTimestamp'] = unix_curr_time
     data['status']='CANCELED'
@@ -81,7 +100,6 @@ def f_alg1(unix_curr_time):
     # -------------------------------------
     """
     UPDATE_STATE_AFTER_DONE
-
     """
     # ------------------------------------
 

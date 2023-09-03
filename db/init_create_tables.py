@@ -11,6 +11,7 @@ queries_d ={
     price    DECIMAL (9, 2) 
 )"""
 
+#im_balance - аналог баланса на сайте. Обновляется во время тестовых рассчетов
 ,'im_balance':"""CREATE TABLE im_balance (
     curr      CHAR (5),
     amount    decimal(15,8),
@@ -20,6 +21,7 @@ queries_d ={
    insert into im_balance valuest('USD',0,0);
     """
 
+#history_tik - таблица для хранения данных полученный с источника (сайта или эмуляции)
 ,'history_tik':
     """CREATE TABLE cex_history_tik (
     tid        BIGINT          PRIMARY KEY ASC ON CONFLICT ROLLBACK,
@@ -31,6 +33,7 @@ queries_d ={
     sys_insert DATETIME
 )"""
 
+#таблица для временного хранения данных для наполнения таблицы history_tik
 ,'stg_history_tik':
     """CREATE TABLE stg_cex_history_tik (
     tid      BIGINT,
@@ -57,6 +60,7 @@ queries_d ={
     algo        CHAR (20),
     sys_date   DATETIME
 )"""
+
 ,'log_orders':"""CREATE TABLE log_orders (
     status   CHAR (15)  CHECK (status IN ('NEW','CANCELED','DONE','REJECTED') ),
     id         CHAR (20),
@@ -82,7 +86,7 @@ queries_d ={
 )"""
 
 
-,'_balance':"""CREATE TABLE _balance (
+,'_balance':"""CREATE TABLE balance (
     curr      CHAR (5),
     amount    decimal(15,8),
     reserved  decimal(15,8)

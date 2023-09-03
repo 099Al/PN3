@@ -1,7 +1,7 @@
 from datetime import datetime
 import configparser
 
-from _data.data import get_new_data
+from perfomance.data.data import get_new_data
 
 from configs import config
 import algorithms as algo
@@ -17,6 +17,7 @@ init_btc = 0.0015
 init_usd = 100
 #-----------------
 
+
 valid_pairs = ['BTC/USD']
 
 
@@ -25,13 +26,16 @@ valid_pairs = ['BTC/USD']
 
 if __name__ == '__main__':
 
+    #Выставить baseMin и quoteMin в config.ini через api.limit_info('BTC-USD')
+
+
     #INIT BALANCE
     from db.connection import DBConnect
     conn = DBConnect().getConnect()
     cursor = conn.cursor()
-    cursor.execute('DELETE FROM BALANCE')
-    cursor.execute('INSERT INTO BALANCE (CURR,AMOUNT) VALUES(?,?)',('BTC',init_btc))
-    cursor.execute('INSERT INTO BALANCE (CURR,AMOUNT) VALUES(?,?)',('USD',init_usd))
+    cursor.execute('DELETE FROM IM_BALANCE')
+    cursor.execute('INSERT INTO IM_BALANCE (CURR,AMOUNT) VALUES(?,?)',('BTC',init_btc))
+    cursor.execute('INSERT INTO IM_BALANCE (CURR,AMOUNT) VALUES(?,?)',('USD',init_usd))
     conn.commit()
     conn.close()
 
@@ -59,13 +63,27 @@ if __name__ == '__main__':
         curr_unix_time = 1690089409.298
         get_new_data(MODE,'BTC/USD',curr_unix_time)
 
+
+        #---Проверка ордеров---
+        """
+        После выставления ордеров алгоритмах, к началу след шага пройдет время
+        за это время может сработать ордер.
+        """
+        #Пройтись по ордерам в таблице active_orders
+        #Сделать запрос к полученным данным
+        #Проверить ордер на промежутке от момента выставления до сейчас. Либо на след шагах. На предыдущем промежутке.
+
+
         #---Вычесления------------
-        #.....
+        """
+        Во время вычисления тоже может сработать, но этим пренебоегаем
+        
+        """
         # set_flag -> return id _order
         algo.a1.manager.f_alg1(curr_unix_time)
 
 
-        buy_req = api.buy_limit_order(0.00042277, 30100.0, 1)
+        #buy_req = api.buy_limit_order(0.00042277, 30100.0, 1) перенести в алгоритм
         # save _order in db
 
         #---вычисления------------

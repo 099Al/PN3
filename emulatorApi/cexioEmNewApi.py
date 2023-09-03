@@ -8,9 +8,10 @@ import json
 import base64
 from datetime import datetime
 
-
 from db.connection import DBConnect
 
+from functions.trade import X_for_buyBTC
+from configs.config import BASE_MIN,QUOTE_MIN
 
 PUBLIC_COMMANDS = {
      'get_order_book'
@@ -76,7 +77,7 @@ class emulatorApi:
         cur = self.conn.cursor()
         sel_res = cur.execute(f"SELECT trade_data FROM im_cex_history_tik where unixdate<= {self.unix_curr_time} order by unixdate desc limit 1000");
 
-        res = {'ok': 'ok', '_data': {'pageSize': 1000, 'trades': [ json.loads(x[0]) for x in sel_res.fetchall()] }}
+        res = {'ok': 'ok', 'data': {'pageSize': 1000, 'trades': [ json.loads(x[0]) for x in sel_res.fetchall()] }}
 
 
         return res
@@ -133,23 +134,23 @@ class emulatorApi:
 
     def sell_limit_order(self, amount, price, market='BTC/USD',clientOrderId=None):
 
+        # {'ok': 'ok', 'data': {'messageType': 'executionReport', 'clientId': 'up112344963', 'orderId': '167916', 'clientOrderId': '1691909475451', 'accountId': '', 'status': 'NEW', 'currency1': 'BTC', 'currency2': 'USD', 'side': 'SELL', 'executedAmountCcy1': '0.00000000', 'executedAmountCcy2': '0.00000000', 'requestedAmountCcy1': '0.00050000', 'requestedAmountCcy2': None, 'orderType': 'Limit', 'timeInForce': 'GTC', 'comment': None, 'executionType': 'New', 'executionId': '1691752724241_100_3167', 'transactTime': '2023-08-13T06:51:16.901Z', 'expireTime': None, 'effectiveTime': None, 'price': '30000.0', 'averagePrice': None, 'feeAmount': '0.00000000', 'feeCurrency': 'USD', 'clientCreateTimestamp': 1691909475451, 'serverCreateTimestamp': 1691909476783, 'lastUpdateTimestamp': 1691909476896}}
+
         pairs = market.split('/')
+        p1 = pairs[0]
+        p2 = pairs[1]
         unix_dt = int(datetime.now().timestamp())  #выводит по времени UTC+0
 
-        params = {
-            "currency1": pairs[0]
-            ,"currency2": pairs[1]
-            ,"side": "SELL"
-            ,"timestamp": unix_dt
-            ,"orderType": "Limit"
-            ,"timeInForce": "GTC"
-            ,"amountCcy1": amount
-            ,"price": price
-            #"comment": "v_overdraft_test"
-        }
+        # CHECK BALANCE
+        from db.connection import DBConnect
+        conn = DBConnect().getConnect()
+        cursor = conn.cursor()
+        res = cursor.execute("SELECT AMOUNT FROM IM_BALANCE WHERE CURR = ?", (p1,))
+        row = res.fetchone()
+        balance_sum = row[0]
 
-        if clientOrderId is not None:
-            params.update({"clientOrderId":clientOrderId})
+
+
 
         return self.api_call('do_my_new_order',params)
 
@@ -157,6 +158,11 @@ class emulatorApi:
 
         """ко времени self.unix_curr_time добавляется несколько секунд.
         Т.к. на самом деле, время транзакции происходит с задержкой"""
+
+        # {'ok': 'ok', 'data': {'messageType': 'executionReport', 'clientId': 'up112344963', 'orderId': 'NONE', 'clientOrderId': '1689533205841', 'accountId': '', 'status': 'REJECTED', 'currency1': 'BTC', 'currency2': 'USD', 'side': 'BUY', 'executedAmountCcy1': '0.00000000', 'executedAmountCcy2': '0.00000000', 'requestedAmountCcy1': '0.00032900', 'requestedAmountCcy2': None, 'orderType': 'Limit', 'timeInForce': 'GTC', 'comment': None, 'executionType': 'Rejected', 'executionId': '1689360312873_101_8149', 'transactTime': '2023-07-16T18:46:46.926Z', 'expireTime': None, 'effectiveTime': None, 'price': '30302.9', 'averagePrice': None, 'feeAmount': None, 'feeCurrency': None, 'orderRejectReason': '{"code":414,"reason":"minOrderAmountCcy1 check failed. amountCcy1 0.00032900 is less than minOrderAmountCcy1 0.00042277"}', 'rejectCode': 414, 'rejectReason': 'minOrderAmountCcy1 check failed. amountCcy1 0.00032900 is less than minOrderAmountCcy1 0.00042277', 'clientCreateTimestamp': 1689533205, 'serverCreateTimestamp': 1689533206918}}
+        # {'ok': 'ok', 'data': {'messageType': 'executionReport', 'clientId': 'up112344963', 'orderId': 'NONE', 'clientOrderId': '1689533367604', 'accountId': '', 'status': 'REJECTED', 'currency1': 'BTC', 'currency2': 'USD', 'side': 'BUY', 'executedAmountCcy1': '0.00000000', 'executedAmountCcy2': '0.00000000', 'requestedAmountCcy1': '0.00042277', 'requestedAmountCcy2': None, 'orderType': 'Limit', 'timeInForce': 'GTC', 'comment': None, 'executionType': 'Rejected', 'executionId': '1689360312873_101_8152', 'transactTime': '2023-07-16T18:49:29.748Z', 'expireTime': None, 'effectiveTime': None, 'price': '30100.0', 'averagePrice': None, 'feeAmount': None, 'feeCurrency': None, 'orderRejectReason': '{"code":424,"reason":"ClientTime should be within 300000 ms timeframe. But difference was 1687843836379 ms. ClientTime 19700120-13:18:53.367, ServerTime 20230716-18:49:29.746"}', 'rejectCode': 424, 'rejectReason': 'ClientTime should be within 300000 ms timeframe. But difference was 1687843836379 ms. ClientTime 19700120-13:18:53.367, ServerTime 20230716-18:49:29.746', 'clientCreateTimestamp': 1689533367, 'serverCreateTimestamp': 1689533369738}}
+        # {'ok': 'ok', 'data': {'messageType': 'executionReport', 'clientId': 'up112344963', 'orderId': '114360', 'clientOrderId': '1689533488860', 'accountId': '', 'status': 'NEW', 'currency1': 'BTC', 'currency2': 'USD', 'side': 'BUY', 'executedAmountCcy1': '0.00000000', 'executedAmountCcy2': '0.00000000', 'requestedAmountCcy1': '0.00042277', 'requestedAmountCcy2': None, 'orderType': 'Limit', 'timeInForce': 'GTC', 'comment': None, 'executionType': 'New', 'executionId': '1689360312873_101_8153', 'transactTime': '2023-07-16T18:51:30.071Z', 'expireTime': None, 'effectiveTime': None, 'price': '30100.0', 'averagePrice': None, 'feeAmount': '0.00000000', 'feeCurrency': 'USD', 'clientCreateTimestamp': 1689533488860, 'serverCreateTimestamp': 1689533489970, 'lastUpdateTimestamp': 1689533490064}}
+        # {'ok': 'ok', 'data': {'messageType': 'executionReport', 'clientId': 'up112344963', 'orderId': '114372', 'clientOrderId': '1689533832780', 'accountId': '', 'status': 'REJECTED', 'currency1': 'BTC', 'currency2': 'USD', 'side': 'BUY', 'executedAmountCcy1': '0.00000000', 'executedAmountCcy2': '0.00000000', 'requestedAmountCcy1': '0.00042277', 'requestedAmountCcy2': None, 'orderType': 'Limit', 'timeInForce': 'GTC', 'comment': None, 'executionType': 'Rejected', 'executionId': '1689360312346_100_7727', 'transactTime': '2023-07-16T18:57:14.241Z', 'expireTime': None, 'effectiveTime': None, 'price': '30100.0', 'averagePrice': None, 'feeAmount': None, 'feeCurrency': None, 'orderRejectReason': '{"code":403,"reason":"Insufficient funds"}', 'rejectCode': 403, 'rejectReason': 'Insufficient funds', 'clientCreateTimestamp': 1689533832780, 'serverCreateTimestamp': 1689533834141, 'lastUpdateTimestamp': 1689533834233}}
 
         pairs = market.split('/')
         p1 = pairs[0]
@@ -171,95 +177,94 @@ class emulatorApi:
         balance_sum = row[0]
 
 
-        need_amt=price*amount #+fee need to calc
+        need_x = X_for_buyBTC(btc_n, price_n) # с учетом комиссии
 
         transactTime = datetime.utcfromtimestamp((self.unix_curr_time + 2000) / 1000).strftime('%Y-%m-%dT%H:%M:%S.') + f'{(self.unix_curr_time + 2000) % 1000:03d}Z'
         #unix_dt = int(datetime.now().timestamp() * 1000)  #выводит по времени UTC+0
 
         from perfomance.cache.values import ValuesOrder
-        ValuesOrder.orderId = ValuesOrder.orderId + 1
+        ValuesOrder.orderId = ValuesOrder.orderId + 1 #Нумерация ордеров для режима эмуляции
+
+        status = 'REJECTED'
+        feeAmount = None
+        feeCurrency = None
+        executionType = 'Rejected'
+
+        res = {'ok': 'ok', 'data': {'messageType': 'executionReport'
+                , 'clientId': self.username
+                , 'orderId': ValuesOrder.orderId
+                , 'clientOrderId': self.unix_curr_time
+                , 'accountId': ''
+                , 'status': 'NEW'
+                , 'currency1': pairs[0]
+                , 'currency2': pairs[1]
+                , 'side': 'BUY'
+                , 'executedAmountCcy1': '0.00000000'
+                , 'executedAmountCcy2': '0.00000000'
+                , 'requestedAmountCcy1': amount
+                , 'requestedAmountCcy2': None
+                , 'orderType': 'Limit'
+                , 'timeInForce': 'GTC'
+                , 'comment': None
+                , 'executionType': 'New'
+                , 'executionId': f'{str(self.unix_curr_time)}_X_{ValuesOrder.orderId}' # Просто число. Логика формирования не понятна. Но и не нужна
+                , 'transactTime': transactTime
+                , 'expireTime': None
+                , 'effectiveTime': None
+                , 'price': price
+                , 'averagePrice': None
+                , 'feeAmount': '0.00000000'
+                , 'feeCurrency': pairs[1]  # USD
+                                    }}
+
+        reject = False
+        if amount < BASE_MIN:
+            res['data']['status'] = 'REJECTED'
+            res['data']['executionType'] = 'Rejected'
+            res['data']['feeAmount'] = None
+            res['data']['feeCurrency'] = None
 
 
-        if balance_sum>=need_amt:
+            res['data']['orderRejectReason'] = f'{{"code":414,"reason":"minOrderAmountCcy1 check failed. amountCcy1 {amount} is less than minOrderAmountCcy1 {BASE_MIN}"}}'
+            res['data']['rejectCode'] = 414
+            res['data']['rejectReason'] = f'minOrderAmountCcy1 check failed. amountCcy1 {amount} is less than minOrderAmountCcy1 {BASE_MIN}'
+
+            reject = True
 
 
-            res = {'ok': 'ok', '_data': {'messageType': 'executionReport'
-                                        , 'clientId': self.username
-                                        , 'orderId': ValuesOrder.orderId
-                                        , 'clientOrderId': self.unix_curr_time
-                                        , 'accountId': ''
-                                        , 'status': 'NEW'
-                                        , 'currency1': pairs[0]
-                                        , 'currency2': pairs[1]
-                                        , 'side': 'BUY'
-                                        , 'executedAmountCcy1': '0.00000000'
-                                        , 'executedAmountCcy2': '0.00000000'
-                                        , 'requestedAmountCcy1': amount
-                                        , 'requestedAmountCcy2': None
-                                        , 'orderType': 'Limit'
-                                        , 'timeInForce': 'GTC'
-                                        , 'comment': None
-                                        , 'executionType': 'New'
-                                        , 'executionId':  f'{str(self.unix_curr_time)}_X_{ValuesOrder.orderId}'  #Просто число. Логика формирования не понятно. Но и не нужна
-                                        , 'transactTime': transactTime
-                                        , 'expireTime': None
-                                        , 'effectiveTime': None
-                                        , 'price': price
-                                        , 'averagePrice': None
-                                        , 'feeAmount': '0.00000000'
-                                        , 'feeCurrency': pairs[1]   #USD
-                                        , 'clientCreateTimestamp':  self.unix_curr_time
-                                        , 'serverCreateTimestamp': self.unix_curr_time+1000
-                                        , 'lastUpdateTimestamp':    self.unix_curr_time+10000}}
+        if balance_sum < need_x:
+            res['data']['status'] = 'REJECTED'
+            res['data']['executionType'] = 'Rejected'
+            res['data']['feeAmount'] = None
+            res['data']['feeCurrency'] = None
 
+            res['data']['orderRejectReason'] = '{"code":403,"reason":"Insufficient funds"}'
+            res['data']['rejectCode'] = 403
+            res['data']['rejectReason'] = 'Insufficient funds'
+
+            reject = True
+
+        res['data']['clientCreateTimestamp'] = self.unix_curr_time
+        res['data']['serverCreateTimestamp'] = self.unix_curr_time + 1000
+        res['data']['lastUpdateTimestamp'] = self.unix_curr_time + 10000
+
+
+        if reject:
+            conn.close()
+            return res
+
+        else:
             #change _balance
-            new_balance = balance_sum - need_amt
+            new_balance = balance_sum - need_x
 
-            cursor.execute('UPDATE IM_BALANCE SET AMOUNT = ?, RESERVED = ? WHERE CURR = ?', (new_balance,need_amt,p2))
+            cursor.execute('UPDATE IM_BALANCE SET AMOUNT = ?, RESERVED = ? WHERE CURR = ?', (new_balance,need_x,p2))
 
             conn.commit()
 
+            conn.close()
+            return res
 
 
-
-
-
-        else:
-            #'orderRejectReason': '{"code":403,"reason":"Insufficient funds"}'
-            res = {'ok': 'ok', '_data': {'messageType': 'executionReport'
-                                        , 'clientId': self.username
-                                        , 'orderId': ValuesOrder.orderId
-                                        , 'clientOrderId': self.unix_curr_time
-                                        , 'accountId': ''
-                                        , 'status': 'REJECTED'
-                                        , 'currency1': pairs[0]
-                                        , 'currency2': pairs[1]
-                                        , 'side': 'BUY'
-                                        , 'executedAmountCcy1': '0.00000000'
-                                        , 'executedAmountCcy2': '0.00000000'
-                                        , 'requestedAmountCcy1': amount
-                                        , 'requestedAmountCcy2': None
-                                        , 'orderType': 'Limit'
-                                        , 'timeInForce': 'GTC'
-                                        , 'comment': None
-                                        , 'executionType': 'Rejected'
-                                        , 'executionId': f'{str(self.unix_curr_time)}_X_{ValuesOrder.orderId}'
-                                        , 'transactTime': transactTime
-                                        , 'expireTime': None
-                                        , 'effectiveTime': None
-                                        , 'price': '30100.0'
-                                        , 'averagePrice': None
-                                        , 'feeAmount': None
-                                        , 'feeCurrency': None
-                                        , 'orderRejectReason': '{"code":403,"reason":"Insufficient funds"}'
-                                        , 'rejectCode': 403
-                                        , 'rejectReason': 'Insufficient funds'
-                                        , 'clientCreateTimestamp': self.unix_curr_time
-                                        , 'serverCreateTimestamp': self.unix_curr_time + 1000
-                                        , 'lastUpdateTimestamp': self.unix_curr_time + 10000}}
-
-        conn.close()
-        return res
 
     def cancel_order(self, clientOrderId):
 

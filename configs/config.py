@@ -25,7 +25,8 @@ SELL_FEE = float(conf_data['FEES']['SELL_FEE'])
 
 #PARAMETERS
 REQUEST_PERIOD = int(conf_data['PARAMETERS']['REQUEST_PERIOD'])
-
+BASE_MIN = float(conf_data['PARAMETERS']['BASE_MIN'])
+QUOTE_MIN = float(conf_data['PARAMETERS']['QUOTE_MIN'])
 
 
 #CREDENTIALS

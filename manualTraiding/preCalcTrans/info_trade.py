@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from functions.trade import buyBTC,presellBTC,sellBTC,price_for_buy_btc,price_for_sell_btc,X_for_buyBTC,X_for_buyBTC_v3
+from functions.trade import buyBTC,presellBTC,sellBTC,price_for_buy_btc,price_for_sell_btc,X_for_buyBTC
 from functions.deltas import deltaBTC,deltaX,priceForExpectBTC,priceForExpectX
 
 # Основные функции----------
