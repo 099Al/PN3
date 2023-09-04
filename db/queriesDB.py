@@ -66,7 +66,8 @@ def save_history_tik(tiks):
 
     conn.close()
 
-def upd_balance(data,conn=None):
+def upd_balance(data,balance_table,conn=None):
+
     flag_con = 0 # 1- коннект не передавался, а создался внутри функции
     if conn is None:
         flag_con = 0
@@ -81,6 +82,7 @@ def upd_balance(data,conn=None):
         side = data['side']  # buy sell
         amount = data['requestedAmountCcy1']
         price = data['price']
+        reserved = data['reserved']
         currency1 = data['currency1'] #BTC
         currency2 = data['currency2']  # USD
 
@@ -88,10 +90,9 @@ def upd_balance(data,conn=None):
         cursor = conn.cursor()
         if side == 'BUY':
             fee = 0 #ned to calculate by spaecial rules
-            reserved = amount*price + fee
-            cursor.execute('UPDATE BALANCE SET AMOUNT = AMOUNT-?, ifnull(RESERVED,0) = RESERVED+? WHERE CURR = ?', (reserved,reserved,currency2))
+            cursor.execute(f'UPDATE {balance_table} SET AMOUNT = AMOUNT-{reserved}, ifnull(RESERVED,0) = RESERVED+{reserved} WHERE CURR = {currency2}') #, (reserved,reserved,currency2))
         if side == 'SELL':
-            cursor.execute('UPDATE BALANCE SET AMOUNT = AMOUNT-?, ifnull(RESERVED,0) = RESERVED+? WHERE CURR = ?', (amount,amount,currency1))
+            cursor.execute(f'UPDATE {balance_table} SET AMOUNT = AMOUNT-{amount}, ifnull(RESERVED,0) = RESERVED+{amount} WHERE CURR = {currency1}') #, (amount,amount,currency1))
 
         cursor.commit()
 
@@ -108,10 +109,10 @@ def upd_balance(data,conn=None):
         res = cursor.execute("SELECT  amount,price,side,base,quote,fee FROM LOG_ORDERS WHERE ID = ? AND STATUS = 'NEW' ", (id,))
         r_amount,r_price,r_side,r_base,r_quote,r_fee = res.fetchone()
         if r_side == 'BUY':
-            cursor.execute('UPDATE BALANCE SET AMOUNT = AMOUNT+?, ifnull(RESERVED,0) = RESERVED-? WHERE CURR = ?',
+            cursor.execute(f'UPDATE BALANCE SET AMOUNT = AMOUNT+?, ifnull(RESERVED,0) = RESERVED-? WHERE CURR = ?',
                        (r_amount*r_price+fee, r_amount*r_price+fee, quote))
         if r_side == 'SELL':
-            cursor.execute('UPDATE BALANCE SET AMOUNT = AMOUNT+?, ifnull(RESERVED,0) = RESERVED-? WHERE CURR = ?',
+            cursor.execute(f'UPDATE BALANCE SET AMOUNT = AMOUNT+?, ifnull(RESERVED,0) = RESERVED-? WHERE CURR = ?',
                        (r_amount, r_amount, base))
         cursor.commit()
 

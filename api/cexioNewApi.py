@@ -295,11 +295,11 @@ if __name__ == '__main__':
     # limit_info = api.limit_info('BTC-USD')
     # print(limit_info)
     #{'base': 'BTC', 'quote': 'USD', 'baseMin': '0.00042278', 'baseMax': '38', 'baseLotSize': '0.00000001', 'quoteMin': '10', 'quoteMax': '1000000', 'quoteLotSize': '0.01000000', 'basePrecision': 8, 'quotePrecision': 8, 'pricePrecision': 1, 'minPrice': '3500.0', 'maxPrice': '350000.0'}
+    #buy_req = api.buy_limit_order(0.00000005, 25000.0, 1)
+    #print(buy_req)
 
-
-    buy_req = api.buy_limit_order(0.00000005, 25000.0, 1)
-    print(buy_req)
-
+    status = api.account_status()
+    print(status)
     exit()
 
     #ticker = api.ticker()

@@ -249,7 +249,7 @@ class emulatorApi:
         balance_sum = row[0]
 
 
-        need_x = X_for_buyBTC(btc_n, price_n) # с учетом комиссии
+        need_x = X_for_buyBTC(amount, price) # с учетом комиссии
 
         transactTime = datetime.utcfromtimestamp((self.unix_curr_time + 2000) / 1000).strftime('%Y-%m-%dT%H:%M:%S.') + f'{(self.unix_curr_time + 2000) % 1000:03d}Z'
         #unix_dt = int(datetime.now().timestamp() * 1000)  #выводит по времени UTC+0

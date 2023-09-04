@@ -40,13 +40,24 @@ def f_alg1(unix_curr_time):
     # Проверка на минимум amount и есть сумма на балансе
     # После установки изменить сумму на баласе im_balance в случае TEST
     # Так же залогировать ордер
-    calc_res = {'flag': 'buy', 'amount': 0.005, 'price': 26000, 'reserved': 20}  # reserved includes fee
+
+    # внутри делать проверку на base_min, чтобы ошибка не выходила при выставлении ордера
+    # здесь же и вычислять нужную сумму для резервирования и величину комиисси после продажи
+    # В реальных условиях значения комиссии могут не совпадать с расчетной, поэтому надо проверять, сверяясь с балансом
+    calc_res = {'side': 'buy', 'amount': 0.005, 'price': 26000, 'reserved': 20, 'init_base':1.5,'init_quote':1000}  # reserved includes fee
+    calc_res = {'side': 'sell', 'amount': 0.005, 'price': 26000, 'reserved': 0.005, 'init_base':1.5,'init_quote':1000}
+
 
     # if res == buy:
     #     api.buy_limit_order
     # if res == sell:
     #     api.sell_limit _order
     # if res == ...
+
+    #AFTER SET ORDER
+    #GET BALANCE STATUS if MODE == TRADE
+    #THEN CALC RESERVED   api.account_status
+    reserved = 15
 
     # api.sell_limit_order(amount=0.000003,price=3000)
     # api.buy_limit_order(amount=0.000003, price=3000)
@@ -60,12 +71,15 @@ def f_alg1(unix_curr_time):
     """
     data = res['data']
     status = data['status']
+    data['reserved']=reserved
 
     from db.connection import DBConnect
     conn = DBConnect().getConnect()
 
     if status != 'REJECTED':
-        upd_balance(data,conn)
+        upd_balance(data,'BALANCE',conn)  #внутри доделать
+        if MODE == 'TEST':
+            upd_balance(data, 'IM_BALANCE', conn)
         upd_active_orders(data, ALGO_NAME, conn)
     if status == 'REJECTED':
         pass

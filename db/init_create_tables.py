@@ -86,7 +86,8 @@ queries_d ={
 )"""
 
 
-,'_balance':"""CREATE TABLE balance (
+#balance - повторояет таблицу im_balance. Заносится баланс, рассчитанный по алгоритмам. В режиме TRAID может отличаться от того, что на самом деле
+,'balance':"""CREATE TABLE balance (
     curr      CHAR (5),
     amount    decimal(15,8),
     reserved  decimal(15,8)

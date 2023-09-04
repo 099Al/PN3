@@ -36,6 +36,11 @@ if __name__ == '__main__':
     cursor.execute('DELETE FROM IM_BALANCE')
     cursor.execute('INSERT INTO IM_BALANCE (CURR,AMOUNT) VALUES(?,?)',('BTC',init_btc))
     cursor.execute('INSERT INTO IM_BALANCE (CURR,AMOUNT) VALUES(?,?)',('USD',init_usd))
+
+    cursor.execute('DELETE FROM BALANCE')
+    cursor.execute('INSERT INTO BALANCE (CURR,AMOUNT) VALUES(?,?)', ('BTC', init_btc))
+    cursor.execute('INSERT INTO BALANCE (CURR,AMOUNT) VALUES(?,?)', ('USD', init_usd))
+
     conn.commit()
     conn.close()
 
