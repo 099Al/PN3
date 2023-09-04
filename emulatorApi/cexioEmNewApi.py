@@ -149,10 +149,82 @@ class emulatorApi:
         row = res.fetchone()
         balance_sum = row[0]
 
+        transactTime = datetime.utcfromtimestamp((self.unix_curr_time + 2000) / 1000).strftime('%Y-%m-%dT%H:%M:%S.') + f'{(self.unix_curr_time + 2000) % 1000:03d}Z'
+
+        from perfomance.cache.values import ValuesOrder
+        ValuesOrder.orderId = ValuesOrder.orderId + 1  # Нумерация ордеров для режима эмуляции
 
 
+        res = {'ok': 'ok', 'data': {'messageType': 'executionReport'
+            , 'clientId': self.username
+            , 'orderId': ValuesOrder.orderId
+            , 'clientOrderId': self.unix_curr_time
+            , 'accountId': ''
+            , 'status': 'NEW'
+            , 'currency1': pairs[0]
+            , 'currency2': pairs[1]
+            , 'side': 'SELL'
+            , 'executedAmountCcy1': '0.00000000'
+            , 'executedAmountCcy2': '0.00000000'
+            , 'requestedAmountCcy1': amount
+            , 'requestedAmountCcy2': None
+            , 'orderType': 'Limit'
+            , 'timeInForce': 'GTC'
+            , 'comment': None
+            , 'executionType': 'New'
+            , 'executionId': f'{str(self.unix_curr_time)}_X_{ValuesOrder.orderId}'# Просто число. Логика формирования не понятна. Но и не нужна
+            , 'transactTime': transactTime
+            , 'expireTime': None
+            , 'effectiveTime': None
+            , 'price': price
+            , 'averagePrice': None
+            , 'feeAmount': '0.00000000'
+            , 'feeCurrency': pairs[1]  # USD
+                                    }}
 
-        return self.api_call('do_my_new_order',params)
+        reject = False
+
+        if amount < BASE_MIN:
+            res['data']['status'] = 'REJECTED'
+            res['data']['executionType'] = 'Rejected'
+            res['data']['orderId'] = None
+            res['data']['feeAmount'] = None
+            res['data']['feeCurrency'] = None
+
+            res['data'][
+                'orderRejectReason'] = f'{{"code":414,"reason":"minOrderAmountCcy1 check failed. amountCcy1 {amount} is less than minOrderAmountCcy1 {BASE_MIN}"}}'
+            res['data']['rejectCode'] = 414
+            res['data'][
+                'rejectReason'] = f'minOrderAmountCcy1 check failed. amountCcy1 {amount} is less than minOrderAmountCcy1 {BASE_MIN}'
+
+            reject = True
+
+        if balance_sum < amount:
+            res['data']['status'] = 'REJECTED'
+            res['data']['executionType'] = 'Rejected'
+            res['data']['orderId'] = None
+            res['data']['feeAmount'] = None
+            res['data']['feeCurrency'] = None
+
+            res['data']['orderRejectReason'] = '{"code":403,"reason":"Insufficient funds"}'
+            res['data']['rejectCode'] = 403
+            res['data']['rejectReason'] = 'Insufficient funds'
+
+        if reject:
+            conn.close()
+            return res
+
+        else:
+            # change balance
+            new_balance = balance_sum - amount
+            cursor.execute('UPDATE IM_BALANCE SET AMOUNT = ?, RESERVED = ? WHERE CURR = ?', (new_balance, amount, p1))
+
+            conn.commit()
+
+            conn.close()
+            return res
+
+
 
     def buy_limit_order(self, amount, price, clientOrderId=None, market='BTC/USD'):
 
@@ -185,10 +257,6 @@ class emulatorApi:
         from perfomance.cache.values import ValuesOrder
         ValuesOrder.orderId = ValuesOrder.orderId + 1 #Нумерация ордеров для режима эмуляции
 
-        status = 'REJECTED'
-        feeAmount = None
-        feeCurrency = None
-        executionType = 'Rejected'
 
         res = {'ok': 'ok', 'data': {'messageType': 'executionReport'
                 , 'clientId': self.username
@@ -221,6 +289,7 @@ class emulatorApi:
         if amount < BASE_MIN:
             res['data']['status'] = 'REJECTED'
             res['data']['executionType'] = 'Rejected'
+            res['data']['orderId'] = None
             res['data']['feeAmount'] = None
             res['data']['feeCurrency'] = None
 
@@ -235,6 +304,7 @@ class emulatorApi:
         if balance_sum < need_x:
             res['data']['status'] = 'REJECTED'
             res['data']['executionType'] = 'Rejected'
+            res['data']['orderId'] = None
             res['data']['feeAmount'] = None
             res['data']['feeCurrency'] = None
 
