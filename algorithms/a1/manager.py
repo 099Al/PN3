@@ -1,5 +1,5 @@
 from configs import config
-from db.queriesDB import upd_balance,upd_active_orders, log_orders,log_balance,log_orders
+from db.queriesDB import upd_balance,upd_active_orders, log_orders,log_balance,log_orders,balance_state
 
 MODE = config.MODE
 ALGO_NAME = 'A1'
@@ -81,13 +81,13 @@ def f_alg1(unix_curr_time):
         # Две таблицы дублируют друг друга.
         # Но для теста записываем в IM_BALANCE - эмуляция баланса
         # Для Traid режима записываем в BALANCE - для дублирования баланса на сайте, скорее всего из-за различия в комиссиях будут различия
-        balance_state(data, client_side=True, algo_nm=None, conn=conn)
+        res = balance_state(data, client_side=True, algo_nm=None, conn=conn)
 
     if status == 'REJECTED':
-        pass
-        #save only in log_order
 
-    log_orders(data,ALGO_NAME,conn)
+        res = {}
+
+    log_orders(data,res,ALGO_NAME,conn)
 
     conn.comit()
     conn.close()

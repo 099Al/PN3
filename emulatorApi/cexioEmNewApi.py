@@ -332,16 +332,21 @@ class emulatorApi:
 
 
 
-    def cancel_order(self, clientOrderId):
+    def cancel_order(self, OrderId):
 
         unix_dt = int(datetime.now().timestamp()*1000)
-        param = {
-            "clientOrderId": f'{clientOrderId}',
-            "cancelRequestId": f"cancel_{clientOrderId}",
-            "timestamp": unix_dt
-        }
 
-        return self.api_call('do_cancel_my_order',param)
+        from db.connection import DBConnect
+        conn = DBConnect().getConnect()
+        cursor = conn.cursor()
+
+        conn.commit()
+        conn.close()
+        return res
+
+
+
+
 
     def cancel_all_order(self):
         param = {}

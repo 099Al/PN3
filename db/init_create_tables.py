@@ -89,7 +89,7 @@ queries_d ={
     quote      CHAR (5),
     amount     DECIMAL (15, 8),
     price      DECIMAL (15, 8),
-    total      DECIMAL (15, 8),
+    reserved      DECIMAL (15, 8),
     fee        DECIAML (15, 2),
     reject_reason TEXT,
     order_type VARCHAR (10)   CHECK (order_type IN ('market', 'limit') ),

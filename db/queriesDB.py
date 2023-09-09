@@ -131,13 +131,12 @@ def balance_state(data,client_side=True,algo_nm=None,conn=None):
         #возможно надо будет добавить fee из ответа
         cursor = conn.cursor()
         res = cursor.execute(f"SELECT  AMOUNT,PRICE,SIDE,RESERVED FROM {active_orders_table} WHERE ID = ? AND STATUS = 'NEW' ",(id,))  #LOG_ORDERS
-        r_amount, r_price, r_side, r_base,r_quote, r_reserves = res.fetchone()
-
+        r_amount, r_price, r_side, r_base,r_quote, reserved = res.fetchone()
         if r_side == 'BUY':
-            cursor.execute(f'UPDATE {balance_table} SET  RESERVED = RESERVED-{r_reserved} WHERE CURR = {r_quote}')
+            cursor.execute(f'UPDATE {balance_table} SET  RESERVED = RESERVED-{reserved} WHERE CURR = {r_quote}')
             cursor.execute(f'UPDATE {balance_table} SET  AMOUNT = AMOUNT+{r_amount}       WHERE CURR = {r_base}')
         if r_side == 'SELL':
-            cursor.execute(f'UPDATE {balance_table} SET  RESERVED = RESERVED-{r_reserved} WHERE CURR = {r_base}')
+            cursor.execute(f'UPDATE {balance_table} SET  RESERVED = RESERVED-{reserved} WHERE CURR = {r_base}')
             res_x, comis = sellBTC(r_amount,r_price).values
             cursor.execute(f'UPDATE {balance_table} SET  AMOUNT = AMOUNT+{res_x} WHERE CURR = {r_quote}') #нужно учесть комиссия и расчитать сумму
 
@@ -150,11 +149,11 @@ def balance_state(data,client_side=True,algo_nm=None,conn=None):
     if status == 'CANCELED':
         cursor = conn.cursor()
         res = cursor.execute(f"SELECT  amount,price,side,base,quote,reserved FROM {active_orders_table} WHERE ID = ? AND STATUS = 'NEW' ", (id,))  #LOG_ORDERS
-        r_amount,r_price,r_side,r_base,r_quote,r_reserved = res.fetchone()
+        r_amount,r_price,r_side,r_base,r_quote,reserved = res.fetchone()
         if r_side == 'BUY':
-            cursor.execute(f'UPDATE {balance_table} SET AMOUNT = AMOUNT+{r_amount}, ifnull(RESERVED,0) = RESERVED-{r_reserved} WHERE CURR = {r_quote}')
+            cursor.execute(f'UPDATE {balance_table} SET AMOUNT = AMOUNT+{r_amount}, ifnull(RESERVED,0) = RESERVED-{reserved} WHERE CURR = {r_quote}')
         if r_side == 'SELL':
-            cursor.execute(f'UPDATE {balance_table} SET AMOUNT = AMOUNT+{r_amount}, ifnull(RESERVED,0) = RESERVED-{r_reserved} WHERE CURR = {r_base}')
+            cursor.execute(f'UPDATE {balance_table} SET AMOUNT = AMOUNT+{r_amount}, ifnull(RESERVED,0) = RESERVED-{reserved} WHERE CURR = {r_base}')
 
         cursor.execute(f'DELETE FROM {active_orders_table} where id = ?', (id,))
 
@@ -164,24 +163,17 @@ def balance_state(data,client_side=True,algo_nm=None,conn=None):
         conn.close()
 
 
+    return {'reserved':reserved}
 
 
 
-    if status == 'DONE' | 'CANCELED':
-        cursor = conn.cursor()
-        cursor.execute('DELETE FROM ACTIVE_ORDERS where id = ?', (id,))
-        cursor.commit()
-
-    if flag_con == 1:
-        conn.commit()
-        conn.close()
 
 
 
-def log_orders(data, algo_nm, conn=None):
+def log_orders(data, params={}, algo_nm=None, conn=None):
     flag_con = 0  # 1- коннект не передавался, а создался внутри функции
     if conn is None:
-        flag_con = 0
+        flag_con = 1
         from db.connection import DBConnect
         conn = DBConnect().getConnect()
 
@@ -190,7 +182,8 @@ def log_orders(data, algo_nm, conn=None):
     unix_date = data['serverCreateTimestamp']
     date = datetime.fromtimestamp(unix_date / 1000)
     status = data['status']
-    total = 0
+    reserved = params['reserved']
+    sys_date = datetime.now()
 
     if status == 'NEW':
         currency1 = data['currency1']  # BTC
@@ -199,18 +192,13 @@ def log_orders(data, algo_nm, conn=None):
         amount = data['requestedAmountCcy1']
         price = data['price']
         order_type = data['orderType']
-        sys_date = datetime.now()
 
-        fee = 0  #calc fee
-        if side == 'BUY':
-            total = amount*price+fee
-        if side == 'SELL':
-            total = amount
 
-        values = (id, status, side, date, unix_date, currency1, currency2, side, amount, price, total,order_type,data, algo_nm, sys_date)
+
+        values = (id, status, side, date, unix_date, currency1, currency2, side, amount, price, reserved,order_type,data, algo_nm, sys_date)
 
         cursor = conn.cursor()
-        cursor.execute("""INSERT INTO LOG_ORDERS (id,status,side, date,unixdate,base,quote,amount,price,total,order_type,full_traid,algo,sys_date)
+        cursor.execute("""INSERT INTO LOG_ORDERS (id,status,side, date,unixdate,base,quote,amount,price,reserved,order_type,full_traid,algo,sys_date)
                           VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""", values)
         cursor.commit()
 
@@ -223,20 +211,16 @@ def log_orders(data, algo_nm, conn=None):
         order_type = data['orderType']
         reject_reason = data['orderRejectReason']
 
-        values = (id, status, side, date, unix_date, currency1, currency2, side, amount, price, total, reject_reason, order_type, data, algo_nm,sys_date)
+        values = (id, status, side, date, unix_date, currency1, currency2, side, amount, price, reserved, reject_reason, order_type, data, algo_nm, sys_date)
 
         cursor = conn.cursor()
-        cursor.execute("""INSERT INTO LOG_ORDERS (id,status,side, date,unixdate,base,quote,amount,price,total,reject_reason, order_type,full_traid,algo,sys_date)
+        cursor.execute("""INSERT INTO LOG_ORDERS (id,status,side, date,unixdate,base,quote,amount,price,reserved,reject_reason, order_type,full_traid,algo,sys_date)
                                   VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""", values)
         cursor.commit()
 
 
-    if status == 'DONE':
-        pass
-        # Надо определить, как возвращается _order в статусе DONE
-        # Добавить запись в таблице
-        # values = id, status, side, date, unix_date
-    if status == 'CANCELED':
+    if status == 'DONE' | 'CANCELED':
+
         sys_date = datetime.now()
         values = (id, status, date, unix_date, algo_nm, sys_date)
 
