@@ -13,11 +13,32 @@ if __name__ == '__main__':
 
     #exit()
 
-    price = 26100
+    price = 25700
     x = 15
     info_parameters_to_buy_BTC(price, x)
     print('------')
 
+    # buy_req = api.buy_limit_order(0.00058257, 25700)
+    # print(buy_req)
+
+    #{'ok': 'ok', 'data': {'messageType': 'executionReport', 'clientId': 'up112344963', 'orderId': '235818', 'clientOrderId': '1694186578288', 'accountId': '', 'status': 'NEW', 'currency1': 'BTC', 'currency2': 'USD',
+    #{'ok': 'ok', 'data': {'messageType': 'executionReport', 'clientId': 'up112344963', 'orderId': '235820', 'clientOrderId': '1694186805729'
+
+
+    #cancel_all = api.cancel_all_order() #{'ok': 'ok', 'data': {'clientOrderIds': ['1694186578288']}}
+    #print(cancel_all)
+
+    #cancel_order = api.cancel_order(235820)
+    #print('cancel_order',cancel_order)
+
+    # cancel_order = api.cancel_client_order(1694187928008)
+    # print('cancel_order',cancel_order)
+
+    orders = api.open_orders()
+    print('orders', orders)
+
+    transaction_history = api.transaction_history()
+    print(transaction_history)
 
     exit()
 

@@ -12,6 +12,7 @@ from db.connection import DBConnect
 
 from functions.trade import X_for_buyBTC
 from configs.config import BASE_MIN,QUOTE_MIN
+from db.queriesDB import balance_state
 
 PUBLIC_COMMANDS = {
      'get_order_book'
@@ -215,12 +216,10 @@ class emulatorApi:
             return res
 
         else:
-            # change balance
-            new_balance = balance_sum - amount
-            cursor.execute('UPDATE IM_BALANCE SET AMOUNT = ?, RESERVED = ? WHERE CURR = ?', (new_balance, amount, p1))
+            # Меняем статус в таблицы IM_BALANCE и IM_ACTIVE_ORDERS
+            balance_state(data, client_side=False, algo_nm=None, conn=conn)
 
             conn.commit()
-
             conn.close()
             return res
 
@@ -324,13 +323,10 @@ class emulatorApi:
             return res
 
         else:
-            #change _balance
-            new_balance = balance_sum - need_x
-
-            cursor.execute('UPDATE IM_BALANCE SET AMOUNT = ?, RESERVED = ? WHERE CURR = ?', (new_balance,need_x,p2))
+            # Меняем статус в таблицы IM_BALANCE и IM_ACTIVE_ORDERS
+            balance_state(data, client_side=False, algo_nm=None, conn=conn)
 
             conn.commit()
-
             conn.close()
             return res
 

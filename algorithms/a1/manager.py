@@ -71,16 +71,18 @@ def f_alg1(unix_curr_time):
     """
     data = res['data']
     status = data['status']
-    data['reserved']=reserved
+    #data['reserved'] = reserved
 
     from db.connection import DBConnect
     conn = DBConnect().getConnect()
 
     if status != 'REJECTED':
-        upd_balance(data,'BALANCE',conn)  #внутри доделать
-        if MODE == 'TEST':
-            upd_balance(data, 'IM_BALANCE', conn)
-        upd_active_orders(data, ALGO_NAME, conn)
+
+        # Две таблицы дублируют друг друга.
+        # Но для теста записываем в IM_BALANCE - эмуляция баланса
+        # Для Traid режима записываем в BALANCE - для дублирования баланса на сайте, скорее всего из-за различия в комиссиях будут различия
+        balance_state(data, client_side=True, algo_nm=None, conn=conn)
+
     if status == 'REJECTED':
         pass
         #save only in log_order
@@ -94,16 +96,16 @@ def f_alg1(unix_curr_time):
 
 
 
-    res = api.cancel_order(clientOrderId='')
+    res = api.cancel_order(OrderId='')  # сделать обновления в IM_BALANCE в случае теста
     #-------------------------------------
     """
     UPDATE_STATE_AFTER_CANCEL
     #res = {'ok': 'ok', 'data': {}}    
     """
     data = res['data'] #empty
-    data['clientOrderId']=clientOrderId
+    data['OrderId'] = OrderId
     data['serverCreateTimestamp'] = unix_curr_time
-    data['status']='CANCELED'
+    data['status'] = 'CANCELED'
 
     upd_balance(data, conn)
     upd_active_orders(data, ALGO_NAME, conn)

@@ -183,6 +183,8 @@ def presellBTC(btc, price):
 
 #btc надо предрасчитывать, чтобы часть не терялась при округлении
 def sellBTC(btc,price,comiss=None):
+    #x - сколько в итоге получили
+    #comis - комиссия
     if comiss is None:
         comiss = SELL_FEE
     btc0 = presellBTC(btc, price)

@@ -7,6 +7,7 @@ from datetime import datetime
 from perfomance.cache.cacheData import DBValues
 
 from configs import config
+from functions.trade import X_for_buyBTC, sellBTC
 
 cex_history_tbl = config.DB__HISTORY_TABLE
 
@@ -66,95 +67,109 @@ def save_history_tik(tiks):
 
     conn.close()
 
-def upd_balance(data,balance_table,conn=None):
+def balance_state(data,client_side=True,algo_nm=None,conn=None):
+    #reserved - общая зарезервированная сумма по всем ордерам
+    #client_side - таблицы на стороне прогграммы, другая сторона, таблицы на стороне сайта.
+    #Таблицы на стороне сайта эмулируют баланс и другие параметы, на строне клиента попытка продублировать их,
+    #чтобы лишний раз не обращаться
+
+    if client_side:
+        balance_table = 'BALANCE'
+        active_orders_table = 'ACTIVE_ORDERS'
+    else:
+        balance_table = 'IM_BALANCE'
+        active_orders_table = 'IM_ACTIVE_ORDERS'
 
     flag_con = 0 # 1- коннект не передавался, а создался внутри функции
     if conn is None:
-        flag_con = 0
+        flag_con = 1
         from db.connection import DBConnect
         conn = DBConnect().getConnect()
 
-    id = data['clientOrderId']
+
+    id = data['OrderId']
+    coid = data['clientOrderId']
     status = data['status']
+
+    unix_date = data['serverCreateTimestamp']
+    date = datetime.fromtimestamp(unix_date / 1000)
+
 
     if status == 'NEW':
 
         side = data['side']  # buy sell
         amount = data['requestedAmountCcy1']
         price = data['price']
-        reserved = data['reserved']
+
         currency1 = data['currency1'] #BTC
         currency2 = data['currency2']  # USD
+
+        order_type = data['orderType']
+        sys_date = datetime.now()
 
 
         cursor = conn.cursor()
         if side == 'BUY':
-            fee = 0 #ned to calculate by spaecial rules
-            cursor.execute(f'UPDATE {balance_table} SET AMOUNT = AMOUNT-{reserved}, ifnull(RESERVED,0) = RESERVED+{reserved} WHERE CURR = {currency2}') #, (reserved,reserved,currency2))
+            reserved = X_for_buyBTC(amount, price)
+            cursor.execute(f'UPDATE {balance_table} SET AMOUNT = AMOUNT - {reserved}, ifnull(RESERVED,0) = RESERVED + {reserved} WHERE CURR = {currency2}') #, (reserved,reserved,currency2))
         if side == 'SELL':
-            cursor.execute(f'UPDATE {balance_table} SET AMOUNT = AMOUNT-{amount}, ifnull(RESERVED,0) = RESERVED+{amount} WHERE CURR = {currency1}') #, (amount,amount,currency1))
+            reserved = amount
+            cursor.execute(f'UPDATE {balance_table} SET AMOUNT = AMOUNT - {amount}, ifnull(RESERVED,0) = RESERVED + {amount} WHERE CURR = {currency1}') #, (amount,amount,currency1))
+
+
+        values = (id, date, unix_date, currency1, currency2, side, amount, price, reserved, order_type, data, algo_nm, sys_date)
+        cursor = conn.cursor()
+        cursor.execute(f"""INSERT INTO {active_orders_table} (id,date,unix_date,base,quote,side,amount,price, reserved, order_type,full_traid,algo,sys_date)
+                                  VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)""", values)
 
         cursor.commit()
+
+
+
 
     if status == 'DONE':
         #возможно надо будет добавить fee из ответа
         cursor = conn.cursor()
-        res = cursor.execute("SELECT  AMOUNT,PRICE,SIDE,= FROM LOG_ORDERS WHERE ID = ? AND STATUS = 'NEW' ",(id,))
-        #found amount by id
-        #update
-        #cursor.commit()
-        pass
+        res = cursor.execute(f"SELECT  AMOUNT,PRICE,SIDE,RESERVED FROM {active_orders_table} WHERE ID = ? AND STATUS = 'NEW' ",(id,))  #LOG_ORDERS
+        r_amount, r_price, r_side, r_base,r_quote, r_reserves = res.fetchone()
+
+        if r_side == 'BUY':
+            cursor.execute(f'UPDATE {balance_table} SET  RESERVED = RESERVED-{r_reserved} WHERE CURR = {r_quote}')
+            cursor.execute(f'UPDATE {balance_table} SET  AMOUNT = AMOUNT+{r_amount}       WHERE CURR = {r_base}')
+        if r_side == 'SELL':
+            cursor.execute(f'UPDATE {balance_table} SET  RESERVED = RESERVED-{r_reserved} WHERE CURR = {r_base}')
+            res_x, comis = sellBTC(r_amount,r_price).values
+            cursor.execute(f'UPDATE {balance_table} SET  AMOUNT = AMOUNT+{res_x} WHERE CURR = {r_quote}') #нужно учесть комиссия и расчитать сумму
+
+        cursor.execute(f'DELETE FROM {active_orders_table} where id = ?', (id,))
+
+        cursor.commit()
+
+
+
     if status == 'CANCELED':
         cursor = conn.cursor()
-        res = cursor.execute("SELECT  amount,price,side,base,quote,fee FROM LOG_ORDERS WHERE ID = ? AND STATUS = 'NEW' ", (id,))
-        r_amount,r_price,r_side,r_base,r_quote,r_fee = res.fetchone()
+        res = cursor.execute(f"SELECT  amount,price,side,base,quote,reserved FROM {active_orders_table} WHERE ID = ? AND STATUS = 'NEW' ", (id,))  #LOG_ORDERS
+        r_amount,r_price,r_side,r_base,r_quote,r_reserved = res.fetchone()
         if r_side == 'BUY':
-            cursor.execute(f'UPDATE BALANCE SET AMOUNT = AMOUNT+?, ifnull(RESERVED,0) = RESERVED-? WHERE CURR = ?',
-                       (r_amount*r_price+fee, r_amount*r_price+fee, quote))
+            cursor.execute(f'UPDATE {balance_table} SET AMOUNT = AMOUNT+{r_amount}, ifnull(RESERVED,0) = RESERVED-{r_reserved} WHERE CURR = {r_quote}')
         if r_side == 'SELL':
-            cursor.execute(f'UPDATE BALANCE SET AMOUNT = AMOUNT+?, ifnull(RESERVED,0) = RESERVED-? WHERE CURR = ?',
-                       (r_amount, r_amount, base))
+            cursor.execute(f'UPDATE {balance_table} SET AMOUNT = AMOUNT+{r_amount}, ifnull(RESERVED,0) = RESERVED-{r_reserved} WHERE CURR = {r_base}')
+
+        cursor.execute(f'DELETE FROM {active_orders_table} where id = ?', (id,))
+
         cursor.commit()
 
     if flag_con == 1:
-        cursor.close()
         conn.close()
 
 
-def upd_active_orders(data, algo_nm, conn=None):
-    flag_con = 0 # 1- коннект не передавался, а создался внутри функции
-    if conn is None:
-        flag_con = 0
-        from db.connection import DBConnect
-        conn = DBConnect().getConnect()
-
-    id = data['clientOrderId']
-    unix_date = data['serverCreateTimestamp']
-    date = datetime.fromtimestamp(unix_date/1000)
-    status = data['status']
-
-    if status == 'NEW':
-
-        currency1 = data['currency1']  # BTC
-        currency2 = data['currency2']  # USD
-        side = data['side']  # buy sell
-        amount = data['requestedAmountCcy1']
-        price = data['price']
-        order_type = data['orderType']
-        sys_date = datetime.now()
-
-        values = (id,date,unix_date,currency1,currency2,side,amount,price,order_type,data,algo_nm,sys_date)
-        cursor = conn.cursor()
-        cursor.execute("""INSERT INTO ACTIVE_ORDERS (id,date,unix_date,base,quote,side,amount,price,order_type,full_traid,algo,sys_date)
-                          VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""",values)
-
-        cursor.commit()
 
 
 
     if status == 'DONE' | 'CANCELED':
         cursor = conn.cursor()
-        cursor.execute('DELETE FROM ACTIVE_ORDERS where id = ?', (order_id,))
+        cursor.execute('DELETE FROM ACTIVE_ORDERS where id = ?', (id,))
         cursor.commit()
 
     if flag_con == 1:
@@ -171,7 +186,7 @@ def log_orders(data, algo_nm, conn=None):
         conn = DBConnect().getConnect()
 
 
-    id = data['clientOrderId']
+    id = data['OrderId']
     unix_date = data['serverCreateTimestamp']
     date = datetime.fromtimestamp(unix_date / 1000)
     status = data['status']

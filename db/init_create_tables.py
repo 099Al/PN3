@@ -21,6 +21,24 @@ queries_d ={
    insert into im_balance valuest('USD',0,0);
     """
 
+#активный ордер. аналог записи на сайте
+,'im_active_orders':
+    """CREATE TABLE im_active_orders (
+    id         INTEGER        PRIMARY KEY,
+    date       DATETIME,
+    unix_date  INTEGER,
+    base       CHAR (5),
+    quote      CHAR (5),
+    side       VARCHAR (5)    CHECK (side IN ('sell', 'buy') ),
+    amount     DOUBLE (20, 8),
+    price      DOUBLE (20, 4),
+    reserved   DOUBLE (20, 4),
+    order_type VARCHAR (10)   CHECK (order_type IN ('market', 'limit') ),
+    full_traid TEXT,
+    algo        CHAR (20),
+    sys_date   DATETIME
+)"""
+
 #history_tik - таблица для хранения данных полученный с источника (сайта или эмуляции)
 ,'history_tik':
     """CREATE TABLE cex_history_tik (
