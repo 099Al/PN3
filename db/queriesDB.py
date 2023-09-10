@@ -248,11 +248,11 @@ def order_done(curr_date,conn=None):
     prev_date = curr_date - config.REQUEST_PERIOD
 
     cursor = conn.cursor()
-    res = cursor.execute(f"""SELECT id, amount, price,reserved, side
+    res = cursor.execute(f"""SELECT id, amount, price,reserved, side, base, quote
                                 ,tid, unixdate, date
                             FROM (
                             
-                            SELECT a.id, a.amount, a.price, a.reserved, a.side
+                            SELECT a.id, a.amount, a.price, a.reserved, a.side, a.base, a.quote
                                   ,h.tid, h.unixdate, h.date, row_number() over(partition by a.id order by h.date asc) rn
                             FROM im_active_orders a, im_cex_history_tik h 
                             WHERE {prev_date} < h.unixdate and h.unix_date <= {curr_date} 
@@ -271,7 +271,7 @@ def order_done(curr_date,conn=None):
 
 
     for row in done_buy_orders:
-        id, amount, price, reserved, side, tid, unixdate, date = row
+        id, amount, price, reserved, side, base, quote, tid, unixdate, date = row
         transac_info = json.dumps({})
 
         # {'transactionId': '3340699', 'timestamp': '2023-08-23T16:19:04.517Z', 'accountId': '', 'type': 'commission', 'amount': '-0.03752500', 'details': "Commission for orderId='189237' for up112344963", 'currency': 'USD'}, {'transactionId': '3340680', 'timestamp': '2023-08-23T16:19:04.384Z', 'accountId': '', 'type': 'trade', 'amount': '15.01000000', 'details': "Trade orderId='189237' for up112344963", 'currency': 'USD'},
