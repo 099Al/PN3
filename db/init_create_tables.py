@@ -1,14 +1,27 @@
 #Создание таблиц в Базе
 
 queries_d ={
-  'im_history_tik':
+  'im_cex_history_tik':
     """CREATE TABLE im_cex_history_tik (
     tid      BIGINT          PRIMARY KEY ASC ON CONFLICT ROLLBACK,
-    type     CHAR (6),
     unixdate BIGINT,
     date     DATETIME,
+    side     CHAR (6),
     amount   DECIMAL (11, 8),
-    price    DECIMAL (9, 2) 
+    price    DECIMAL (9, 2),
+    trade_data STRING (1000) 
+    
+)"""
+
+,'im_stg_cex_history_tik':
+    """CREATE TABLE im_stg_cex_history_tik (
+    tid      BIGINT          PRIMARY KEY ASC ON CONFLICT ROLLBACK,
+    unixdate BIGINT,
+    date     DATETIME,
+    side     CHAR (6),
+    amount   DECIMAL (11, 8),
+    price    DECIMAL (9, 2),
+    trade_data STRING (1000)   
 )"""
 
 #im_balance - аналог баланса на сайте. Обновляется во время тестовых рассчетов
@@ -43,11 +56,12 @@ queries_d ={
 ,'history_tik':
     """CREATE TABLE cex_history_tik (
     tid        BIGINT          PRIMARY KEY ASC ON CONFLICT ROLLBACK,
-    type       CHAR (6),
+    side       CHAR (6),
     unixdate   BIGINT,
     date       DATETIME,
     amount     DECIMAL (11, 8),
     price      DECIMAL (9, 2),
+    base       CHAR (6),
     sys_insert DATETIME
 )"""
 
@@ -55,11 +69,12 @@ queries_d ={
 ,'stg_history_tik':
     """CREATE TABLE stg_cex_history_tik (
     tid      BIGINT,
-    type     CHAR (6),
+    side     CHAR (6),
     unixdate BIGINT,
     date     DATETIME,
     amount   DECIMAL (11, 8),
-    price    DECIMAL (9, 2) 
+    price    DECIMAL (9, 2),
+    base     CHAR (6)
 )"""
 
 ,'active_orders':

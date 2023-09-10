@@ -12,7 +12,7 @@ from util.util_datetime import unix_to_date
 
 conf_data = configparser.ConfigParser()
 conf_data.read('../configs/config.ini')
-cex_history_tbl = conf_data['DB']['HISTORY_TABLE'] #'im_cex_history_tik' #Таблица с данными для эмуляции
+cex_history_tbl = 'im_cex_history_tik'  #'im_cex_history_tik' #Таблица с данными для эмуляции
 
 
 '''
@@ -111,32 +111,33 @@ def save_cex_history_add(folder_path, new_date=0):
         with open(hist_file,'r') as fhist:
             content = json.loads(fhist.read())
 
-            trades_ids = content['_data']['trades']
+            trades_ids = content['data']['trades']
 
 
             data=[]
             for trade in trades_ids:
 
                 tid = trade['tradeId']
-
                 dateISO = trade['dateISO']
                 dt_object = datetime.strptime(dateISO, '%Y-%m-%dT%H:%M:%S.%fZ')
-
                 unix_timestamp = dt_object.timestamp()
+                side = trade['side']
+                amount = trade['amount']
+                price = trade['price']
 
                 transaction = json.dumps(trade)
 
-                line_x = (tid,dateISO,unix_timestamp, transaction) #row for insert
+                line_x = (tid,dateISO,unix_timestamp, side, amount,price, transaction) #row for insert
 
                 data.append(line_x)
 
-            #print(_data[0:5])
+            #print(data[0:5])
             data.reverse()
-            #print(_data[0:5])
+            #print(data[0:5])
             cur.execute("DELETE FROM im_stg_cex_history_tik")
-            cur.executemany("INSERT INTO im_stg_cex_history_tik (tid,date,unixdate,trade_data) VALUES (?,?,?,?)",data)
-            cur.execute(f"""INSERT INTO im_cex_history_tik (tid,unixdate,date,trade_data) 
-                            SELECT DISTINCT stg.tid,stg.unixdate,stg.date,stg.trade_data 
+            cur.executemany("INSERT INTO im_stg_cex_history_tik (tid,date,unixdate, side, amount, price, trade_data) VALUES (?,?,?,?,?,?,?)",data)
+            cur.execute(f"""INSERT INTO im_cex_history_tik (tid,date,unixdate, side, amount, price, trade_data) 
+                            SELECT DISTINCT stg.tid,stg.date,stg.unixdate,stg.side,stg.amount,stg.price,stg.trade_data 
                             FROM im_stg_cex_history_tik as stg
                             LEFT JOIN im_cex_history_tik as trg ON stg.tid = trg.tid
                             where trg.tid is null 
@@ -150,7 +151,7 @@ def save_cex_history_add(folder_path, new_date=0):
 
 if __name__ == '__main__':
 
-    PREFIX = 'cex_' #Prefix for filtering _data. Get files with this prefix
+    PREFIX = 'cex_' #Prefix for filtering data. Get files with this prefix
     date_slice = slice(len(PREFIX), len(PREFIX)+8)  # Часть файла с датой формирования. В названии файл должна быть дата формирования
 
 
