@@ -238,6 +238,64 @@ def log_orders(data, params={}, algo_nm=None, conn=None):
         conn.close()
 
 
+def order_done(curr_date,conn=None):
+    flag_con = 0  # 1- коннект не передавался, а создался внутри функции
+    if conn is None:
+        flag_con = 1
+        from db.connection import DBConnect
+        conn = DBConnect().getConnect()
+
+    prev_date = curr_date - config.REQUEST_PERIOD
+
+    cursor = conn.cursor()
+    res = cursor.execute(f"""SELECT id, amount, price,reserved, side
+                                ,tid, unixdate, date
+                            FROM (
+                            
+                            SELECT a.id, a.amount, a.price, a.reserved, a.side
+                                  ,h.tid, h.unixdate, h.date, row_number() over(partition by a.id order by h.date asc) rn
+                            FROM im_active_orders a, im_cex_history_tik h 
+                            WHERE {prev_date} < h.unixdate and h.unix_date <= {curr_date} 
+                            and a.unix_date < h.unixdate 
+                            and a.side = 'BUY' 
+                            and h.side = 'SELL'
+                            and a.price >= h.price 
+                            ) t
+                            where rn = 1""")
+
+    done_buy_orders = res.fetchall()
+
+    for row in done_buy_orders:
+        id = row[0]
+        cursor.execute(f'DELETE FROM im_active_orders WHERE id = {id}')
+
+
+    for row in done_buy_orders:
+        id, amount, price, reserved, side, tid, unixdate, date = row
+        transac_info = json.dumps({})
+
+        # {'transactionId': '3340699', 'timestamp': '2023-08-23T16:19:04.517Z', 'accountId': '', 'type': 'commission', 'amount': '-0.03752500', 'details': "Commission for orderId='189237' for up112344963", 'currency': 'USD'}, {'transactionId': '3340680', 'timestamp': '2023-08-23T16:19:04.384Z', 'accountId': '', 'type': 'trade', 'amount': '15.01000000', 'details': "Trade orderId='189237' for up112344963", 'currency': 'USD'},
+        # {'transactionId': '3340673', 'timestamp': '2023-08-23T16:19:04.384Z', 'accountId': '', 'type': 'trade', 'amount': '-0.00057328', 'details': "Trade orderId='189237' for up112344963", 'currency': 'BTC'},
+        #
+        # {'transactionId': '3221221', 'timestamp': '2023-08-21T04:41:43.434Z', 'accountId': '', 'type': 'commission', 'amount': '-0.03736367', 'details': "Commission for orderId='189231' for up112344963", 'currency': 'USD'}, {'transactionId': '3221215', 'timestamp': '2023-08-21T04:41:43.340Z', 'accountId': '', 'type': 'trade', 'amount': '0.00057328', 'details': "Trade orderId='189231' for up112344963", 'currency': 'BTC'},
+        # {'transactionId': '3221206', 'timestamp': '2023-08-21T04:41:43.340Z', 'accountId': '', 'type': 'trade', 'amount': '-14.94546692', 'details': "Trade orderId='189231' for up112344963", 'currency': 'USD'},
+
+
+        values = (id, amount, price,reserved, side,tid, unixdate, date,transac_info)
+        cursor.execute("""INSERT INTO LOG_ORDERS (order_id, order_amount, order_price, order_reserved, order_side, tid, unixdate, date,transac_info)
+                                                  VALUES (?,?,?,?,?,?,?,?,?)""", values)
+
+
+
+
+    conn.commit()
+
+    if flag_con == 1:
+        cursor.close()
+        conn.close()
+
+
+
 
 
 

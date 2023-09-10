@@ -52,6 +52,23 @@ queries_d ={
     sys_date   DATETIME
 )"""
 
+,'im_transactions':
+    """CREATE TABLE im_transactions (
+    
+    order_id INTEGER,
+    order_amount   DECIMAL (11, 8),
+    order_price    DECIMAL (9, 2),
+    order_reserved   DOUBLE (20, 4),
+    order_side     CHAR (6),
+    
+    tid      BIGINT,          
+    unixdate BIGINT,
+    date     DATETIME,
+    
+    transact_info TEXT
+)"""
+
+
 #history_tik - таблица для хранения данных полученный с источника (сайта или эмуляции)
 ,'history_tik':
     """CREATE TABLE cex_history_tik (
