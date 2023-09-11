@@ -5,6 +5,7 @@
 from datetime import datetime
 
 from perfomance.cache.cacheData import DBValues
+from perfomance.cache.values import Transaction
 
 from configs import config
 from functions.trade import X_for_buyBTC, sellBTC
@@ -265,21 +266,47 @@ def order_done(curr_date,conn=None):
 
     done_buy_orders = res.fetchall()
 
-    for row in done_buy_orders:
+    res = cursor.execute(f"""SELECT id, amount, price,reserved, side, base, quote
+                                    ,tid, unixdate, date
+                                FROM (
+
+                                SELECT a.id, a.amount, a.price, a.reserved, a.side, a.base, a.quote
+                                      ,h.tid, h.unixdate, h.date, row_number() over(partition by a.id order by h.date asc) rn
+                                FROM im_active_orders a, im_cex_history_tik h 
+                                WHERE {prev_date} < h.unixdate and h.unix_date <= {curr_date} 
+                                and a.unix_date < h.unixdate 
+                                and a.side = 'SELL' 
+                                and h.side = 'BUY'
+                                and a.price >= h.price 
+                                ) t
+                                where rn = 1""")
+
+    done_sell_orders = res.fetchall()
+
+
+    for row in done_buy_orders+done_sell_orders:
         id = row[0]
         cursor.execute(f'DELETE FROM im_active_orders WHERE id = {id}')
 
 
-    for row in done_buy_orders:
+    for row in done_buy_orders+done_sell_orders:
         id, amount, price, reserved, side, base, quote, tid, unixdate, date = row
-        transac_info = json.dumps({})
+        info={}
+        if side == 'BUY':
+            info =\
+                [{'transactionId': Transaction.transactionId+1, 'type': 'trade', 'amount': f'-{str(amount*price)}', 'details': f"Trade orderId='{id}' for user_id", 'currency': {quote}}
+                ,{'transactionId': Transaction.transactionId+2, 'type': 'trade', 'amount': f'{str(amount)}', 'details': f"Trade orderId='{id}' for user_id", 'currency': {base}}
+                ,{'transactionId': Transaction.transactionId+3, 'type': 'commission', 'amount': f'{amount*price-reserved}', 'details': f"Commission orderId='{id}' for user_id", 'currency': {quote}}]
+            Transaction.transactionId += 3
+        if side == 'SELL':
+            x,fee = sellBTC(amount,price)
+            info =\
+                [{'transactionId': Transaction.transactionId+1, 'type': 'trade', 'amount': f'-{amount}', 'details': f"Trade orderId='{id}' for user_id", 'currency': {quote}}
+                ,{'transactionId': Transaction.transactionId+2, 'type': 'trade', 'amount': f'{str(x+fee)}', 'details': f"Trade orderId='{id}' for user_id", 'currency': {base}}
+                ,{'transactionId': Transaction.transactionId+3, 'type': 'commission', 'amount': f'-{fee}', 'details': f"Commission orderId='{id}' for user_id", 'currency': {quote}}]
+            Transaction.transactionId += 3
 
-        # {'transactionId': '3340699', 'timestamp': '2023-08-23T16:19:04.517Z', 'accountId': '', 'type': 'commission', 'amount': '-0.03752500', 'details': "Commission for orderId='189237' for up112344963", 'currency': 'USD'}, {'transactionId': '3340680', 'timestamp': '2023-08-23T16:19:04.384Z', 'accountId': '', 'type': 'trade', 'amount': '15.01000000', 'details': "Trade orderId='189237' for up112344963", 'currency': 'USD'},
-        # {'transactionId': '3340673', 'timestamp': '2023-08-23T16:19:04.384Z', 'accountId': '', 'type': 'trade', 'amount': '-0.00057328', 'details': "Trade orderId='189237' for up112344963", 'currency': 'BTC'},
-        #
-        # {'transactionId': '3221221', 'timestamp': '2023-08-21T04:41:43.434Z', 'accountId': '', 'type': 'commission', 'amount': '-0.03736367', 'details': "Commission for orderId='189231' for up112344963", 'currency': 'USD'}, {'transactionId': '3221215', 'timestamp': '2023-08-21T04:41:43.340Z', 'accountId': '', 'type': 'trade', 'amount': '0.00057328', 'details': "Trade orderId='189231' for up112344963", 'currency': 'BTC'},
-        # {'transactionId': '3221206', 'timestamp': '2023-08-21T04:41:43.340Z', 'accountId': '', 'type': 'trade', 'amount': '-14.94546692', 'details': "Trade orderId='189231' for up112344963", 'currency': 'USD'},
-
+        transac_info = json.dumps({info})
 
         values = (id, amount, price,reserved, side,tid, unixdate, date,transac_info)
         cursor.execute("""INSERT INTO LOG_ORDERS (order_id, order_amount, order_price, order_reserved, order_side, tid, unixdate, date,transac_info)

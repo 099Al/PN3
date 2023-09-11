@@ -203,7 +203,7 @@ class Api:
     def sell_limit_order(self, amount, price,clientOrderId=None,market='BTC/USD'):
 
         pairs = market.split('/')
-        unix_dt = int(datetime.now().timestamp()* 1000)  #выводит по времени UTC+0
+        unix_dt = int(datetime.now().timestamp() * 1000)  #выводит по времени UTC+0
 
         params = {
             "clientOrderId": f'{unix_dt}'
