@@ -13,7 +13,7 @@ db_name = config.DB_NAME
 class DBConnect:
     def getConnect(self):
         basedir = os.path.abspath(os.path.dirname(__file__))
-        db_path = os.path.join(basedir, f'../{db_name}')
+        db_path = os.path.join(basedir, f'../../{db_name}')
         conn = sqlite3.connect(db_path)
         return conn
 

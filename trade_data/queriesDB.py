@@ -37,9 +37,13 @@ def find_new_tiks(trades_list, h_last_tik):
 
 def save_history_tik(tiks,conn=None):
 
+    flag_con = 0  # 1- коннект не передавался, а создался внутри функции
+    if conn is None:
+        flag_con = 1
+        from trade_data.db.connection import DBConnect
+        conn = DBConnect().getConnect()
 
-    from trade_data.db.connection import DBConnect
-    conn = DBConnect().getConnect()
+
     cursor = conn.cursor()
 
     last_tik = hist_last_tik(cursor)
@@ -67,7 +71,10 @@ def save_history_tik(tiks,conn=None):
         cursor.executemany("INSERT INTO cex_history_tik (tid,type,unixdate,date,amount,price,sys_insert) VALUES (?,?,?,?,?,?,?)",res)
     conn.commit()
 
-    conn.close()
+    if flag_con == 1:
+        conn.close()
+
+
 
 def balance_state(data,client_side=True,algo_nm=None,conn=None):
     #reserved - общая зарезервированная сумма по всем ордерам
@@ -184,7 +191,6 @@ def log_orders(data, params={}, algo_nm=None, conn=None):
     unix_date = data['serverCreateTimestamp']
     date = datetime.fromtimestamp(unix_date / 1000)
     status = data['status']
-    reserved = params['reserved']
     sys_date = datetime.now()
 
     if status == 'NEW':
@@ -193,6 +199,7 @@ def log_orders(data, params={}, algo_nm=None, conn=None):
         side = data['side']  # buy sell
         amount = data['requestedAmountCcy1']
         price = data['price']
+        reserved = params['reserved']
         order_type = data['orderType']
 
 
@@ -210,6 +217,7 @@ def log_orders(data, params={}, algo_nm=None, conn=None):
         side = data['side']  # buy sell
         amount = data['requestedAmountCcy1']
         price = data['price']
+        reserved = params['reserved']
         order_type = data['orderType']
         reject_reason = data['orderRejectReason']
 
@@ -241,6 +249,9 @@ def log_orders(data, params={}, algo_nm=None, conn=None):
 
 
 def order_done(curr_date,conn=None):
+    """
+    Выполнение ордеров на источнике при эмуляции
+    """
     flag_con = 0  # 1- коннект не передавался, а создался внутри функции
     if conn is None:
         flag_con = 1

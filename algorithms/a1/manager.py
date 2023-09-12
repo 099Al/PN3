@@ -1,5 +1,5 @@
 from configs import config
-from trade_data.queriesDB import upd_balance,upd_active_orders, log_orders,balance_state
+from trade_data.queriesDB import log_orders,balance_state
 
 MODE = config.MODE
 ALGO_NAME = 'A1'
