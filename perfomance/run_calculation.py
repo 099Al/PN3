@@ -4,7 +4,7 @@ from datetime import datetime
 
 import algorithms as algo
 from trade_data.queriesDB import order_done
-from trade_data.updates import get_new_data
+from trade_data.updates import get_new_data,check_orders
 
 MODE = config.MODE
 #MODE = 'TRAID'
@@ -63,18 +63,11 @@ def run_prediction():
         get_new_data(MODE, 'BTC/USD', curr_unix_time)
 
         # ---Проверка ордеров---
-
+        check_orders(curr_unix_time)
         """
         После выставления ордеров алгоритмах, к началу след шага пройдет время
         за это время может сработать ордер.
         """
-
-        # Пройтись по ордерам в таблице active_orders
-        # Сделать запрос к полученным данным get_orders() or open_orders()
-        # orders {'ok': 'ok', 'data': [{'orderId': '189237', 'clientOrderId': '72379967642F', 'clientId': 'up112344963', 'accountId': None, 'status': 'NEW', 'statusIsFinal': False, 'currency1': 'BTC', 'currency2': 'USD', 'side': 'SELL', 'orderType': 'Limit', 'timeInForce': 'GTC', 'comment': None, 'rejectCode': None, 'rejectReason': None, 'initialOnHoldAmountCcy1': '0.00057328', 'initialOnHoldAmountCcy2': None, 'executedAmountCcy1': None, 'executedAmountCcy2': None, 'requestedAmountCcy1': '0.00057328', 'requestedAmountCcy2': None, 'feeAmount': '0.00000000', 'feeCurrency': 'USD', 'price': '26200.0', 'averagePrice': None, 'clientCreateTimestamp': 1692594090681, 'serverCreateTimestamp': 1692594091638, 'lastUpdateTimestamp': 1692594091829, 'expireTime': None, 'effectiveTime': None}]}
-        # Найти открытие и закрытые.
-        # Закрытые удалить из active_orders (сторона клиента) ???
-        # Сформировать orderId  done -> balance_state(data,client_side=True,algo_nm=None,conn=None)
 
         # ---Вычесления------------
         """
