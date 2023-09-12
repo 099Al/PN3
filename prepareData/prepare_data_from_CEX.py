@@ -5,9 +5,7 @@ import json
 from datetime import datetime
 import configparser
 
-from dateutil.parser import parser
-
-from db.connection import DBConnect
+from trade_data.db.connection import DBConnect
 from util.util_datetime import unix_to_date
 
 conf_data = configparser.ConfigParser()

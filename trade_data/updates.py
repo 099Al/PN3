@@ -31,6 +31,6 @@ def get_new_data(mode,pair,curr_time=None):
 
     print('curr',res)
 
-
     return None
 
+def check_ordrs():

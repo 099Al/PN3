@@ -1,5 +1,5 @@
 from configs import config
-from db.queriesDB import upd_balance,upd_active_orders, log_orders,log_balance,log_orders,balance_state
+from trade_data.queriesDB import upd_balance,upd_active_orders, log_orders,balance_state
 
 MODE = config.MODE
 ALGO_NAME = 'A1'
@@ -10,7 +10,7 @@ def f_alg1(unix_curr_time):
     calc_res = None
 
     if MODE == "TRADE":
-        from api.cexioNewApi import Api
+        from api.cexio.cexioNewApi import Api
 
 
         api = Api(config.API_USER, config.API_KEY, config.API_SECRET)
@@ -21,11 +21,11 @@ def f_alg1(unix_curr_time):
         api.sell_limit_order()
 
         #set or cancel
-        #save into db
+        #save into trade_data
 
 
     if MODE == 'TEST':
-        from emulatorApi.cexioEmNewApi import emulatorApi
+        from api.emulatorcexio.cexioEmNewApi import emulatorApi
 
         api = emulatorApi('TEST_USER',unix_curr_time)
 
@@ -73,7 +73,7 @@ def f_alg1(unix_curr_time):
     status = data['status']
     #data['reserved'] = reserved
 
-    from db.connection import DBConnect
+    from trade_data.db.connection import DBConnect
     conn = DBConnect().getConnect()
 
     if status != 'REJECTED':
@@ -120,7 +120,7 @@ def f_alg1(unix_curr_time):
     # ------------------------------------
 
     #api.buy_limit_order(amount=0.00042277, price=3000)
-    #save buy _order to DB  db/queriesDB.py
+    #save buy _order to DB  trade_data/queriesDB.py
 
 
 
@@ -128,7 +128,7 @@ def f_alg1(unix_curr_time):
 
     #res = set (price,amount,side)
 
-    #save res into db (transactons, curr_state)
+    #save res into trade_data (transactons, curr_state)
 
 
 if __name__ == '__main__':

@@ -35,7 +35,7 @@ def find_new_tiks(trades_list, h_last_tik):
 
 
 
-def save_history_tik(tiks):
+def save_history_tik(tiks,conn=None):
 
 
     from trade_data.db.connection import DBConnect

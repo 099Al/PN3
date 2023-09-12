@@ -1,18 +1,12 @@
 # -*- coding: utf-8 -*-
 
-import hmac
-import hashlib
-import time
-import requests
 import json
-import base64
-from datetime import datetime
 
-from db.connection import DBConnect
+from trade_data.db.connection import DBConnect
 
 from functions.trade import X_for_buyBTC
-from configs.config import BASE_MIN,QUOTE_MIN
-from db.queriesDB import balance_state
+from configs.config import BASE_MIN
+from trade_data.queriesDB import balance_state
 
 PUBLIC_COMMANDS = {
      'get_order_book'
@@ -102,7 +96,7 @@ class emulatorApi:
     def open_orders(self, params=None):
 
         # orders {'ok': 'ok', 'data': [{'orderId': '189237', 'clientOrderId': '72379967642F', 'clientId': 'up112344963', 'accountId': None, 'status': 'NEW', 'statusIsFinal': False, 'currency1': 'BTC', 'currency2': 'USD', 'side': 'SELL', 'orderType': 'Limit', 'timeInForce': 'GTC', 'comment': None, 'rejectCode': None, 'rejectReason': None, 'initialOnHoldAmountCcy1': '0.00057328', 'initialOnHoldAmountCcy2': None, 'executedAmountCcy1': None, 'executedAmountCcy2': None, 'requestedAmountCcy1': '0.00057328', 'requestedAmountCcy2': None, 'feeAmount': '0.00000000', 'feeCurrency': 'USD', 'price': '26200.0', 'averagePrice': None, 'clientCreateTimestamp': 1692594090681, 'serverCreateTimestamp': 1692594091638, 'lastUpdateTimestamp': 1692594091829, 'expireTime': None, 'effectiveTime': None}]}
-        from db.connection import DBConnect
+        from trade_data.db.connection import DBConnect
         conn = DBConnect().getConnect()
         cursor = conn.cursor()
         res = cursor.execute("SELECT id, unix_date, base,quote,side, orderType, amount, price FROM IM_ACTIVE_ORDERS")
@@ -190,7 +184,7 @@ class emulatorApi:
         unix_dt = int(datetime.now().timestamp())  #выводит по времени UTC+0
 
         # CHECK BALANCE
-        from db.connection import DBConnect
+        from trade_data.db.connection import DBConnect
         conn = DBConnect().getConnect()
         cursor = conn.cursor()
         res = cursor.execute("SELECT AMOUNT FROM IM_BALANCE WHERE CURR = ?", (p1,))
@@ -287,7 +281,7 @@ class emulatorApi:
         p2 = pairs[1]
 
         #CHECK BALANCE
-        from db.connection import DBConnect
+        from trade_data.db.connection import DBConnect
         conn = DBConnect().getConnect()
         cursor = conn.cursor()
         res = cursor.execute("SELECT AMOUNT FROM IM_BALANCE WHERE CURR = ?",(p2,))
@@ -383,7 +377,7 @@ class emulatorApi:
 
         unix_dt = int(datetime.now().timestamp()*1000)
 
-        from db.connection import DBConnect
+        from trade_data.db.connection import DBConnect
         conn = DBConnect().getConnect()
         cursor = conn.cursor()
 
@@ -402,9 +396,6 @@ class emulatorApi:
 
 if __name__ == '__main__':
     from datetime import datetime
-    from configs import config
-
-
 
     api = emulatorApi('test_user',1689533488861)
     api.buy_limit_order(0.005,30000)
