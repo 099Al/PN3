@@ -168,16 +168,20 @@ class Api:
     def open_orders(self, params=None):
         return self.api_call('get_my_orders', params)
 
+    def get_order(self,order_id):
+        return self.api_call('get_my_orders', {'id': order_id})
+
+
+
     #стакан
     def order_book(self, params={'pair':'BTC-USD'}):
         return self.api_call('get_order_book',params)
 
-    def get_orders(self):
-        return self.api_call('get_my_orders')
+
 
     def set_order(self, amount, price, sell_buy, orderType='Limit',market='BTC/USD',clientOrderId=None):
 
-        #GTC - выход пока н еисполнится
+        #GTC - выход пока не исполнится
         #GTD- выход по истечении времени
 
         pairs = market.split('/')
@@ -252,7 +256,7 @@ class Api:
         param = {
             "orderId": OrderId,
             #"clientOrderId": f'{clientOrderId}',
-            "cancelRequestId": f"cancel_{clientOrderId}",
+            "cancelRequestId": f"cancel_{OrderId}",
             "timestamp": unix_dt
         }
 

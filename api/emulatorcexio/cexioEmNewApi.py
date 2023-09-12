@@ -100,13 +100,60 @@ class emulatorApi:
         return self.api_call('get_myfee')
 
     def open_orders(self, params=None):
-        return self.api_call('get_my_orders', params)
+
+        # orders {'ok': 'ok', 'data': [{'orderId': '189237', 'clientOrderId': '72379967642F', 'clientId': 'up112344963', 'accountId': None, 'status': 'NEW', 'statusIsFinal': False, 'currency1': 'BTC', 'currency2': 'USD', 'side': 'SELL', 'orderType': 'Limit', 'timeInForce': 'GTC', 'comment': None, 'rejectCode': None, 'rejectReason': None, 'initialOnHoldAmountCcy1': '0.00057328', 'initialOnHoldAmountCcy2': None, 'executedAmountCcy1': None, 'executedAmountCcy2': None, 'requestedAmountCcy1': '0.00057328', 'requestedAmountCcy2': None, 'feeAmount': '0.00000000', 'feeCurrency': 'USD', 'price': '26200.0', 'averagePrice': None, 'clientCreateTimestamp': 1692594090681, 'serverCreateTimestamp': 1692594091638, 'lastUpdateTimestamp': 1692594091829, 'expireTime': None, 'effectiveTime': None}]}
+        from db.connection import DBConnect
+        conn = DBConnect().getConnect()
+        cursor = conn.cursor()
+        res = cursor.execute("SELECT id, unix_date, base,quote,side, orderType, amount, price FROM IM_ACTIVE_ORDERS")
+        rows = res.fetchall()
+        l_orders = []
+        for row in rows:
+            id, unix_date, base, quote, side, orderType, amount, price = row
+            order_i = {'orderId': id
+                , 'clientOrderId': None
+                , 'clientId': 'user'
+                , 'accountId': None
+                , 'status': 'NEW'
+                , 'statusIsFinal': False
+                , 'currency1': base
+                , 'currency2': quote
+                , 'side': side
+                , 'orderType': orderType
+                , 'timeInForce': 'GTC'
+                , 'comment': None
+                , 'rejectCode': None
+                , 'rejectReason': None
+                , 'initialOnHoldAmountCcy1': amount
+                , 'initialOnHoldAmountCcy2': None
+                , 'executedAmountCcy1': None
+                , 'executedAmountCcy2': None
+                , 'requestedAmountCcy1': amount
+                , 'requestedAmountCcy2': None
+                , 'feeAmount': '0.00000000'
+                , 'feeCurrency': quote
+                , 'price': price
+                , 'averagePrice': None
+                , 'clientCreateTimestamp': unix_date
+                , 'serverCreateTimestamp': None
+                , 'lastUpdateTimestamp': None
+                , 'expireTime': None
+                , 'effectiveTime': None}
+            l_orders.append(order_i)
+
+        orders ={'ok': 'ok', 'data': l_orders}
+        return orders
+
+
+    def get_order(self, order_id):
+        return self.api_call('get_order', {'id': order_id})
+
+
 
     def order_book(self, params={'pair':'BTC-USD'}):
         return self.api_call('get_order_book',params)
 
-    def get_order(self, order_id):
-        return self.api_call('get_order', {'id': order_id})
+
 
     def set_order(self, amount, price, sell_buy, orderType='Limit',market='BTC/USD',clientOrderId=None):
 
@@ -217,7 +264,7 @@ class emulatorApi:
 
         else:
             # Меняем статус в таблицы IM_BALANCE и IM_ACTIVE_ORDERS
-            balance_state(data, client_side=False, algo_nm=None, conn=conn)
+            balance_state(res['data'], client_side=False, algo_nm=None, conn=conn)
 
             conn.commit()
             conn.close()
@@ -324,7 +371,7 @@ class emulatorApi:
 
         else:
             # Меняем статус в таблицы IM_BALANCE и IM_ACTIVE_ORDERS
-            balance_state(data, client_side=False, algo_nm=None, conn=conn)
+            balance_state(res['data'], client_side=False, algo_nm=None, conn=conn)
 
             conn.commit()
             conn.close()
