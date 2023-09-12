@@ -2,6 +2,7 @@
 запросы к таблицам не вида im_...
 не расчетные запросы
 """
+import json
 from datetime import datetime
 
 from perfomance.cache.cacheData import DBValues
@@ -37,7 +38,7 @@ def find_new_tiks(trades_list, h_last_tik):
 def save_history_tik(tiks):
 
 
-    from db.connection import DBConnect
+    from trade_data.db.connection import DBConnect
     conn = DBConnect().getConnect()
     cursor = conn.cursor()
 
@@ -84,7 +85,7 @@ def balance_state(data,client_side=True,algo_nm=None,conn=None):
     flag_con = 0 # 1- коннект не передавался, а создался внутри функции
     if conn is None:
         flag_con = 1
-        from db.connection import DBConnect
+        from trade_data.db.connection import DBConnect
         conn = DBConnect().getConnect()
 
 
@@ -175,7 +176,7 @@ def log_orders(data, params={}, algo_nm=None, conn=None):
     flag_con = 0  # 1- коннект не передавался, а создался внутри функции
     if conn is None:
         flag_con = 1
-        from db.connection import DBConnect
+        from trade_data.db.connection import DBConnect
         conn = DBConnect().getConnect()
 
 
@@ -243,7 +244,7 @@ def order_done(curr_date,conn=None):
     flag_con = 0  # 1- коннект не передавался, а создался внутри функции
     if conn is None:
         flag_con = 1
-        from db.connection import DBConnect
+        from trade_data.db.connection import DBConnect
         conn = DBConnect().getConnect()
 
     prev_date = curr_date - config.REQUEST_PERIOD
@@ -338,7 +339,7 @@ def order_done(curr_date,conn=None):
 #     flag_con = 0 # 1- коннект не передавался, а создался внутри функции
 #     if conn is None:
 #         flag_con = 0
-#         from db.connection import DBConnect
+#         from trade_data.connection import DBConnect
 #         conn = DBConnect().getConnect()
 #
 #     id = _data['clientOrderId']

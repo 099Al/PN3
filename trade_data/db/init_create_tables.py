@@ -161,7 +161,7 @@ queries_d ={
 
 
 if __name__ == '__main__':
-    from db.connection import DBConnect
+    from trade_data.db.connection import DBConnect
 
     conn = DBConnect().getConnect()
     cursor = conn.cursor()

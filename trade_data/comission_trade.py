@@ -22,7 +22,7 @@ def deposit_fee(connect,curr, method):
 
 if __name__ == '__main__':
 
-    import db.connection as cn
+    import trade_data.db.connection as cn
 
     print('Hello')
     conn = cn.getConnect()

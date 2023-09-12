@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 '''
-Переименован из db._feeslimits
+Переименован из trade_data._feeslimits
 
 Параметры комиссий за перевод, транзакции
 Параметры берутся из таблиц в БД
@@ -30,7 +30,7 @@ def bank_curr(connect,bank, X,Y):
 
 if __name__ == '__main__':
 
-    import db.connection as cn
+    import trade_data.db.connection as cn
 
     print('Hello')
     conn = cn.getConnect()
