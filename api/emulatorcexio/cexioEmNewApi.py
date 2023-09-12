@@ -41,7 +41,7 @@ class emulatorApi:
         self.conn = dbconn.getConnect()
 
     def close(self):
-        conn.close()
+        self.conn.close()
 
 
     def api_call(self,param1,param2):
