@@ -1,3 +1,12 @@
 >uv run alembic revision --autogenerate -m "users"
 
 >uv run alembic upgrade head
+
+
+Если ошибка Enum, что он уже создан
+то надо в новую версию сделать правку create_type=False
+
+
+
+from sqlalchemy.dialects import postgresql
+sa.Column('side', postgresql.ENUM('buy', 'sell', name='sidetype', create_type=False), nullable=True),
