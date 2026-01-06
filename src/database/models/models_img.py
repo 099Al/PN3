@@ -29,8 +29,8 @@ class Im_ActiveOrder(Base):
     price: Mapped[Decimal] = mapped_column(Numeric(20, 4))
     reserved: Mapped[Decimal] = mapped_column(Numeric(20, 4))
     order_type: Mapped[str] = mapped_column(OrderTypeEnum, nullable=True)
-    full_traid: Mapped[str]
-    algo: Mapped[str]
+    full_traid: Mapped[str] = mapped_column(Text, nullable=True)
+    algo: Mapped[str] = mapped_column(String(20), nullable=True)
     sys_date: Mapped[DateTime] = mapped_column(DateTime)
 
     def __repr__(self):
@@ -40,30 +40,32 @@ class Im_Balance(Base):
     __tablename__ = "im_balance"
 
     curr: Mapped[str] = mapped_column(String(5),primary_key=True,)
-    amount: Mapped[Decimal] = mapped_column(Numeric(15, 8),nullable=False,default=Decimal("0"),)
-    reserved: Mapped[Decimal] = mapped_column(Numeric(15, 8),nullable=False,default=Decimal("0"),)
+    amount: Mapped[Decimal] = mapped_column(Numeric(15, 8), nullable=False)
+    reserved: Mapped[Decimal] = mapped_column(Numeric(15, 8), nullable=True)
 
 class Im_CexHistoryTik(Base):
     __tablename__ = "im_cex_history_tik"
 
-    tid:        Mapped[int] = mapped_column(BigInteger, primary_key=True)
-    type:       Mapped[str] = mapped_column(String(6))
+    tid:        Mapped[str] = mapped_column(String(100), primary_key=True)
     unixdate:   Mapped[int] = mapped_column(BigInteger)
     date:       Mapped[DateTime] = mapped_column(DateTime)
+    # side:       Mapped[str] = mapped_column(SideTypeEnum)
+    side: Mapped[str] = mapped_column(String(6))
     amount:     Mapped[Decimal] = mapped_column(Numeric(11, 8))
     price:      Mapped[Decimal] = mapped_column(Numeric(9, 2))
-    sys_insert: Mapped[DateTime] = mapped_column(DateTime)
+    trade_data: Mapped[str] = mapped_column(Text, nullable=True)
 
 class Im_Stg_CexHistoryTik(Base):
     __tablename__ = "im_stg_cex_history_tik"
 
-    tid:        Mapped[int] = mapped_column(BigInteger, primary_key=True)
-    type:       Mapped[str] = mapped_column(String(6))
-    unixdate:   Mapped[int] = mapped_column(BigInteger)
-    date:       Mapped[DateTime] = mapped_column(DateTime)
-    amount:     Mapped[Decimal] = mapped_column(Numeric(11, 8))
-    price:      Mapped[Decimal] = mapped_column(Numeric(9, 2))
-    sys_insert: Mapped[DateTime] = mapped_column(DateTime)
+    tid: Mapped[str] = mapped_column(String(100), primary_key=True)
+    unixdate: Mapped[int] = mapped_column(BigInteger)
+    date: Mapped[DateTime] = mapped_column(DateTime)
+    # side: Mapped[str] = mapped_column(SideTypeEnum)
+    side: Mapped[str] = mapped_column(String(6))
+    amount: Mapped[Decimal] = mapped_column(Numeric(11, 8))
+    price: Mapped[Decimal] = mapped_column(Numeric(9, 2))
+    trade_data: Mapped[str] = mapped_column(Text, nullable=True)
 
 
 class Im_Transactions(Base):
@@ -75,7 +77,7 @@ class Im_Transactions(Base):
     order_price: Mapped[Decimal] = mapped_column(Numeric(9, 2))
     order_reserved: Mapped[Decimal] = mapped_column(Numeric(20, 4))
     order_side: Mapped[str] = mapped_column(String(6))
-    tid: Mapped[int] = mapped_column(BigInteger)
+    tid: Mapped[str] = mapped_column(String(100))
     unixdate: Mapped[int] = mapped_column(BigInteger)
     date: Mapped[DateTime] = mapped_column(DateTime)
-    transact_info: Mapped[str] = mapped_column(Text)
+    transact_info: Mapped[str] = mapped_column(Text, nullable=True)

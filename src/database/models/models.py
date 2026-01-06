@@ -37,8 +37,8 @@ class Balance(Base):
     __tablename__ = "balance"
 
     curr: Mapped[str] = mapped_column(String(5), primary_key=True,)
-    amount: Mapped[Decimal] = mapped_column(Numeric(15, 8),nullable=False,default=Decimal("0"),)
-    reserved: Mapped[Decimal] = mapped_column(Numeric(15, 8),nullable=False,default=Decimal("0"),)
+    amount: Mapped[Decimal] = mapped_column(Numeric(15, 8), nullable=False, default=Decimal("0"),)
+    reserved: Mapped[Decimal] = mapped_column(Numeric(15, 8), nullable=True)
 
     def __repr__(self):
         return f"<Balance {self.curr}> amount: {self.amount} reserved: {self.reserved}"
@@ -50,10 +50,10 @@ class Exchange(Base):
     dt:    Mapped[DateTime] = mapped_column(DateTime)
     base:  Mapped[str] = mapped_column(String(5))
     quote: Mapped[str] = mapped_column(String(5))
-    bye:   Mapped[Decimal] = mapped_column(Numeric(18, 8))
-    sell:  Mapped[Decimal] = mapped_column(Numeric(18, 8))
+    bye:   Mapped[Decimal] = mapped_column(Numeric(18, 8), nullable=True)
+    sell:  Mapped[Decimal] = mapped_column(Numeric(18, 8), nullable=True)
     bank:  Mapped[str] = mapped_column(String(30))
-    descr: Mapped[str] = mapped_column(String(200))
+    descr: Mapped[str] = mapped_column(String(200), nullable=True)
 
     def __repr__(self):
         return f"<Exchange {self.id}> dt: {self.dt} base: {self.base} quote: {self.quote} bye: {self.bye} sell: {self.sell}"
@@ -61,7 +61,7 @@ class Exchange(Base):
 class CexHistoryTik(Base):
     __tablename__ = "cex_history_tik"
 
-    tid:        Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    tid:        Mapped[str] = mapped_column(String(100), primary_key=True)
     type:       Mapped[str] = mapped_column(String(6))
     unixdate:   Mapped[int] = mapped_column(BigInteger)
     date:       Mapped[DateTime] = mapped_column(DateTime)
@@ -72,7 +72,7 @@ class CexHistoryTik(Base):
 class Stg_CexHistoryTik(Base):
     __tablename__ = "stg_cex_history_tik"
 
-    tid:        Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    tid:        Mapped[str] = mapped_column(String(100), primary_key=True)
     type:       Mapped[str] = mapped_column(String(6))
     unixdate:   Mapped[int] = mapped_column(BigInteger)
     date:       Mapped[DateTime] = mapped_column(DateTime)
@@ -101,7 +101,7 @@ class DepositFee(Base):
     deposit_fix:    Mapped[Decimal] = mapped_column(Numeric)
     withdrawal:     Mapped[Decimal] = mapped_column(Numeric)
     withdrawal_fix: Mapped[Decimal] = mapped_column(Numeric)
-    descr:          Mapped[str] = mapped_column(String)
+    descr:          Mapped[str] = mapped_column(String, nullable=True)
 
 
 
@@ -134,21 +134,21 @@ class LogOrders(Base):
     price: Mapped[Decimal] = mapped_column(Numeric(15, 8))
     reserved: Mapped[Decimal] = mapped_column(Numeric(15, 8))
     fee: Mapped[Decimal] = mapped_column(Numeric(15, 2))
-    reject_reason: Mapped[str] = mapped_column(Text)
-    order_type: Mapped[str] = mapped_column(OrderTypeEnum)
-    expire: Mapped[int] = mapped_column(Integer)
-    full_traid: Mapped[str] = mapped_column(Text)
-    algo: Mapped[str] = mapped_column(String(20))
-    flag_reason: Mapped[str] = mapped_column(Text)
+    reject_reason: Mapped[str] = mapped_column(Text, nullable=True)
+    order_type: Mapped[str] = mapped_column(OrderTypeEnum, nullable=False)
+    expire: Mapped[int] = mapped_column(Integer, nullable=False)
+    full_traid: Mapped[str] = mapped_column(Text, nullable=False)
+    algo: Mapped[str] = mapped_column(String(20), nullable=False)
+    flag_reason: Mapped[str] = mapped_column(Text, nullable=True)
 
 class MakerTaker(Base):
     __tablename__ = "maker_taker"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    vol30d: Mapped[int] = mapped_column(Integer)
+    vol30d: Mapped[int] = mapped_column(Integer, nullable=False)
     maker: Mapped[Decimal] = mapped_column(Numeric)
     taker: Mapped[Decimal] = mapped_column(Numeric)
-    descr: Mapped[str] = mapped_column(String)
+    descr: Mapped[str] = mapped_column(String, nullable=True)
 
 class Pairs(Base):
     __tablename__ = "pairs"
