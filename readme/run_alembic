@@ -1,0 +1,3 @@
+>uv run alembic revision --autogenerate -m "users"
+
+>uv run alembic upgrade head

@@ -42,3 +42,10 @@ class ActiveOrder(Base):
 
     def __repr__(self):
         return f"<ActiveOrder {self.id}> date: {self.date} side: {self.side} amount: {self.amount} price: {self.price}"
+
+class Balance(Base):
+    __tablename__ = "balance"
+
+    curr: Mapped[str] = mapped_column(String(5),primary_key=True,)
+    amount: Mapped[Decimal] = mapped_column(Numeric(15, 8),nullable=False,default=Decimal("0"),)
+    reserved: Mapped[Decimal] = mapped_column(Numeric(15, 8),nullable=False,default=Decimal("0"),)
