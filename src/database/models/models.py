@@ -1,5 +1,3 @@
-from typing import List
-
 from sqlalchemy import (
     String, Integer, Text, DateTime, Boolean, Numeric,
     ForeignKey, Column,
@@ -13,15 +11,7 @@ import enum
 from sqlalchemy import Enum as SqlEnum
 
 from src.database.models.base import Base
-
-
-class SideType(enum.Enum):
-    BUE = "buy"
-    SELL = "sell"
-
-class OrderType(enum.Enum):
-    LIMIT = "limit"
-    MARKET = "market"
+from src.database.models.models_types import SideType, OrderType
 
 
 class ActiveOrder(Base):
@@ -49,3 +39,21 @@ class Balance(Base):
     curr: Mapped[str] = mapped_column(String(5),primary_key=True,)
     amount: Mapped[Decimal] = mapped_column(Numeric(15, 8),nullable=False,default=Decimal("0"),)
     reserved: Mapped[Decimal] = mapped_column(Numeric(15, 8),nullable=False,default=Decimal("0"),)
+
+    def __repr__(self):
+        return f"<Balance {self.curr}> amount: {self.amount} reserved: {self.reserved}"
+
+class Exchange(Base):
+    __tablename__ = "exchange"
+
+    id:    Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    dt:    Mapped[DateTime] = mapped_column(DateTime)
+    base:  Mapped[str] = mapped_column(String(5))
+    quote: Mapped[str] = mapped_column(String(5))
+    bye:   Mapped[Decimal] = mapped_column(Numeric(18, 8))
+    sell:  Mapped[Decimal] = mapped_column(Numeric(18, 8))
+    bank:  Mapped[str] = mapped_column(String(30))
+    descr: Mapped[str] = mapped_column(String(200))
+
+    def __repr__(self):
+        return f"<Exchange {self.id}> dt: {self.dt} base: {self.base} quote: {self.quote} bye: {self.bye} sell: {self.sell}"
