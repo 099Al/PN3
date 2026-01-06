@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from perfomance.balance.balance import DepoBalance
+from perfomance._balance.balance import DepoBalance
 import algorithms.alg1.parameters.balanceParams as algBlnc
 from algorithms.orders import ActiveOrders,ProcessLine
 
+# ! Скрипт нужно обновить
 def initBalance():
     deposit = DepoBalance()  # Баланс
     deposit.setBTCblnc(algBlnc.balance_BTC)

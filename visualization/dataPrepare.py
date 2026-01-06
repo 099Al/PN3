@@ -38,7 +38,7 @@ def dataTiks(date_from,date_to):
           'from im_cex_history_tik\n' \
           'where {dateF}>=\'{date_from}\'\n' \
           'and {dateF}<\'{date_to}\'\n' \
-          'order by tid asc'
+          '_order by tid asc'
 
     #Определение по какомму столбцу делать запрос. Date или unixdate
     dateF1 = dateFormat(date_from)

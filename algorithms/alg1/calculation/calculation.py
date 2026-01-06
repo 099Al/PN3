@@ -4,8 +4,8 @@
 
 import algorithms.alg1.parameters.orderParams as prmt
 import deposit.feeslimits.constant as cons
-from perfomance.balance.balance import DepoBalance
-import function.transacFunction as trns
+from perfomance._balance.balance import DepoBalance
+import functions.trade as trns
 from algorithms.orders import ActiveOrders,ProcessLine
 import numpy as np
 
@@ -57,7 +57,7 @@ def    calc(curr_prices,line):
         x = bln_x  #в этом варианте все
 
         #на эту сумму возможно взять btc
-        amount = trns.maxBTC(x,b_price)
+        amount = trns.buyBTC(x, b_price)
 
         return {'type': 'buy', 'mtype':'limit','crypt':'BTC', 'amount':amount, 'price':b_price, 'x':x}
 

@@ -3,14 +3,14 @@
 Словарь выставленных ордеров
 Последовательность купли/продажи
 
-структура ордера order ={'id':id
+структура ордера _order ={'id':id
                             ,'amount':amount
                             ,'price':price
                             ,'time':ord_time
                             , 'type': r_act
                             , 'x':reserver_sum
                             }
-структура словаря order_list  = {id: order}
+структура словаря order_list  = {id: _order}
 
 ActiveOrders - класс активных ордеров. Т.е. которые выставлены либо на покупку, либо на продажу
 
