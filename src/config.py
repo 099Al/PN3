@@ -11,9 +11,16 @@ class Config(BaseSettings):
     POSTGRES_DB: str
     DATABASE_ENGINE: str = 'postgresql+asyncpg'
 
+    API_USER: str
+    API_KEY: str
+    API_SECRET: str
+
     path_root: str = str(Path(__file__).resolve().parent.parent)
     path_env: str = str(Path(__file__).resolve().parent.parent / '.env')
     model_config = SettingsConfigDict(env_file=path_env, env_file_encoding="utf-8", extra="ignore")
+
+    # CALC_MODE: str = "EMULATION"
+    CALC_MODE: str = "API"
 
     @property
     def connect_url(self):

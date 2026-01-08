@@ -18,7 +18,7 @@ def f_alg1(unix_curr_time):
     calc_res = None
 
     if MODE == "TRADE":
-        from api.cexio.cexioNewApi import Api
+        from src.api.cexio.cexioNewApi import Api
 
 
         api = Api(config.API_USER, config.API_KEY, config.API_SECRET)
@@ -33,9 +33,9 @@ def f_alg1(unix_curr_time):
 
 
     if MODE == 'TEST':
-        from api.emulatorcexio.cexioEmNewApi import emulatorApi
+        from src.api.emulatorcexio.cexioEmNewApi import EmulatorApi
 
-        api = emulatorApi('TEST_USER',unix_curr_time)
+        api = EmulatorApi('TEST_USER', unix_curr_time)
 
         # для тестирования, чтобы перейти в нужную функция
         # В этом месте нужно ее убрать

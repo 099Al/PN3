@@ -1,6 +1,6 @@
-from api.cexioNewApi import Api
+from src.api import Api
 from configs import config
-from manualTraiding.preCalcTrans.info_trade import info_parameters_to_buy_BTC,info_parameters_to_sell_BTC,info_expected_price_sellBTC
+from manualTraiding.preCalcTrans.info_trade import info_parameters_to_buy_BTC
 
 if __name__ == '__main__':
 
@@ -11,7 +11,7 @@ if __name__ == '__main__':
     prices = api.current_prices('BTC/USD')
     print(prices)
 
-    #exit()
+    exit()
 
     price = 25700
     x = 15

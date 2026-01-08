@@ -8,8 +8,10 @@ import json
 import base64
 from datetime import datetime
 
-BASE_PUBLIC_URL = 'https://api.plus.cex.io/rest-public/%s'  #do not use / at the end
-BASE_PRIVATE_URL = 'https://api.plus.cex.io/rest/%s'
+from src.api.base_api import BaseApi
+
+BASE_PUBLIC_URL = 'https://trade.cex.io/api/spot/rest-public/%s'  #do not use / at the end
+BASE_PRIVATE_URL = 'https://trade.cex.io/api/spot/rest/%s'
 
 PUBLIC_COMMANDS = {
      'get_order_book'
@@ -25,7 +27,7 @@ PUBLIC_COMMANDS = {
 VALID_RESOLUTIONS = {"1m", "5m", "15m", "30m", "1h", "2h", "4h", "1d"}
 VALID_DATATYPE = {"bestAsk", "bestBid"}
 
-class Api:
+class Api(BaseApi):
     """
     Python wrapper for CEX.IO
     """
@@ -95,8 +97,6 @@ class Api:
 
             request_url = (BASE_PRIVATE_URL % command)
 
-            #print(request_url)
-
         result = self.__post(request_url,param,headers)
 
         return result
@@ -145,8 +145,8 @@ class Api:
 
 
     def ticker(self,pairs=['BTC/USD']):
-        pairs = list(map(lambda x:x.replace('/','-'),pairs))
-        param = {'pairs':pairs}
+        pairs = list(map(lambda x: x.replace('/','-'),pairs))
+        param = {'pairs': pairs}
         return self.api_call('get_ticker', param)
 
 
