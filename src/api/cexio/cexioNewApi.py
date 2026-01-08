@@ -46,7 +46,7 @@ class Api(BaseApi):
             tm=tmstamp
         return str(int(tm * 1000))
 
-    def __signature(self, nonce,action,param):
+    def __signature(self, nonce, action, param):
         """зависит от nonce, который всегда меняется, следовательно signature всегда должна меняться
            зависит от api_key и secret_key
         """
@@ -86,7 +86,7 @@ class Api(BaseApi):
         else:
 
             now_stamp = int(time.time())
-            signature = self.__signature(now_stamp,command,param)
+            signature = self.__signature(now_stamp, command, param)
             headers = {
                 'X-AGGR-KEY': self.api_key,
                 'X-AGGR-TIMESTAMP': str(now_stamp),
@@ -97,7 +97,7 @@ class Api(BaseApi):
 
             request_url = (BASE_PRIVATE_URL % command)
 
-        result = self.__post(request_url,param,headers)
+        result = self.__post(request_url, param, headers)
 
         return result
 
