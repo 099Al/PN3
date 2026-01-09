@@ -8,8 +8,8 @@ from datetime import datetime
 from perfomance.cache.cacheData import DBValues
 from perfomance.cache.values import Transaction
 
-from configs import config
-from functions.trade import X_for_buyBTC, sellBTC
+from _configs import config
+from src.trade_utils.trade import X_for_buyBTC, sellBTC
 
 #cex_history_tbl = config.DB__HISTORY_TABLE
 

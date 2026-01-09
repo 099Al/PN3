@@ -4,7 +4,7 @@
 '''Функции для расчета вывода крипты в RUB и USD'''
 
 
-from functions.trade import sellBTC
+from src.trade_utils.trade import sellBTC
 from deposit.function.depoMoneyInOut import X_WITHD
 
 # Вывод BTC

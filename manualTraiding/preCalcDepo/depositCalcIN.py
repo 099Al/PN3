@@ -22,8 +22,8 @@ class InfoCalcToDep():
 
     def __init__(self):
 
-        from PN3.configs.feeslimits.constant import com_in_pr_u ,com_in_f_u #Комиссия ввод USD
-        from PN3.configs.feeslimits.constant import com_in_pr_r ,com_in_f_r #Комиссия ввод RUB
+        from PN3.configs.feeslimits.constant import com_in_pr_u, com_in_f_u #Комиссия ввод USD
+        from PN3.configs.feeslimits.constant import com_in_pr_r, com_in_f_r #Комиссия ввод RUB
 
         # Комиссия на Ввод USD
         self.u_dep_prc = com_in_pr_u

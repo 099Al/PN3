@@ -5,8 +5,8 @@ import json
 from src.api.base_api import BaseApi
 from trade_data.db.connection import DBConnect
 
-from functions.trade import X_for_buyBTC
-from configs.config import BASE_MIN
+from src.trade_utils.trade import X_for_buyBTC
+from _configs.config import BASE_MIN
 from trade_data.queriesDB import balance_state
 
 PUBLIC_COMMANDS = {

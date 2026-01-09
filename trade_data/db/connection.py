@@ -5,7 +5,7 @@ import sys
 
 import sqlite3
 
-from configs import config
+from _configs import config
 
 
 db_name = config.DB_NAME

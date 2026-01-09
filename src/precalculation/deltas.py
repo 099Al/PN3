@@ -2,16 +2,19 @@
 
 '''Функции для расчета изменения  различных величин после купли затем продажи или продажи затем купли'''
 
-#!!!!!!!!!!!Надо поменять комисси, т.к. они изменились в config
 
 import numpy as np
 
-from functions.trade import sellBTC,presellBTC,buyBTC,price_for_buy_btc,X_for_buyBTC,price_for_sell_btc
-from configs.config import MAKER_TAKER, TAKER
+from src.trade_utils.trade import (
+    sellBTC, presellBTC, buyBTC, price_for_buy_btc, X_for_buyBTC, price_for_sell_btc, MAKER_TAKER
+)
+from src.trade_parameters import TradeConfig
 
+TAKER = TradeConfig.TAKER
+MAKER_TAKER = TradeConfig.MAKER_TAKER
 
 #Изменение BTC при изменении цены от текущей, до ожидаемой
-def deltaBTC(btc0,current_price,expected_price,commis=0):
+def deltaBTC(btc0, current_price, expected_price, commis=0):
 
     '''
     :param btc0: количество BTC на балансе
@@ -24,31 +27,31 @@ def deltaBTC(btc0,current_price,expected_price,commis=0):
 
 
     if(commis == 0):
-        commis = mk_tk
+        commis = MAKER_TAKER
 
-    btc1 = presellBTC(btc0,current_price)
+    btc1 = presellBTC(btc0, current_price)
     dbtc = btc0-btc1  # остаток  на балансе
-    x = sellBTC(btc0,current_price,commis)['x']    # получаем после продажи
+    x = sellBTC(btc0, current_price, commis)['x']    # получаем после продажи
     btc = buyBTC(x, expected_price)                 # после покупки по новой цене
 
-    return {'delta':btc-btc0+dbtc, 'btc': btc}
+    return {'delta': btc-btc0+dbtc, 'btc': btc}
 
 #   btc0,  deltaBTC  =>   deltaBTC/btc0  - процент изменения
 
 
 #Изменение X при изменении цены
 #если взять btc по текущей цене
-def deltaX(x0,current_price,expected_price,commis):
+def deltaX(x0, current_price, expected_price, commis):
 
     btc1 = buyBTC(x0, current_price)
-    x1 = X_for_buyBTC(btc1,current_price,commis)
+    x1 = X_for_buyBTC(btc1, current_price, commis)
 
     #dx = x0 - x1 >0  # если комиссия меньше taker, то от x0 что-то должно остаться
 
     x2 = sellBTC(btc1,expected_price,commis)['x']    #после продажи btc
 
     #dX = x2-x0+dx = x2-x0+(x0-x1) = x2-x1
-    return {'dx':np.round(x2-x1,2),'x2':x2}
+    return {'dx': np.round(x2-x1, 2), 'x2': x2}
 
 
 
@@ -76,7 +79,7 @@ def priceForExpectBTC(btc0, current_price, btc_expected,commis=0):
 
 
 
-def priceForExpectX(x0,current_price,x_expected,commis):
+def priceForExpectX(x0, current_price, x_expected, commis):
     '''
     :param x0:  данно кол-во X, на которое покупается btc по текущей цене
     :param current_price:  текущая цена
@@ -93,13 +96,13 @@ def priceForExpectX(x0,current_price,x_expected,commis):
     #Необходимая цена
     price_exp = price_for_sell_btc(x_exp2, btc1, commis) # продажа имеющихся btc
 
-    return {'price':price_exp['price'],'maxbtc':btc1,'sellbtc':price_exp['btc']}
+    return {'price': price_exp['price'], 'maxbtc': btc1, 'sellbtc': price_exp['btc']}
 
 
 
 
 if __name__ == '__main__':
-    a= deltaX(476.19,9800,10300)['dx']
+    a = deltaX(476.19,9800,10300)['dx']
     print(a)
 
 

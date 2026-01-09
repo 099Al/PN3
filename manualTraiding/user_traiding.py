@@ -1,5 +1,5 @@
 from src.api import Api
-from configs import config
+from _configs import config
 from manualTraiding.preCalcTrans.info_trade import info_parameters_to_buy_BTC
 
 if __name__ == '__main__':

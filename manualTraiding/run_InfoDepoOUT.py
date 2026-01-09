@@ -112,7 +112,7 @@ def info_Need_X_on_DEPOSIT_to_GET_X0(class_info_out,x_out,type):
 
         exch_price = class_info_out.usd_b
         def exch_curr(x, exch_price):
-            import functions.exchange as exchf
+            import src.trade_utils.exchange as exchf
             return exchf.sellUSD_revers(x, exch_price)
 
         xcur = exch_curr(x_out, exch_price) #надо продать xcur по цене usd_b, чтобы получить x_out
@@ -128,7 +128,7 @@ def info_Need_X_on_DEPOSIT_to_GET_X0(class_info_out,x_out,type):
         exch_price = class_info_out.usd_s
 
         def exch_curr(x, exch_price):
-            import functions.exchange as exchf
+            import src.trade_utils.exchange as exchf
             return exchf.buyUSD_revers(x, exch_price)
 
         xcur = exch_curr(x_out, exch_price)  #надо купить x_out по цене usd_s

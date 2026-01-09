@@ -1,4 +1,4 @@
-from configs import config
+from _configs import config
 
 from trade_data.queriesDB import save_history_tik,log_orders,balance_state
 
