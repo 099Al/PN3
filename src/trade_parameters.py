@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import asyncio
+from decimal import Decimal
 from typing import Any, Dict
 
 from sqlalchemy import select
@@ -9,7 +10,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database.connect import DataBase
-from src.database.models import Trade_Parameters
+from src.database.models import Trade_Parameters, DepositFee
 
 
 class TradeConfig:
@@ -37,23 +38,44 @@ class TradeConfig:
     MAKER: float = 0.16
     TAKER: float = 0.25
 
+    # USD
+    u_dep_prc: Decimal = Decimal("0")
+    u_dep_fix: Decimal = Decimal("0")
+    u_wthrw_prc: Decimal = Decimal("0")
+    u_wthrw_fix: Decimal = Decimal("0")
+
+    # RUB
+    r_dep_prc: Decimal = Decimal("0")
+    r_dep_fix: Decimal = Decimal("0")
+
+
     _loaded: bool = False
+
+    # ---------- MODELS ----------
+    _trade_model = Trade_Parameters
+    _deposit_model = DepositFee
+
 
     # ---------- PUBLIC API ----------
     @classmethod
-    def load(cls, session: Session, model_cls) -> None:
-        rows = session.execute(select(model_cls)).scalars().all()
-        cls._apply(rows)
+    async def load_async(
+            cls,
+            session: AsyncSession
+    ) -> None:
+        await cls._load_trade_params_async(session)
+        await cls._load_deposit_fees_async(session)
         cls._loaded = True
 
+
+
+    # ---------- INTERNAL ----------
     @classmethod
-    async def load_async(cls, session: AsyncSession, model_cls) -> None:
+    async def _load_trade_params_async(cls, session: AsyncSession, model_cls) -> None:
         result = await session.execute(select(model_cls))
         rows = result.scalars().all()
         cls._apply(rows)
         cls._loaded = True
 
-    # ---------- INTERNAL ----------
     @classmethod
     def _apply(cls, rows) -> None:
         for r in rows:
@@ -74,11 +96,33 @@ class TradeConfig:
             return value.lower() in ("1", "true", "yes", "on")
         return value
 
+    @classmethod
+    async def _load_deposit_fees_async(cls, session: AsyncSession) -> None:
+        result = await session.execute(select(cls._deposit_model))
+        rows = result.scalars().all()
+        cls._apply_deposit_fees(rows)
+
+    @classmethod
+    def _apply_deposit_fees(cls, rows) -> None:
+        for r in rows:
+            curr = r.curr.upper()
+
+            if curr == "USD":
+                cls.u_dep_prc = r.deposit
+                cls.u_dep_fix = r.deposit_fix
+                cls.u_wthrw_prc = r.withdrawal
+                cls.u_wthrw_fix = r.withdrawal_fix
+
+            elif curr == "RUB":
+                cls.r_dep_prc = r.deposit
+                cls.r_dep_fix = r.deposit_fix
+
+
 async def _load_config_async():
     db = DataBase()
     session_maker = db.get_session_maker()
     async with session_maker() as session:
-        await TradeConfig.load_async(session, Trade_Parameters)
+        await TradeConfig.load_async(session)
 
 
 def load_trade_config():
