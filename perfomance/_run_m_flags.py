@@ -18,7 +18,7 @@ import perfomance._loging.logAction as log
 from algorithms.orders import ActiveOrders
 from perfomance._balance.balance import DepoBalance
 
-from api.cexioApi import Api
+from src.api import Api
 
 # Константы
 

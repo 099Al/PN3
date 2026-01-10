@@ -3,6 +3,11 @@
 
 import numpy as np
 
+from src.api.provider import ApiProvider
+from src.precalculation.info_deposit_in import InfoCalcToDep
+from src.trade_parameters import TradeConfig
+
+
 
 
 def info_USD_to_DEPOSIT_and_buy_BTC(class_info_in):
@@ -75,14 +80,15 @@ def info_RUB_to_DEPOSIT_buy_BTC_2var(class_info_in):
 if __name__ == '__main__':
 
     # Параметры
-    from PN3.configs.feeslimits.constant import taker
-    from depositCalcIN import InfoCalcToDep
-    from PN3.function.utilF import last_prices, current_price
+
+    taker = TradeConfig.TAKER
+
+    api = ApiProvider().get()
 
 
     # Комиссии при транзакции
-    mk_tk_usd = taker #mk_tk
-    mk_tk_rub = taker #mk_tk
+    mk_tk_usd = taker
+    mk_tk_rub = taker
 
     # Курсы валют
     bank_sell_usd = 63.9
@@ -94,14 +100,13 @@ if __name__ == '__main__':
     btc_depo = 0.00000000
 
     #Цена
-    p_u_l = last_prices('BTC', 'USD', delta_price=0)
-    p_r_l = last_prices('BTC', 'RUB', delta_price=0)
 
-    p_u_a = current_price('BTC','USD')['asks'] # При быстрой покупке, берем по цене, за которую  продают  комиссия taker
-    p_r_a = current_price('BTC', 'RUB')['asks']  # При быстрой покупке, берем по цене, за которую  продают
 
-    p_u_b = current_price('BTC', 'USD')['bids']  # При быстрой покупке, берем по цене, за которую  продают  комиссия taker
-    p_r_b = current_price('BTC', 'RUB')['bids']  # При быстрой покупке, берем по цене, за которую  продают
+    p_u_a = api.current_prices('BTC/USD')['bestAsk'] # При быстрой покупке, берем по цене, за которую  продают  комиссия taker
+    p_r_a = api.current_prices('BTC/RUB')['bestAsk']  # При быстрой покупке, берем по цене, за которую  продают
+
+    p_u_b = api.current_prices('BTC/USD')['bestBid']  # При быстрой покупке, берем по цене, за которую  продают  комиссия taker
+    p_r_b = api.current_prices('BTC/RUB')['bestBid']  # При быстрой покупке, берем по цене, за которую  продают
 
     p_u=8270
     p_r=1
@@ -111,8 +116,8 @@ if __name__ == '__main__':
     x_rub=2000
 
 
-    print('Цена для расчета:', p_u, 'usd', 'last:',p_u_l,'asks',p_u_a,'bids',p_u_b, 'delta:', p_u_a-p_u_b)
-    print('Цена для расчета:', p_r, 'usd', 'last:', p_r_l, 'asks', p_r_a, 'bids', p_r_b, 'delta:', p_r_a - p_r_b)
+    print('Цена для расчета:', p_u, 'usd', 'asks',p_u_a,'bids',p_u_b, 'delta:', p_u_a-p_u_b)
+    print('Цена для расчета:', p_r, 'usd', 'asks', p_r_a, 'bids', p_r_b, 'delta:', p_r_a - p_r_b)
 
 
     #Класс для подсчета информаци

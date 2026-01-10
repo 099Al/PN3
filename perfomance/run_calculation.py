@@ -1,4 +1,4 @@
-from configs import config
+from _configs import config
 import configparser
 from datetime import datetime
 

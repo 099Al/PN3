@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+from src.api.provider import ApiProvider
+from src.precalculation.info_deposit_out import InfoCalcFromDep
+from src.trade_parameters import TradeConfig
 
 
 def info_USD_OUT(class_info_out):
@@ -112,7 +115,7 @@ def info_Need_X_on_DEPOSIT_to_GET_X0(class_info_out,x_out,type):
 
         exch_price = class_info_out.usd_b
         def exch_curr(x, exch_price):
-            import functions.exchange as exchf
+            import src.trade_utils.exchange as exchf
             return exchf.sellUSD_revers(x, exch_price)
 
         xcur = exch_curr(x_out, exch_price) #надо продать xcur по цене usd_b, чтобы получить x_out
@@ -128,7 +131,7 @@ def info_Need_X_on_DEPOSIT_to_GET_X0(class_info_out,x_out,type):
         exch_price = class_info_out.usd_s
 
         def exch_curr(x, exch_price):
-            import functions.exchange as exchf
+            import src.trade_utils.exchange as exchf
             return exchf.buyUSD_revers(x, exch_price)
 
         xcur = exch_curr(x_out, exch_price)  #надо купить x_out по цене usd_s
@@ -142,15 +145,14 @@ def info_Need_X_on_DEPOSIT_to_GET_X0(class_info_out,x_out,type):
 
 if __name__ == '__main__':
 
-    # Параметры
-    from deposit.feeslimits.constant import taker, mk_tk
-    from functions.info.infocalc.depositCalcOUT import InfoCalcFromDep
-    from functions.price import last_prices, current_price
+    maker_taker = TradeConfig.MAKER_TAKER
+    taker = TradeConfig.TAKER
 
+    api = ApiProvider().get()
 
     # Комиссии при транзакции
-    mk_tk_usd = mk_tk
-    mk_tk_rub = mk_tk
+    mk_tk_usd = maker_taker
+    mk_tk_rub = maker_taker
 
     #Старый курс валют
     old_bank_sell_usd = 66.5
@@ -170,21 +172,19 @@ if __name__ == '__main__':
     x_usd = 0
     x_rub = 0
 
-    # Цена
-    p_u_l = last_prices('BTC', 'USD', delta_price=0)
-    p_r_l = last_prices('BTC', 'RUB', delta_price=0)
 
-    p_u_a = current_price('BTC', 'USD')['asks']  # При быстрой покупке, берем по цене, за которую  продают  комиссия taker
-    p_r_a = current_price('BTC', 'RUB')['asks']  # При быстрой покупке, берем по цене, за которую  продают
 
-    p_u_b = current_price('BTC', 'USD')['bids']  # При быстрой покупке, берем по цене, за которую  продают  комиссия taker
-    p_r_b = current_price('BTC', 'RUB')['bids']  # При быстрой покупке, берем по цене, за которую  продают
+    p_u_a = api.current_prices('BTC/USD')['bestAsk']  # При быстрой покупке, берем по цене, за которую  продают  комиссия taker
+    p_r_a = api.current_prices('BTC/RUB')['bestAsk']  # При быстрой покупке, берем по цене, за которую  продают
+
+    p_u_b = api.current_prices('BTC/USD')['bestBid']  # При быстрой покупке, берем по цене, за которую  продают  комиссия taker
+    p_r_b = api.current_prices('BTC/RUB')['bestBid']  # При быстрой покупке, берем по цене, за которую  продают
 
     p_u=10000
     p_r=p_u*bank_sell_usd
 
-    print('Цена для расчета:', p_u, 'usd', 'last:', p_u_l, 'asks', p_u_a, 'bids', p_u_b, 'delta:', p_u_a - p_u_b)
-    print('Цена для расчета:', p_r, 'usd', 'last:', p_r_l, 'asks', p_r_a, 'bids', p_r_b, 'delta:', p_r_a - p_r_b)
+    print('Цена для расчета:', p_u, 'usd', 'asks', p_u_a, 'bids', p_u_b, 'delta:', p_u_a - p_u_b)
+    print('Цена для расчета:', p_r, 'usd', 'asks', p_r_a, 'bids', p_r_b, 'delta:', p_r_a - p_r_b)
 
 
     #Класс для подсчета информаци

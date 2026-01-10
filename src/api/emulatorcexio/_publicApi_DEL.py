@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 
-import api.emulatorcexio._queriesIm as qr
+from src import api as qr
 from db.connection import DBConnect
 '''
 !!!Названия функция в этом модуле  должны совпадать с названиями в модуле api

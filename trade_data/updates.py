@@ -1,4 +1,4 @@
-from configs import config
+from _configs import config
 
 from trade_data.queriesDB import save_history_tik,log_orders,balance_state
 
@@ -15,12 +15,12 @@ def get_new_data(mode,pair,curr_time=None,conn=None):
 
 
     if mode == 'TEST':
-        from api.emulatorcexio.cexioEmNewApi import emulatorApi
+        from src.api.emulatorcexio.cexioEmNewApi import EmulatorApi
         #Делается запрос к источнику(либо к сайту, либо к эмулятору)
-        api = emulatorApi(curr_time)
+        api = EmulatorApi(curr_time)
         #emApi.currentTime=curr_time  #В случае эмуляции ставим время, в которое делается запрос
     if mode == 'TRAID':
-        from api.cexio.cexioNewApi import Api
+        from src.api.cexio.cexioNewApi import Api
         api = Api(config.API_USER, config.API_KEY, config.API_SECRET)
 
 
@@ -48,12 +48,12 @@ def check_orders(curr_time,conn=None):
     l_active_orders = res.fetchall()
 
     if mode == 'TEST':
-        from api.emulatorcexio.cexioEmNewApi import emulatorApi
+        from src.api.emulatorcexio.cexioEmNewApi import EmulatorApi
         #Делается запрос к источнику(либо к сайту, либо к эмулятору)
-        api = emulatorApi(config.USER_NAME,curr_time)
+        api = EmulatorApi(config.USER_NAME, curr_time)
         #emApi.currentTime=curr_time  #В случае эмуляции ставим время, в которое делается запрос
     if mode == 'TRAID':
-        from api.cexio.cexioNewApi import Api
+        from src.api.cexio.cexioNewApi import Api
         api = Api(config.API_USER, config.API_KEY, config.API_SECRET)
 
 

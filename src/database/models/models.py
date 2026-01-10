@@ -155,3 +155,14 @@ class Pairs(Base):
 
     pair_id: Mapped[int] = mapped_column(Integer, primary_key=True)
     pair: Mapped[str] = mapped_column(String(30), nullable=False)
+
+
+class Trade_Parameters(Base):
+    __tablename__ = "trade_parameters"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    key: Mapped[str] = mapped_column(String(30), nullable=False)
+    value: Mapped[str] = mapped_column(String(30), nullable=False)
+    category: Mapped[str] = mapped_column(String(30), nullable=True)
+    v_type: Mapped[str] = mapped_column(String(30), nullable=True)
+    descr: Mapped[str] = mapped_column(String, nullable=True)

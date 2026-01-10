@@ -7,8 +7,11 @@ import numpy as np
 import math
 
 
-from configs.config import MAKER_TAKER,BUY_FEE,SELL_FEE
+from src.trade_parameters import TradeConfig
 
+MAKER_TAKER = TradeConfig.MAKER_TAKER
+BUY_FEE = TradeConfig.BUY_FEE
+SELL_FEE = TradeConfig.SELL_FEE
 
 """
 Версии функций для расчета

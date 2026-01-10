@@ -1,12 +1,9 @@
 # -*- coding: utf-8 -*-
 
 
-
-import algorithms.alg1.parameters.orderParams as prmt
-import deposit.feeslimits.constant as cons
 from perfomance._balance.balance import DepoBalance
-import functions.trade as trns
-from algorithms.orders import ActiveOrders,ProcessLine
+import src.trade_utils.trade as trns
+from algorithms.orders import ProcessLine
 import numpy as np
 
 

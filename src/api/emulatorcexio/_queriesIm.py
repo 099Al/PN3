@@ -4,7 +4,7 @@
 
 """
 
-from configs import config
+from _configs import config
 
 
 cex_history_tbl = config.SRC__SRC_HISTORY

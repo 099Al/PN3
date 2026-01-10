@@ -2,10 +2,11 @@
 
 import json
 
+from src.api.base_api import BaseApi
 from trade_data.db.connection import DBConnect
 
-from functions.trade import X_for_buyBTC
-from configs.config import BASE_MIN
+from src.trade_utils.trade import X_for_buyBTC
+from _configs.config import BASE_MIN
 from trade_data.queriesDB import balance_state
 
 PUBLIC_COMMANDS = {
@@ -22,7 +23,7 @@ PUBLIC_COMMANDS = {
 VALID_RESOLUTIONS = {"1m", "5m", "15m", "30m", "1h", "2h", "4h", "1d"}
 VALID_DATATYPE = {"bestAsk", "bestBid"}
 
-class emulatorApi:
+class EmulatorApi(BaseApi):
     """
     Python wrapper for CEX.IO
     """
@@ -30,15 +31,20 @@ class emulatorApi:
     #curr_time=0
     def __init__(self,username,unix_curr_time,api_key=None, api_secret=None):
         self.username = username
-        self.unix_curr_time=unix_curr_time
+        self.unix_curr_time = unix_curr_time
         dbconn = DBConnect()
         self.conn = dbconn.getConnect()
+
+    def __nonce(self,tmstamp=None):
+        pass
+
+
 
     def close(self):
         self.conn.close()
 
 
-    def api_call(self,param1,param2):
+    def api_call(self, command, param = None):
         pass
 
 
@@ -79,7 +85,7 @@ class emulatorApi:
 
 
 
-    def ticker(self,pairs=['BTC/USD']):
+    def ticker(self, pairs=['BTC/USD']):
         pairs = list(map(lambda x:x.replace('/','-'),pairs))
         param = {'pairs':pairs}
         return self.api_call('get_ticker', param)
@@ -383,7 +389,7 @@ class emulatorApi:
 
         conn.commit()
         conn.close()
-        return res
+
 
 
 
@@ -397,7 +403,7 @@ class emulatorApi:
 if __name__ == '__main__':
     from datetime import datetime
 
-    api = emulatorApi('test_user',1689533488861)
+    api = EmulatorApi('test_user', 1689533488861)
     api.buy_limit_order(0.005,30000)
 
     #dt = datetime.fromtimestamp(1689533488)
