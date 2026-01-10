@@ -9,6 +9,7 @@ import base64
 from datetime import datetime
 
 from src.api.base_api import BaseApi
+from src.config import prj_configs
 
 BASE_PUBLIC_URL = 'https://trade.cex.io/api/spot/rest-public/%s'  #do not use / at the end
 BASE_PRIVATE_URL = 'https://trade.cex.io/api/spot/rest/%s'
@@ -175,7 +176,7 @@ class Api(BaseApi):
 
     #стакан
     def order_book(self, params={'pair':'BTC-USD'}):
-        return self.api_call('get_order_book',params)
+        return self.api_call('get_order_book', params)
 
 
 
@@ -280,10 +281,10 @@ class Api(BaseApi):
 
     #CUSTOM COMMANDS
     def limit_info(self,pairs = 'BTC/USD'):
-        pairs = pairs.replace('/','-')
-        base,quote = pairs.split('-')
+        pairs = pairs.replace('/', '-')
+        base, quote = pairs.split('-')
         data = self.api_call('get_pairs_info')['data']
-        info = list(filter(lambda x: x['base']==base and x['quote']==quote,data))[0]
+        info = list(filter(lambda x: x['base'] == base and x['quote'] == quote, data))[0]
         return info
 
 
@@ -292,11 +293,12 @@ class Api(BaseApi):
         res = self.ticker(pairs=[pairs])['data'][pairs]
         bestBid = res['bestBid']
         bestAsk = res['bestAsk']
-        return {'bestBid':bestBid,'bestAsk':bestAsk}
+        return {'bestBid': bestBid, 'bestAsk': bestAsk}
 
-    def fee(self,pair='BTC/USD'):
+    def fee(self, pair='BTC/USD'):
         pair = pair.replace('/', '-')
         res = self.api_call('get_my_fee')
         fee = res['data']['tradingFee'][pair]['percent']
         return fee
+
 
