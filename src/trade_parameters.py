@@ -38,6 +38,9 @@ class TradeConfig:
     MAKER: float = 0.16
     TAKER: float = 0.25
 
+    DEPO_LIMIT_IN_USD: float = 20
+    DEPO_LIMIT_IN_RUB: float = 1200
+
     # USD
     u_dep_prc: Decimal = Decimal("0")
     u_dep_fix: Decimal = Decimal("0")
@@ -47,6 +50,8 @@ class TradeConfig:
     # RUB
     r_dep_prc: Decimal = Decimal("0")
     r_dep_fix: Decimal = Decimal("0")
+    r_wthrw_prc: Decimal = Decimal("0")
+    r_wthrw_fix: Decimal = Decimal("0")
 
 
     _loaded: bool = False
@@ -116,6 +121,8 @@ class TradeConfig:
             elif curr == "RUB":
                 cls.r_dep_prc = r.deposit
                 cls.r_dep_fix = r.deposit_fix
+                cls.r_wthrw_prc = r.withdrawal
+                cls.r_wthrw_fix = r.withdrawal_fix
 
 
 async def _load_config_async():
