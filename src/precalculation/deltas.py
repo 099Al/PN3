@@ -6,7 +6,7 @@
 import numpy as np
 
 from src.trade_utils.trade import (
-    sellBTC, presellBTC, buyBTC, price_for_buy_btc, X_for_buyBTC, price_for_sell_btc, MAKER_TAKER
+    sellBTC, presellBTC, buyBTC, price_for_buy_btc, X_for_buyBTC, price_for_sell_btc
 )
 from src.trade_parameters import TradeConfig
 
@@ -71,11 +71,11 @@ def priceForExpectBTC(btc0, current_price, btc_expected,commis=0):
     if (commis == 0):
         commis = TAKER
 
-    x = sellBTC(btc0,current_price,commis)['x'] # получаем X при продаже
+    x = sellBTC(btc0, current_price, commis)['x']  # получаем X при продаже
 
     p = price_for_buy_btc(btc_expected, x)
 
-    return {'price',p,'x',x}
+    return {'price', p, 'x', x}
 
 
 
@@ -88,13 +88,13 @@ def priceForExpectX(x0, current_price, x_expected, commis):
     :return:
     '''
     btc1 = buyBTC(x0, current_price)
-    x1 = X_for_buyBTC(btc1,current_price,commis)  #потратилось
+    x1 = X_for_buyBTC(btc1, current_price, commis)  #потратилось
     dx = x0-x1
 
     x_exp2 = x_expected-dx # т.к. на остатке, что-то останется, то необходимое кол-во X при продаже может быть меньше
 
     #Необходимая цена
-    price_exp = price_for_sell_btc(x_exp2, btc1, commis) # продажа имеющихся btc
+    price_exp = price_for_sell_btc(x_exp2, btc1, commis)  # продажа имеющихся btc
 
     return {'price': price_exp['price'], 'maxbtc': btc1, 'sellbtc': price_exp['btc']}
 
@@ -102,7 +102,7 @@ def priceForExpectX(x0, current_price, x_expected, commis):
 
 
 if __name__ == '__main__':
-    a = deltaX(476.19,9800,10300)['dx']
+    a = deltaX(476.19, 9800, 10300)['dx']
     print(a)
 
 
