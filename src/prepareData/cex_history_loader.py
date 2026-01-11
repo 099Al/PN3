@@ -17,7 +17,13 @@ from src.database.models.models_img import Im_CexHistoryTik, ImCexHistoryFileLog
 
 Base = declarative_base()
 
+"""
+Загрузка данных в таблицу im_cex_history_tik
+Данные находятся в директории hist_data/trades
 
+Таблица im_cex_history_tik  используется как эмуляция источника данных
+
+"""
 
 
 
