@@ -55,6 +55,14 @@ class Im_CexHistoryTik(Base):
     price:      Mapped[Decimal] = mapped_column(Numeric(9, 2))
     trade_data: Mapped[str] = mapped_column(Text, nullable=True)
 
+class ImCexHistoryFileLog(Base):
+    __tablename__ = "im_cex_history_file_log"
+
+    filename = Column(Text, primary_key=True)
+    loaded_at = Column(DateTime(timezone=True), nullable=False)
+    file_mtime = Column(BigInteger, nullable=False)
+    file_size = Column(BigInteger, nullable=False)
+
 class Im_Stg_CexHistoryTik(Base):
     __tablename__ = "im_stg_cex_history_tik"
 
@@ -81,3 +89,4 @@ class Im_Transactions(Base):
     unixdate: Mapped[int] = mapped_column(BigInteger)
     date: Mapped[DateTime] = mapped_column(DateTime)
     transact_info: Mapped[str] = mapped_column(Text, nullable=True)
+
