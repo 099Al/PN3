@@ -40,8 +40,17 @@ class Balance(Base):
     amount: Mapped[Decimal] = mapped_column(Numeric(15, 8), nullable=False, default=Decimal("0"),)
     reserved: Mapped[Decimal] = mapped_column(Numeric(15, 8), nullable=True)
 
+class Balance_Algo(Base):
+    __tablename__ = "balance_algo"
+
+    algo: Mapped[str] = mapped_column(String(20), primary_key=True,)
+    curr: Mapped[str] = mapped_column(String(5), primary_key=True, )
+    amount_limit: Mapped[Decimal] = mapped_column(Numeric(15, 8), nullable=False, default=Decimal("0"), )
+    amount: Mapped[Decimal] = mapped_column(Numeric(15, 8), nullable=False, default=Decimal("0"), )
+    reserved: Mapped[Decimal] = mapped_column(Numeric(15, 8), nullable=True)
+
     def __repr__(self):
-        return f"<Balance {self.curr}> amount: {self.amount} reserved: {self.reserved}"
+        return f"<Balance Algo{self.curr}> amount: {self.amount} reserved: {self.reserved}"
 
 class Exchange(Base):
     __tablename__ = "exchange"

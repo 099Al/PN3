@@ -19,6 +19,8 @@ from src.database.models.base import Base
 
 class Im_ActiveOrder(Base):
     __tablename__ = 'im_active_orders'
+    __table_args__ = {"schema": "emulator"}
+
     id: Mapped[int] = mapped_column(primary_key=True)
     date: Mapped[DateTime] = mapped_column(DateTime)
     unix_date: Mapped[int]
@@ -38,6 +40,7 @@ class Im_ActiveOrder(Base):
 
 class Im_Balance(Base):
     __tablename__ = "im_balance"
+    __table_args__ = {"schema": "emulator"}
 
     curr: Mapped[str] = mapped_column(String(5),primary_key=True,)
     amount: Mapped[Decimal] = mapped_column(Numeric(15, 8), nullable=False)
@@ -45,6 +48,7 @@ class Im_Balance(Base):
 
 class Im_CexHistoryTik(Base):
     __tablename__ = "im_cex_history_tik"
+    __table_args__ = {"schema": "emulator"}
 
     tid:        Mapped[str] = mapped_column(String(100), primary_key=True)
     unixdate:   Mapped[int] = mapped_column(BigInteger)
@@ -57,6 +61,7 @@ class Im_CexHistoryTik(Base):
 
 class ImCexHistoryFileLog(Base):
     __tablename__ = "im_cex_history_file_log"
+    __table_args__ = {"schema": "emulator"}
 
     filename = Column(Text, primary_key=True)
     loaded_at = Column(DateTime(timezone=True), nullable=False)
@@ -65,6 +70,7 @@ class ImCexHistoryFileLog(Base):
 
 class Im_Stg_CexHistoryTik(Base):
     __tablename__ = "im_stg_cex_history_tik"
+    __table_args__ = {"schema": "emulator"}
 
     tid: Mapped[str] = mapped_column(String(100), primary_key=True)
     unixdate: Mapped[int] = mapped_column(BigInteger)
@@ -78,6 +84,7 @@ class Im_Stg_CexHistoryTik(Base):
 
 class Im_Transactions(Base):
     __tablename__ = "im_transactions"
+    __table_args__ = {"schema": "emulator"}
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     order_id: Mapped[int] = mapped_column(Integer)
