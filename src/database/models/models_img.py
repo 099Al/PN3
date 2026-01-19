@@ -82,18 +82,26 @@ class Im_Stg_CexHistoryTik(Base):
     trade_data: Mapped[str] = mapped_column(Text, nullable=True)
 
 
-class Im_Transactions(Base):
+class Im_Transaction(Base):
     __tablename__ = "im_transactions"
     __table_args__ = {"schema": "emulator"}
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    order_id: Mapped[int] = mapped_column(Integer)
-    order_amount: Mapped[Decimal] = mapped_column(Numeric(11, 8))
-    order_price: Mapped[Decimal] = mapped_column(Numeric(9, 2))
-    order_reserved: Mapped[Decimal] = mapped_column(Numeric(20, 4))
-    order_side: Mapped[str] = mapped_column(String(6))
-    tid: Mapped[str] = mapped_column(String(100))
-    unixdate: Mapped[int] = mapped_column(BigInteger)
-    date: Mapped[DateTime] = mapped_column(DateTime)
-    transact_info: Mapped[str] = mapped_column(Text, nullable=True)
+
+    # IDs
+    transaction_id: Mapped[str] = mapped_column(String(100), unique=True, index=True)
+    order_id: Mapped[int | None] = mapped_column(Integer, index=True)
+
+    # Time
+    timestamp: Mapped[DateTime] = mapped_column(DateTime)
+    unix_ms: Mapped[int] = mapped_column(BigInteger)
+
+    # Accounting
+    type: Mapped[str] = mapped_column(String(20))        # trade | commission | fee | correction
+    currency: Mapped[str] = mapped_column(String(10))    # BTC | USD
+    amount: Mapped[Decimal] = mapped_column(Numeric(20, 8))  # signed!
+
+    # Meta
+    account_id: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    details: Mapped[str | None] = mapped_column(Text, nullable=True)
 
