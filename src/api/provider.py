@@ -36,6 +36,8 @@ if __name__ == '__main__':
     api = ApiProvider.get(unix_curr_time=int(datetime.now().timestamp() * 1000))
     print(str(prj_configs.CALC_MODE).upper())
 
-    print(asyncio.run(api.open_orders()))
+    #print(asyncio.run(api.open_orders()))
+
+    print(asyncio.run(api.buy_limit_order(amount=0.00052277, price=3000)))
 
     #print(asyncio.run(api.sell_limit_order(0.002, 30000)))

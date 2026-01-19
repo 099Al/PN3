@@ -2,6 +2,7 @@
 """
 Функции для расчета транзакций (покупки/продажи)
 """
+from decimal import Decimal
 
 import numpy as np
 import math
@@ -56,7 +57,7 @@ def X_for_buyBTC_v3(btc,price,comiss=None):
     if comiss is None:
         comiss = BUY_FEE
 
-    x = btc*price/(1 - comiss / 100)
+    x = btc * price / (Decimal("1") - Decimal(comiss) / Decimal("100"))
     x = math.ceil(x*100)/100
     return x
 

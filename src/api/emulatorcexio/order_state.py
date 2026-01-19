@@ -10,16 +10,12 @@ from src.database.models.models_img import Im_ActiveOrder
 from src.database.models.models_types import SideTypeEnum, OrderTypeEnum
 
 from src.config import prj_configs
+from src.trade_utils.date_unix import dt_from_unix_ms, utcnow_dt
 
 from src.trade_utils.trade import X_for_buyBTC
 
 
-def utcnow_dt() -> datetime:
-    return datetime.now(timezone.utc).replace(tzinfo=None)
 
-
-def dt_from_unix_ms(unix_ms: int) -> datetime:
-    return datetime.fromtimestamp(unix_ms / 1000, tz=timezone.utc).replace(tzinfo=None)
 
 
 def calc_quote_needed_for_buy(amount: Decimal, price: Decimal) -> Decimal:
