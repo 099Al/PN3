@@ -3,9 +3,8 @@
 import os
 import sys
 
-import sqlite3
 
-from _configs import config
+
 
 
 db_name = config.DB_NAME

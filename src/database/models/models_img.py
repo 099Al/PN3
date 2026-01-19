@@ -21,19 +21,19 @@ class Im_ActiveOrder(Base):
     __tablename__ = 'im_active_orders'
     __table_args__ = {"schema": "emulator"}
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     date: Mapped[DateTime] = mapped_column(DateTime)
-    unix_date: Mapped[int]
+    unix_date: Mapped[BigInteger] = mapped_column(BigInteger, nullable=False)
     base: Mapped[str] = mapped_column(String(5), nullable=True)
     quote: Mapped[str] = mapped_column(String(5), nullable=True)
-    side: Mapped[str] = mapped_column(SideTypeEnum, nullable=True,)
+    side: Mapped[str] = mapped_column(String(5), nullable=True,)
     amount: Mapped[Decimal] = mapped_column(Numeric(20, 8))
     price: Mapped[Decimal] = mapped_column(Numeric(20, 4))
     reserved: Mapped[Decimal] = mapped_column(Numeric(20, 4))
-    order_type: Mapped[str] = mapped_column(OrderTypeEnum, nullable=True)
+    order_type: Mapped[str] = mapped_column(String(5), nullable=True)
     full_traid: Mapped[str] = mapped_column(Text, nullable=True)
     algo: Mapped[str] = mapped_column(String(20), nullable=True)
-    sys_date: Mapped[DateTime] = mapped_column(DateTime)
+    sys_date: Mapped[DateTime] = mapped_column(DateTime, nullable=False)
 
     def __repr__(self):
         return f"<IM_ActiveOrder {self.id}> date: {self.date} side: {self.side} amount: {self.amount} price: {self.price}"

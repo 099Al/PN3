@@ -44,7 +44,7 @@ class Api(BaseApi):
         if tmstamp is None:
             tm = time.time()
         else:
-            tm=tmstamp
+            tm = tmstamp
         return str(int(tm * 1000))
 
     def __signature(self, nonce, action, param):
@@ -59,7 +59,7 @@ class Api(BaseApi):
 
         return signature
 
-    def api_call(self, command, param=None):
+    async def api_call(self, command, param=None):
         """
         Если команда не public, тогда параметры передаются как есть
         Если private, то добавляются key, signature в params
@@ -111,11 +111,11 @@ class Api(BaseApi):
 
 
     # PUBLIC COMMANDS
-    def currencies_info(self):
-        return self.api_call('get_currencies_info')
+    async def currencies_info(self):
+        return await self.api_call('get_currencies_info')
 
 
-    def candles(self,dataType,pair='BTC-USD',limit=None,resolution='1h',fromDT=None,toDT=None):
+    async def candles(self,dataType,pair='BTC-USD',limit=None,resolution='1h',fromDT=None,toDT=None):
 
         if dataType:
             if dataType not in VALID_DATATYPE:
@@ -134,53 +134,53 @@ class Api(BaseApi):
             "resolution": resolution
         }
 
-        return self.api_call('get_candles',param)
+        return await self.api_call('get_candles',param)
 
-    def trade_history(self,pair='BTC-USD'):
+    async def trade_history(self,pair='BTC-USD'):
 
         pair = pair.replace(',','-')
 
         param = {'pair':pair}
-        return self.api_call('get_trade_history', param)
+        return await self.api_call('get_trade_history', param)
 
 
 
-    def ticker(self,pairs=['BTC/USD']):
+    async def ticker(self,pairs=['BTC/USD']):
         pairs = list(map(lambda x: x.replace('/','-'),pairs))
         param = {'pairs': pairs}
-        return self.api_call('get_ticker', param)
+        return await self.api_call('get_ticker', param)
 
 
 
 
     # PRIVATE COMMANDS
 
-    def account_status(self):
+    async def account_status(self):
         param = {"accountIds": []}
-        return self.api_call('get_my_account_status_v2',param)
+        return await self.api_call('get_my_account_status_v2',param)
 
-    def get_myfee(self):
-        return self.api_call('get_my_fee')
+    async def get_myfee(self):
+        return await self.api_call('get_my_fee')
 
     #завершенные сделки
-    def transaction_history(self):
-        return self.api_call('get_my_transaction_history')
+    async def transaction_history(self):
+        return await self.api_call('get_my_transaction_history')
 
-    def open_orders(self, params=None):
-        return self.api_call('get_my_orders', params)
+    async def open_orders(self, params=None):
+        return await self.api_call('get_my_orders', params)
 
-    def get_order(self,order_id):
-        return self.api_call('get_my_orders', {'id': order_id})
+    async def get_order(self,order_id):
+        return await self.api_call('get_my_orders', {'id': order_id})
 
 
 
     #стакан
-    def order_book(self, params={'pair':'BTC-USD'}):
-        return self.api_call('get_order_book', params)
+    async def order_book(self, params={'pair':'BTC-USD'}):
+        return await self.api_call('get_order_book', params)
 
 
 
-    def set_order(self, amount, price, sell_buy, orderType='Limit',market='BTC/USD',clientOrderId=None):
+    async def set_order(self, amount, price, sell_buy, orderType='Limit',market='BTC/USD',clientOrderId=None):
 
         #GTC - выход пока не исполнится
         #GTD- выход по истечении времени
@@ -203,9 +203,9 @@ class Api(BaseApi):
         if clientOrderId is not None:
             params.update({"clientOrderId": clientOrderId})
 
-        return self.api_call('do_my_new_order', params)
+        return await self.api_call('do_my_new_order', params)
 
-    def sell_limit_order(self, amount, price,clientOrderId=None,market='BTC/USD'):
+    async def sell_limit_order(self, amount, price,clientOrderId=None,market='BTC/USD'):
 
         pairs = market.split('/')
         unix_dt = int(datetime.now().timestamp() * 1000)  #выводит по времени UTC+0
@@ -226,9 +226,9 @@ class Api(BaseApi):
         #if clientOrderId is not None:
         #    params.update({"clientOrderId":clientOrderId})
 
-        return self.api_call('do_my_new_order',params)
+        return await self.api_call('do_my_new_order',params)
 
-    def buy_limit_order(self, amount, price, clientOrderId=None, market='BTC/USD'):
+    async def buy_limit_order(self, amount, price, clientOrderId=None, market='BTC/USD'):
 
         pairs = market.split('/')
         unix_dt = int(datetime.now().timestamp() * 1000)  #выводит по времени UTC+0
@@ -249,9 +249,9 @@ class Api(BaseApi):
         #if clientOrderId is not None:
         #    params.update({"clientOrderId":clientOrderId})
 
-        return self.api_call('do_my_new_order',params)
+        return await self.api_call('do_my_new_order',params)
 
-    def cancel_order(self, OrderId):
+    async def cancel_order(self, OrderId):
 
         unix_dt = int(datetime.now().timestamp()*1000)
         param = {
@@ -261,9 +261,9 @@ class Api(BaseApi):
             "timestamp": unix_dt
         }
 
-        return self.api_call('do_cancel_my_order',param)
+        return await self.api_call('do_cancel_my_order',param)
 
-    def cancel_client_order(self, clientOrderId):
+    async def cancel_client_order(self, clientOrderId):
 
         unix_dt = int(datetime.now().timestamp()*1000)
         param = {
@@ -272,32 +272,32 @@ class Api(BaseApi):
             "timestamp": unix_dt
         }
 
-        return self.api_call('do_cancel_my_order',param)
+        return await self.api_call('do_cancel_my_order',param)
 
-    def cancel_all_order(self):
+    async def cancel_all_order(self):
         param = {}
-        return self.api_call('do_cancel_all_orders',param)
+        return await self.api_call('do_cancel_all_orders',param)
 
 
     #CUSTOM COMMANDS
-    def limit_info(self,pairs = 'BTC/USD'):
+    async def limit_info(self,pairs = 'BTC/USD'):
         pairs = pairs.replace('/', '-')
         base, quote = pairs.split('-')
-        data = self.api_call('get_pairs_info')['data']
+        data = await self.api_call('get_pairs_info')['data']
         info = list(filter(lambda x: x['base'] == base and x['quote'] == quote, data))[0]
         return info
 
 
-    def current_prices(self,pair = 'BTC/USD'):
+    async def current_prices(self,pair = 'BTC/USD'):
         pairs = pair.replace('/', '-')
         res = self.ticker(pairs=[pairs])['data'][pairs]
         bestBid = res['bestBid']
         bestAsk = res['bestAsk']
         return {'bestBid': bestBid, 'bestAsk': bestAsk}
 
-    def fee(self, pair='BTC/USD'):
+    async def fee(self, pair='BTC/USD'):
         pair = pair.replace('/', '-')
-        res = self.api_call('get_my_fee')
+        res = await self.api_call('get_my_fee')
         fee = res['data']['tradingFee'][pair]['percent']
         return fee
 

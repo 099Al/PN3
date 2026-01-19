@@ -33,7 +33,7 @@ def f_alg1(unix_curr_time):
 
 
     if MODE == 'TEST':
-        from src.api.emulatorcexio.cexioEmNewApi import EmulatorApi
+        from src.api.emulatorcexio.emulator_api import EmulatorApi
 
         api = EmulatorApi('TEST_USER', unix_curr_time)
 

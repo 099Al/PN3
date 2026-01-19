@@ -1,7 +1,9 @@
 import asyncio
 from datetime import datetime
 
-from src.run_traiding.balances_init import set_balance
+from numpy.ma.core import get_mask
+
+from src.run_emulation.balances_init import set_balance
 
 
 l_algos = [
@@ -11,7 +13,7 @@ l_algos = [
 
 t_start = '2023-07-22 15:00:00'
 
-period =
+period = 60
 
 
 def traiding():
@@ -26,6 +28,22 @@ def traiding():
     while True:
         n = n + 1
         curr_unix_time = curr_unix_time + period
+
+
+        #get data from source and save to DB (api)
+        get_new_data()
+
+
+        #check orders
+        check_orders(curr_unix_time)
+
+        algorithms.algo_1.run()
+
+
+
+        if n > 15:
+            break
+
 
 
 if __name__ == '__main__':
