@@ -15,7 +15,7 @@ def get_new_data(mode,pair,curr_time=None,conn=None):
 
 
     if mode == 'TEST':
-        from src.api.emulatorcexio.cexioEmNewApi import EmulatorApi
+        from src.api.emulatorcexio.emulator_api import EmulatorApi
         #Делается запрос к источнику(либо к сайту, либо к эмулятору)
         api = EmulatorApi(curr_time)
         #emApi.currentTime=curr_time  #В случае эмуляции ставим время, в которое делается запрос
@@ -48,7 +48,7 @@ def check_orders(curr_time,conn=None):
     l_active_orders = res.fetchall()
 
     if mode == 'TEST':
-        from src.api.emulatorcexio.cexioEmNewApi import EmulatorApi
+        from src.api.emulatorcexio.emulator_api import EmulatorApi
         #Делается запрос к источнику(либо к сайту, либо к эмулятору)
         api = EmulatorApi(config.USER_NAME, curr_time)
         #emApi.currentTime=curr_time  #В случае эмуляции ставим время, в которое делается запрос

@@ -1,11 +1,12 @@
 # src/api/provider.py
+import asyncio
 import os
 from datetime import datetime
 from typing import Literal
 
 from src.api.base_api import BaseApi
 from src.api.cexio.cexioNewApi import Api
-from src.api.emulatorcexio.cexioEmNewApi import EmulatorApi
+from src.api.emulatorcexio.emulator_api import EmulatorApi
 from src.config import prj_configs
 
 
@@ -32,5 +33,9 @@ class ApiProvider:
 
 if __name__ == '__main__':
 
-    api = ApiProvider.get()
-    print(api.open_orders())
+    api = ApiProvider.get(unix_curr_time=int(datetime.now().timestamp() * 1000))
+    print(str(prj_configs.CALC_MODE).upper())
+
+    print(asyncio.run(api.open_orders()))
+
+    #print(asyncio.run(api.sell_limit_order(0.002, 30000)))

@@ -34,6 +34,7 @@ class DataBase:
     def get_session_maker(self):
         return self.session_maker
 
+
     def get_engine(self):
         return self.async_engine
 
