@@ -6,6 +6,7 @@ from numpy.ma.core import get_mask
 from src.run_emulation.balances_init import set_balance
 
 from src.api.emulatorcexio.matcher import emulation_check_orders
+from src.database.queries.get_new_history import get_new_data
 
 l_algos = [
     {"name": "algo_1", "usd": 100, "btc": 1},
@@ -33,9 +34,9 @@ def traiding():
         #В случае эмуляции  проверяем ордера на исполнение
         asyncio.run(emulation_check_orders(curr_unix_time))
 
-
-        #get data from source and save to DB (api)
+        # get data from source and save to DB
         get_new_data()
+
 
 
         #check orders

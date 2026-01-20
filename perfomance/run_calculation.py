@@ -1,13 +1,10 @@
-from _configs import config
-import configparser
+
 from datetime import datetime
 
 import algorithms as algo
 from trade_data.queriesDB import order_done
 from trade_data.updates import get_new_data,check_orders
 
-MODE = config.MODE
-#MODE = 'TRAID'
 
 #---Вынести в config ???
 t_start = '2023-07-22 15:00:00'
