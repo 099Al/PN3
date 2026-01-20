@@ -35,14 +35,14 @@ def traiding():
         asyncio.run(emulation_check_orders(curr_unix_time))
 
         # get data from source and save to DB
-        get_new_data()
+        asyncio.run(get_new_data())
 
 
 
         #check orders
-        check_orders(curr_unix_time)
+        #check_orders(curr_unix_time)
 
-        algorithms.algo_1.run()
+        #algorithms.algo_1.run()
 
 
 
@@ -55,5 +55,7 @@ if __name__ == '__main__':
 
     # asyncio.run(set_balance(l_algos))
 
-    traiding()
+    asyncio.run(get_new_data(pair='BTC/USD', unix_curr_time=1690089694 * 1000))
+
+    #traiding()
 

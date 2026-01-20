@@ -21,8 +21,8 @@ class Config(BaseSettings):
     path_env: str = str(Path(__file__).resolve().parent.parent / '.env')
     model_config = SettingsConfigDict(env_file=path_env, env_file_encoding="utf-8", extra="ignore")
 
-    CALC_MODE: str = "EMULATION"
-    #CALC_MODE: str = "TRADING"
+    #CALC_MODE: str = "EMULATION"
+    CALC_MODE: str = "TRADING"
 
     @property
     def connect_url(self):
