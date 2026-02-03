@@ -22,6 +22,7 @@ class Im_ActiveOrder(Base):
     __table_args__ = {"schema": "emulator"}
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    accountId: Mapped[str] = mapped_column(String(50), nullable=True)
     date: Mapped[DateTime] = mapped_column(DateTime)
     unix_date: Mapped[BigInteger] = mapped_column(BigInteger, nullable=False)
     base: Mapped[str] = mapped_column(String(5), nullable=True)
@@ -31,8 +32,7 @@ class Im_ActiveOrder(Base):
     price: Mapped[Decimal] = mapped_column(Numeric(20, 4))
     reserved: Mapped[Decimal] = mapped_column(Numeric(20, 4))
     order_type: Mapped[str] = mapped_column(String(5), nullable=True)
-    full_traid: Mapped[str] = mapped_column(Text, nullable=True)
-    algo: Mapped[str] = mapped_column(String(20), nullable=True)
+    #full_traid: Mapped[str] = mapped_column(Text, nullable=True)
     sys_date: Mapped[DateTime] = mapped_column(DateTime, nullable=False)
 
     def __repr__(self):
