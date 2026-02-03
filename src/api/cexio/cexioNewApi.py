@@ -33,10 +33,11 @@ class Api(BaseApi):
     Python wrapper for CEX.IO
     """
 
-    def __init__(self, username, api_key, api_secret):
+    def __init__(self, username, api_key, api_secret, account_id):
         self.username = username
         self.api_key = api_key
         self.api_secret = api_secret
+        self.account_id = account_id
 
 
     def __nonce(self,tmstamp=None):
@@ -76,6 +77,8 @@ class Api(BaseApi):
 
         if param is None:
             param = {}
+
+        param['accountId'] = self.account_id
 
         if command in PUBLIC_COMMANDS:
             headers = {
@@ -155,6 +158,15 @@ class Api(BaseApi):
 
     # PRIVATE COMMANDS
 
+    async def create_account(self, accountId, deposit_currency):
+        """
+        accountId 	New unique sub-account name
+        currency   Represents crypto or fiat currency symbol which Client expects to be initialy deposited to new sub-account
+        """
+        param = {"accountId": accountId,
+                 "currency": deposit_currency}
+        return await self.api_call('do_create_account', param)
+
     async def balance(self):
         return await self.api_call('balance')
 
@@ -175,6 +187,10 @@ class Api(BaseApi):
     async def get_order(self,order_id):
         return await self.api_call('get_my_orders', {'id': order_id})
 
+    async def archived_orders(self, pairs="BTC/USD"):
+        p1, p2 = pairs.split('/')
+        return await self.api_call(f'archived_orders/{p1}/{p2}')
+
 
 
     #стакан
@@ -189,10 +205,11 @@ class Api(BaseApi):
         #GTD- выход по истечении времени
 
         pairs = market.split('/')
-        unix_dt = int(datetime.now().timestamp())  # выводит по времени UTC+0
+        unix_dt = int(datetime.now().timestamp() * 1000)  # выводит по времени UTC+0
 
         params = {
-              "currency1": pairs[0]
+             "clientOrderId": f'{unix_dt}'
+            , "currency1": pairs[0]
             , "currency2": pairs[1]
             , "side": sell_buy
             , "timestamp": unix_dt
@@ -314,13 +331,37 @@ class Api(BaseApi):
 
 if __name__ == '__main__':
 
+    """
+    Private methods are limited with 2000 requests per 10 minutes.
+    https://docs.cex.io/#cex-io-authentication
+    """
+
     import asyncio
     api = Api(username=prj_configs.API_USER,
                 api_key=prj_configs.API_KEY,
-                api_secret=prj_configs.API_SECRET,)
+                api_secret=prj_configs.API_SECRET,
+                account_id='trade_test'
+              )
 
-    #res = asyncio.run(api.balance())
 
-    res = asyncio.run(api.current_prices(pair='BTC/USD'))
+    #res = asyncio.run(api.create_account("trade_test", "BTC"))
+
+    # res = asyncio.run(api.cancel_order(2675648))
+
+    # res = asyncio.run(api.current_prices(pair='BTC/USD'))
+
+    res = asyncio.run(api.archived_orders())
+
+    # res = asyncio.run(api.cancel_order(OrderId=''))
+
+    #res = asyncio.run(api.set_order(amount=0.00019188, price=78025.6, sell_buy='BUY'))
+
+    #print( int(datetime.now().timestamp() * 1000) )
+
 
     print(res)
+
+
+
+
+
