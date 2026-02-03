@@ -40,8 +40,8 @@ def build_active_order(
     amount: Decimal,
     price: Decimal,
     order_type: str = "Limit",
-    algo: str | None = None,
-    full_traid: str | None = None,
+    #algo: str | None = None,
+    #full_traid: str | None = None,
 ) -> Im_ActiveOrder:
 
 
@@ -58,7 +58,7 @@ def build_active_order(
         price=price,
         reserved=reserved,
         order_type=order_type,
-        full_traid=full_traid,
-        algo=algo,
+        # full_traid=full_traid,
+        # algo=algo,
         sys_date=utcnow_dt(),
     )
