@@ -2,6 +2,9 @@
 
 >uv run alembic upgrade head
 
+“вручную” поменял БД и хочешь просто синхронизировать
+alembic stamp head
+
 
 Если ошибка Enum, что он уже создан
 то надо в новую версию сделать правку create_type=False
