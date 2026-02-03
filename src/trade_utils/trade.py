@@ -2,7 +2,7 @@
 """
 Функции для расчета транзакций (покупки/продажи)
 """
-from decimal import Decimal
+from decimal import Decimal, ROUND_UP
 
 import numpy as np
 import math
@@ -54,11 +54,16 @@ def X_for_buyBTC_v3(btc,price,comiss=None):
     # comis = 0.25%
     # mk_tk_comiss - maker taker commission
 
+    btc_d = Decimal(str(btc))
+    price_d = Decimal(str(price))
+
     if comiss is None:
         comiss = BUY_FEE
 
-    x = btc * price / (Decimal("1") - Decimal(comiss) / Decimal("100"))
-    x = math.ceil(x*100)/100
+    comiss_d = Decimal(str(comiss))
+
+    x = btc_d * price_d / (Decimal("1") - comiss_d / Decimal("100"))
+    x = x.quantize(Decimal("0.01"), rounding=ROUND_UP)
     return x
 
 def X_for_buyBTC(btc,price,comiss=None):
