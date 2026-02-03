@@ -155,6 +155,9 @@ class Api(BaseApi):
 
     # PRIVATE COMMANDS
 
+    async def balance(self):
+        return await self.api_call('balance')
+
     async def account_status(self):
         param = {"accountIds": []}
         return await self.api_call('get_my_account_status_v2',param)
@@ -290,9 +293,10 @@ class Api(BaseApi):
 
     async def current_prices(self,pair = 'BTC/USD'):
         pairs = pair.replace('/', '-')
-        res = self.ticker(pairs=[pairs])['data'][pairs]
-        bestBid = res['bestBid']
-        bestAsk = res['bestAsk']
+        res = await self.ticker(pairs=[pairs])
+        prices = res['data'][pairs]
+        bestBid = prices['bestBid']
+        bestAsk = prices['bestAsk']
         return {'bestBid': bestBid, 'bestAsk': bestAsk}
 
     async def fee(self, pair='BTC/USD'):
@@ -302,3 +306,21 @@ class Api(BaseApi):
         return fee
 
 
+
+
+
+
+
+
+if __name__ == '__main__':
+
+    import asyncio
+    api = Api(username=prj_configs.API_USER,
+                api_key=prj_configs.API_KEY,
+                api_secret=prj_configs.API_SECRET,)
+
+    #res = asyncio.run(api.balance())
+
+    res = asyncio.run(api.current_prices(pair='BTC/USD'))
+
+    print(res)
