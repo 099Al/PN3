@@ -199,6 +199,10 @@ class EmulatorApi(BaseApi):
         return {"ok": "not_implemented"}
 
     async def set_order(self, amount, price, sell_buy, orderType="Limit", market="BTC/USD", clientOrderId=None) -> JsonDict:
+        if clientOrderId is None:
+            unix_dt = int(datetime.now().timestamp() * 1000)
+            clientOrderId = str(unix_dt)
+
         if sell_buy == "BUY":
             return await self.buy_limit_order(amount=amount, price=price, clientOrderId=clientOrderId, market=market)
         return await self.sell_limit_order(amount=amount, price=price, clientOrderId=clientOrderId, market=market)
@@ -303,3 +307,16 @@ class EmulatorApi(BaseApi):
                 "transactTime": self._transact_time(),
             },
         }
+
+
+
+if __name__ == '__main__':
+
+    import asyncio
+
+    api = EmulatorApi('test_user', 1689533488861)
+    res = asyncio.run(api.buy_limit_order(0.005,30000))
+
+    # res = asyncio.run(api.open_orders())
+
+    print(res)
