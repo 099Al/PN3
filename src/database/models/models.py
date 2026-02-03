@@ -17,6 +17,7 @@ from src.database.models.base import Base
 class ActiveOrder(Base):
     __tablename__ = 'active_orders'
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    accountId: Mapped[str] = mapped_column(String(100), nullable=True)
     date: Mapped[DateTime] = mapped_column(DateTime)
     unix_date: Mapped[BigInteger] = mapped_column(BigInteger, nullable=False)
     base: Mapped[str] = mapped_column(String(5), nullable=True)
