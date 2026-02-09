@@ -5,6 +5,7 @@ from decimal import Decimal
 from typing import Any, Optional
 
 from src.api.emulatorcexio.order_state import build_active_order, calc_quote_needed_for_buy
+from src.database.queries.save_orders import save_active_order_execution_report
 # твои константы
 from src.trade_parameters import TradeConfig
 
@@ -314,17 +315,21 @@ class EmulatorApi(BaseApi):
 
 
 
-if __name__ == '__main__':
+async def main():
 
-    import asyncio
 
     api = EmulatorApi('test_user', 1689533488861)
-    #res = asyncio.run(api.buy_limit_order(0.005,30000))
-
+    # res = asyncio.run(api.buy_limit_order(0.005,30000))
 
     # res = asyncio.run(api.open_orders())
 
-    res = asyncio.run(api.set_order(0.005, 30000, "BUY"))
-
+    res = await api.set_order(0.005, 30000, "BUY")
+    await save_active_order_execution_report(res, algo="algo_1")
 
     print(res)
+
+
+if __name__ == '__main__':
+    import asyncio
+
+    asyncio.run(main())
