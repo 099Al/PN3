@@ -62,7 +62,7 @@ class EmulatorApi(BaseApi):
                 data.append(
                     {
                         "orderId": o.id,
-                        "clientOrderId": None,
+                        "clientOrderId": o.accountId,
                         "clientId": self.username,
                         "accountId": None,
                         "status": "NEW",
@@ -131,15 +131,17 @@ class EmulatorApi(BaseApi):
                 order_type="Limit",
             )
 
-            await repo.upsert_active_order(order)  # сохраняем в БД
+            order = await repo.upsert_active_order(order)  # сохраняем в БД
 
             # reserve base (пример: уменьшаем amount, увеличиваем reserved)
             await repo.update_balance(curr=base, amount_delta=-order.reserved, reserved_delta=order.reserved)
 
+            res = self._new_order_response(order_id=order.id, side="SELL", base=base, quote=quote, amount=amount, price=price, clientOrderId=clientOrderId)
+
             # await session.flush()
             await session.commit()
 
-            return self._new_order_response(order_id=order.id, side="SELL", base=base, quote=quote, amount=amount, price=price)
+            return res
 
     async def buy_limit_order(
         self,
@@ -176,14 +178,16 @@ class EmulatorApi(BaseApi):
                 price=price,
                 order_type="Limit",
             )
-            await repo.upsert_active_order(order)
+            order = await repo.upsert_active_order(order)
 
             # reserve quote
             await repo.update_balance(curr=quote, amount_delta=-need_quote, reserved_delta=need_quote)
 
+            res = self._new_order_response(order_id=order.id, side="BUY", base=base, quote=quote, amount=amount, price=price, clientOrderId=clientOrderId)
+
             await session.commit()
 
-            return self._new_order_response(order_id=order.id, side="BUY", base=base, quote=quote, amount=amount, price=price)
+            return res
 
     async def cancel_order(self, OrderId: Any) -> JsonDict:
         # Тут нужна логика:
@@ -218,14 +222,14 @@ class EmulatorApi(BaseApi):
         return dt.strftime("%Y-%m-%dT%H:%M:%S.") + f"{ts_ms % 1000:03d}Z"
 
 
-    def _new_order_response(self, *, order_id: int, side: str, base: str, quote: str, amount: Decimal, price: Decimal) -> JsonDict:
+    def _new_order_response(self, *, order_id: int, side: str, base: str, quote: str, amount: Decimal, price: Decimal, clientOrderId) -> JsonDict:
         return {
             "ok": "ok",
             "data": {
                 "messageType": "executionReport",
                 "clientId": self.username,
                 "orderId": order_id,
-                "clientOrderId": str(self.unix_curr_time),
+                "clientOrderId": clientOrderId,
                 "accountId": "",
                 "status": "NEW",
                 "currency1": base,
@@ -315,8 +319,12 @@ if __name__ == '__main__':
     import asyncio
 
     api = EmulatorApi('test_user', 1689533488861)
-    res = asyncio.run(api.buy_limit_order(0.005,30000))
+    #res = asyncio.run(api.buy_limit_order(0.005,30000))
+
 
     # res = asyncio.run(api.open_orders())
+
+    res = asyncio.run(api.set_order(0.005, 30000, "BUY"))
+
 
     print(res)

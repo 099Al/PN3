@@ -42,8 +42,10 @@ class EmulatorOrdersRepo:
         stmt = select(Im_Balance.amount).where(Im_Balance.curr == curr)
         return (await self.session.execute(stmt)).scalar_one_or_none()
 
-    async def upsert_active_order(self, order: Im_ActiveOrder) -> None:
-        await self.session.merge(order)
+    async def upsert_active_order(self, order: Im_ActiveOrder) -> Im_ActiveOrder:
+        merged = await self.session.merge(order)
+        await self.session.flush()
+        return merged
 
     async def update_balance(self, curr: str, amount_delta, reserved_delta=0) -> None:
         bal = (await self.session.execute(select(Im_Balance).where(Im_Balance.curr == curr))).scalar_one_or_none()
