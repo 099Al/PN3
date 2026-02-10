@@ -5,7 +5,7 @@ from decimal import Decimal
 from typing import Any, Optional
 
 from src.api.emulatorcexio.order_state import build_active_order, calc_quote_needed_for_buy
-from src.database.queries.save_orders import save_active_order_execution_report
+from src.database.queries.save_orders import save_active_order
 # твои константы
 from src.trade_parameters import TradeConfig
 
@@ -324,7 +324,7 @@ async def main():
     # res = asyncio.run(api.open_orders())
 
     res = await api.set_order(0.005, 30000, "BUY")
-    await save_active_order_execution_report(res, algo="algo_1")
+    await save_active_order(res, algo="algo_1")
 
     print(res)
 
