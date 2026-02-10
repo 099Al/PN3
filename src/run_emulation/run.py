@@ -37,6 +37,9 @@ def traiding():
         # get data from source and save to DB
         asyncio.run(get_new_data())
 
+        # После установки ордера заносим ответ в active_orders
+        # save_active_order_execution_report()
+
 
 
         #check orders
