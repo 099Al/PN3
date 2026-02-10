@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from typing import Any, Sequence
+from typing import Any, Sequence, Optional
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -57,3 +57,12 @@ class EmulatorOrdersRepo:
             bal.amount = (bal.amount or 0) + amount_delta
         if reserved_delta:
             bal.reserved = (bal.reserved or 0) + reserved_delta
+
+    async def get_active_order(self, order_id: int) -> Optional[Im_ActiveOrder]:
+        res = await self.session.execute(
+            select(Im_ActiveOrder).where(Im_ActiveOrder.id == order_id)
+        )
+        return res.scalar_one_or_none()
+
+    async def delete_active_order(self, order: Im_ActiveOrder) -> None:
+        await self.session.delete(order)

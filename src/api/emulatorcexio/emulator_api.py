@@ -191,11 +191,46 @@ class EmulatorApi(BaseApi):
             return res
 
     async def cancel_order(self, OrderId: Any) -> JsonDict:
-        # Тут нужна логика:
-        # - найти Im_ActiveOrder по id
-        # - удалить
-        # - вернуть средства из reserved обратно в amount (в зависимости от side)
-        return {"ok": "not_implemented"}
+        order_id = int(OrderId)
+        async with self.db.get_session_maker()() as session:
+            repo = EmulatorOrdersRepo(session)
+            order = await repo.get_active_order(order_id)
+            if order is None:
+                # можно вернуть ok (как многие биржи) или ошибку
+                return {"ok": "ok", "data": {}}
+
+            side = (order.side or "").upper()
+            reserved = Decimal(str(order.reserved or 0))
+
+            # 1) вернуть резерв обратно в баланс
+            if reserved != 0:
+                if side == "SELL":
+                    # SELL резервируется base (BTC)
+                    await repo.update_balance(
+                        curr=order.base,
+                        amount_delta=reserved,
+                        reserved_delta=-reserved,
+                    )
+                elif side == "BUY":
+                    # BUY резервируется quote (USD)
+                    await repo.update_balance(
+                        curr=order.quote,
+                        amount_delta=reserved,
+                        reserved_delta=-reserved,
+                    )
+                else:
+                    # если внезапно side не BUY/SELL — лучше не делать кривые движения
+                    raise ValueError(f"Unknown side={order.side!r} for order_id={order_id}")
+
+            # 2) удалить ордер из активных
+            await repo.delete_active_order(order)
+
+            await session.commit()
+
+            # формат как у api.cancel_order(...)
+            return {"ok": "ok", "data": {}}
+
+
 
     async def cancel_client_order(self, clientOrderId: Any) -> JsonDict:
         return {"ok": "not_implemented"}
@@ -323,8 +358,10 @@ async def main():
 
     # res = asyncio.run(api.open_orders())
 
-    res = await api.set_order(0.005, 30000, "BUY")
-    await save_active_order(res, algo="algo_1")
+    #res = await api.set_order(0.005, 30000, "BUY")
+    #await save_active_order(res, algo="algo_1")
+
+    res = await api.cancel_order(14)
 
     print(res)
 
