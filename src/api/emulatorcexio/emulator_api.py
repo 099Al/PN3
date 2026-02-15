@@ -2,27 +2,29 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from decimal import Decimal
-from typing import Any, Optional
+from typing import Any, Optional, Dict
 
 from src.api.emulatorcexio.order_state import build_active_order, calc_quote_needed_for_buy
-from src.database.queries.save_orders import save_active_order
+from src.database.trade_queries.save_orders import save_active_order
 # твои константы
 from src.trade_parameters import TradeConfig
+from src.trade_utils.util_decimal import _fmt8, _d
 
 BASE_MIN = TradeConfig.BASE_MIN
 
 # если хочешь сохранить генератор id как сейчас
 from perfomance.cache.values import ValuesOrder
 from src.api.base_api import BaseApi, JsonDict, PairsList
-from src.api.emulatorcexio.em_requests import EmulatorHistoryRepo, EmulatorOrdersRepo
+from src.api.emulatorcexio.em_requests import EmulatorHistoryRepo, EmulatorOrdersRepo, EmulatorBalanceRepo
 from src.database.connect import DataBase
 
 
 class EmulatorApi(BaseApi):
-    def __init__(self, username: str, unix_curr_time: int):
+    def __init__(self, username: str, unix_curr_time: int, account_id=None):
         self.username = username
         self.unix_curr_time = unix_curr_time
         self.db = DataBase()
+        self.account_id = account_id
 
     # -------- market data --------
     async def trade_history(self, pair: str = "BTC-USD") -> JsonDict:
@@ -65,7 +67,7 @@ class EmulatorApi(BaseApi):
                         "orderId": o.id,
                         "clientOrderId": o.accountId,
                         "clientId": self.username,
-                        "accountId": None,
+                        "accountId": self.account_id,
                         "status": "NEW",
                         "statusIsFinal": False,
                         "currency1": o.base,
@@ -250,6 +252,52 @@ class EmulatorApi(BaseApi):
     async def get_order(self, order_id: str) -> JsonDict:
         return {"ok": "not_implemented"}
 
+    async def account_status(self, accountId=None, curr_unixdate: Optional[int] = None) -> JsonDict:
+        converted = "USD"
+        t = int(curr_unixdate if curr_unixdate is not None else self.unix_curr_time)
+
+        async with self.db.get_session_maker()() as session:
+            bal_repo = EmulatorBalanceRepo(session)
+            hist_repo = EmulatorHistoryRepo(session)
+
+            last_price = await hist_repo.get_last_price_at(t)
+            last_price = _d(last_price)  # если None -> 0
+
+            rows = await bal_repo.get_balance(self.username)
+
+            per_account: Dict[str, Dict[str, dict]] = {}
+
+            for r in rows:
+                acc = r.accountId or self.username
+                per_account.setdefault(acc, {})
+
+                amount = _d(r.amount)
+                on_hold = _d(r.reserved)
+                total = amount + on_hold
+
+                # конвертация в USD по цене на момент t
+                if r.curr == converted:
+                    converted_val = total
+                elif r.curr == "BTC" and converted == "USD":
+                    converted_val = total * last_price
+                else:
+                    converted_val = Decimal("0")
+
+                per_account[acc][r.curr] = {
+                    "balance": _fmt8(total),
+                    "balanceOnHold": _fmt8(on_hold),
+                    "balanceAvailable": _fmt8(amount),
+                    "balanceInConvertedCurrency": _fmt8(converted_val),
+                }
+
+            return {
+                "ok": "ok",
+                "data": {
+                    "convertedCurrency": converted,
+                    "balancesPerAccounts": per_account,
+                },
+            }
+
     # -------- helpers --------
     def _transact_time(self) -> str:
         # формат времени
@@ -266,7 +314,7 @@ class EmulatorApi(BaseApi):
                 "clientId": self.username,
                 "orderId": order_id,
                 "clientOrderId": clientOrderId,
-                "accountId": "",
+                "accountId": self.account_id,
                 "status": "NEW",
                 "currency1": base,
                 "currency2": quote,
@@ -303,7 +351,7 @@ class EmulatorApi(BaseApi):
                 "clientId": self.username,
                 "orderId": None,
                 "clientOrderId": str(self.unix_curr_time),
-                "accountId": "",
+                "accountId": self.account_id,
                 "status": "REJECTED",
                 "currency1": None,
                 "currency2": None,
@@ -338,7 +386,7 @@ class EmulatorApi(BaseApi):
                 "clientId": self.username,
                 "orderId": None,
                 "clientOrderId": str(self.unix_curr_time),
-                "accountId": "",
+                "accountId": self.account_id,
                 "status": "REJECTED",
                 "executionType": "Rejected",
                 "orderRejectReason": '{"code":403,"reason":"Insufficient funds"}',
@@ -353,15 +401,15 @@ class EmulatorApi(BaseApi):
 async def main():
 
 
-    api = EmulatorApi('test_user', 1689533488861)
+    api = EmulatorApi('test_user', 1689533488861, account_id='trade_test')
     # res = asyncio.run(api.buy_limit_order(0.005,30000))
 
     # res = asyncio.run(api.open_orders())
 
-    #res = await api.set_order(0.005, 30000, "BUY")
-    #await save_active_order(res, algo="algo_1")
+    res = await api.set_order(0.005, 30000, "BUY")
+    await save_active_order(res, algo="algo_1")
 
-    res = await api.cancel_order(14)
+    #res = await api.cancel_order(14)
 
     print(res)
 

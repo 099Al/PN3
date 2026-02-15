@@ -42,6 +42,7 @@ class Im_Balance(Base):
     __tablename__ = "im_balance"
     __table_args__ = {"schema": "emulator"}
 
+    accountId: Mapped[str] = mapped_column(String(50), nullable=True)
     curr: Mapped[str] = mapped_column(String(5),primary_key=True,)
     amount: Mapped[Decimal] = mapped_column(Numeric(15, 8), nullable=False)
     reserved: Mapped[Decimal] = mapped_column(Numeric(15, 8), nullable=True)
@@ -58,11 +59,13 @@ class Im_CexHistoryTik(Base):
     amount:     Mapped[Decimal] = mapped_column(Numeric(11, 8))
     price:      Mapped[Decimal] = mapped_column(Numeric(9, 2))
     trade_data: Mapped[str] = mapped_column(Text, nullable=True)
+    accountId: Mapped[str] = mapped_column(String(50), nullable=True)
 
 class ImCexHistoryFileLog(Base):
     __tablename__ = "im_cex_history_file_log"
     __table_args__ = {"schema": "emulator"}
 
+    accountId: Mapped[str] = mapped_column(String(50), nullable=True)
     filename = Column(Text, primary_key=True)
     loaded_at = Column(DateTime(timezone=True), nullable=False)
     file_mtime = Column(BigInteger, nullable=False)
@@ -80,6 +83,7 @@ class Im_Stg_CexHistoryTik(Base):
     amount: Mapped[Decimal] = mapped_column(Numeric(11, 8))
     price: Mapped[Decimal] = mapped_column(Numeric(9, 2))
     trade_data: Mapped[str] = mapped_column(Text, nullable=True)
+    accountId: Mapped[str] = mapped_column(String(50), nullable=True)
 
 
 class Im_Transaction(Base):

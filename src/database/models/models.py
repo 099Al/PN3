@@ -41,6 +41,9 @@ class Balance(Base):
     curr: Mapped[str] = mapped_column(String(5), primary_key=True,)
     amount: Mapped[Decimal] = mapped_column(Numeric(15, 8), nullable=False, default=Decimal("0"),)
     reserved: Mapped[Decimal] = mapped_column(Numeric(15, 8), nullable=True)
+    calc_amount: Mapped[Decimal] = mapped_column(Numeric(15, 8), nullable=True, default=Decimal("0"), )
+    calc_reserved: Mapped[Decimal] = mapped_column(Numeric(15, 8), nullable=True)
+
 
 class Balance_Algo(Base):
     __tablename__ = "balance_algo"

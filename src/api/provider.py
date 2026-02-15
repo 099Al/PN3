@@ -13,11 +13,13 @@ from src.config import prj_configs
 
 class ApiProvider:
     @staticmethod
-    def get(unix_curr_time: int =None) -> BaseApi:
+    def get(account_id: str = None, *, unix_curr_time: int = None) -> BaseApi:
+
         mode = str(prj_configs.CALC_MODE).upper()
 
         if mode == "EMULATION":
             return EmulatorApi(
+                account_id=account_id,
                 username=prj_configs.USER,
                 unix_curr_time=unix_curr_time
             )
@@ -26,6 +28,7 @@ class ApiProvider:
                 username=prj_configs.API_USER,
                 api_key=prj_configs.API_KEY,
                 api_secret=prj_configs.API_SECRET,
+                account_id=account_id
             )
 
         raise ValueError(f"Unknown MODE: {mode}. Use 'API' or 'EM_API'.")

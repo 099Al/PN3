@@ -114,7 +114,7 @@ class OrderMatcher:
             await self.repo.delete_active_order(order.id)
 
             # 2) баланс:
-            # В момент выставления BUY ты резервировал quote: reserved(quote) += reserved, amount(quote) -= reserved
+            # В момент выставления BUY резервировал quote: reserved(quote) += reserved, amount(quote) -= reserved
             # Сейчас считаем фактическую трату total_quote и делаем:
             # reserved(quote) -= total_quote; amount(base) += amount_base
             # Если в order.reserved было "с запасом" — можно вернуть остаток в amount(quote)
@@ -124,12 +124,12 @@ class OrderMatcher:
                 # на всякий случай: если логика резервирования была другой
                 refund = D0
 
-            await self.repo.apply_balance_delta(curr=quote, amount_delta=refund, reserved_delta=-reserved_quote)  # снимаем весь резерв
+            await self.repo.apply_balance_delta(account_id=order.accountId, curr=quote, amount_delta=refund, reserved_delta=-reserved_quote)  # снимаем весь резерв
             # затем "платим" фактическую сумму из amount (так проще понять):
             # но поскольку мы уже сняли reserved целиком, корректнее прямо отразить итог:
             # amount уже уменьшили при постановке ордера. Здесь надо только вернуть refund (если есть).
             # И добавить base:
-            await self.repo.apply_balance_delta(curr=base, amount_delta=amount_base, reserved_delta=D0)
+            await self.repo.apply_balance_delta(account_id=order.accountId, curr=base, amount_delta=amount_base, reserved_delta=D0)
 
             # 3) транзакции (как в примере: +BTC, -USD, -USD fee)
             order_id = order.id

@@ -155,7 +155,7 @@ def buy_maxBTC_v2(X,price,comiss=None):
 #Но по обраьной формуле X_for_buyBTC величина X будет больше
 def buy_maxBTC_v3(X,price,comiss=None):
     if comiss is None:
-        comiss = BUY_FEE
+        comiss = BUY_FEE   # По этой формуле на брать комиссию 0.25
     btc = (1-comiss/100)*X/price
     return cutX(btc,8)
 

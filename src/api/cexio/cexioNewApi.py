@@ -170,19 +170,34 @@ class Api(BaseApi):
     async def balance(self):
         return await self.api_call('balance')
 
-    async def account_status(self):
-        param = {"accountIds": []}
+    async def account_status(self, accountId=None):
+        if accountId is not None:
+            param = {"accountIds": [accountId]}
+        else:
+            param = {"accountIds": []}
         return await self.api_call('get_my_account_status_v2',param)
 
     async def get_myfee(self):
         return await self.api_call('get_my_fee')
 
     #завершенные сделки
-    async def transaction_history(self):
-        return await self.api_call('get_my_transaction_history')
+    async def transaction_history(self, accountId):
+        if accountId is not None:
+            param = {"accountIds": [accountId]}
+        elif self.account_id:
+            param = {"accountIds": [self.account_id]}
+        else:
+            param = {"accountIds": []}
+        return await self.api_call('get_my_transaction_history', param)
 
-    async def open_orders(self, params=None):
-        return await self.api_call('get_my_orders', params)
+    async def open_orders(self, accountId=None):
+        if accountId is not None:
+            param = {"accountIds": [accountId]}
+        elif self.account_id:
+            param = {"accountIds": [self.account_id]}
+        else:
+            param = {"accountIds": []}
+        return await self.api_call('get_my_orders', param)
 
     async def get_order(self,order_id):
         return await self.api_call('get_my_orders', {'id': order_id})
@@ -346,21 +361,40 @@ if __name__ == '__main__':
 
     #res = asyncio.run(api.create_account("trade_test", "BTC"))
 
-    # res = asyncio.run(api.cancel_order(2675648))
+    #res = asyncio.run(api.cancel_order(2690120))
 
-    # res = asyncio.run(api.current_prices(pair='BTC/USD'))
+    res = asyncio.run(api.current_prices(pair='BTC/USD'))
+    print(res)
 
-    res = asyncio.run(api.archived_orders())
+    # res = asyncio.run(api.archived_orders())
 
-    # res = asyncio.run(api.cancel_order(OrderId=''))
+    #res = asyncio.run(api.cancel_order(OrderId=2690184))
+    #print(res)
 
-    #res = asyncio.run(api.set_order(amount=0.00019188, price=78025.6, sell_buy='BUY'))
+    #res = asyncio.run(api.set_order(amount=0.00019425, price=66800, sell_buy='BUY'))
+
+    # res = asyncio.run(api.set_order(amount=0.00019, price=67000.0, sell_buy='SELL'))
+    print(res)
 
     #print( int(datetime.now().timestamp() * 1000) )
 
+    res = asyncio.run(api.open_orders(accountId='trade_test'))
+    print('orders', res)
 
+    res = asyncio.run(api.account_status(accountId='trade_test'))
     print(res)
 
+    #res = asyncio.run(api.trade_history())
+
+    #res = asyncio.run(api.get_myfee())
+
+    res = asyncio.run(api.transaction_history(accountId='trade_test'))
+    print('transactions',res)
+
+    # {'bestBid': '68560.6', 'bestAsk': '68579.6'}
+    # {'bestBid': '68160.6', 'bestAsk': '68175.5'}
+    # {'bestBid': '68093.5', 'bestAsk': '68110.6'}
+    # {'bestBid': '67488.7', 'bestAsk': '67510.6'}
 
 
 

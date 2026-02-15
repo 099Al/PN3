@@ -24,8 +24,12 @@ class EmulatorMatchRepo:
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def list_active_orders(self) -> list[Im_ActiveOrder]:
-        stmt = select(Im_ActiveOrder).order_by(Im_ActiveOrder.unix_date.asc())
+    async def list_active_orders(self, account_id: str) -> list[Im_ActiveOrder]:
+        stmt = (
+            select(Im_ActiveOrder)
+            .where(Im_ActiveOrder.accountId == account_id)
+            .order_by(Im_ActiveOrder.unix_date.asc())
+        )
         res = await self.session.execute(stmt)
         return list(res.scalars().all())
 
@@ -71,19 +75,19 @@ class EmulatorMatchRepo:
     async def delete_active_order(self, order_id: int) -> None:
         await self.session.execute(delete(Im_ActiveOrder).where(Im_ActiveOrder.id == order_id))
 
-    async def get_balance(self, curr: str) -> Optional[Im_Balance]:
-        stmt = select(Im_Balance).where(Im_Balance.curr == curr)
+    async def get_balance(self, account_id: str, curr: str) -> Optional[Im_Balance]:
+        stmt = select(Im_Balance).where(Im_Balance.curr == curr).where(Im_Balance.accountId == account_id)
         return (await self.session.execute(stmt)).scalars().first()
 
-    async def apply_balance_delta(self, *, curr: str, amount_delta: Decimal = D0, reserved_delta: Decimal = D0) -> None:
+    async def apply_balance_delta(self, account_id: str, *, curr: str, amount_delta: Decimal = D0, reserved_delta: Decimal = D0) -> None:
         """
         Обновляем balance.amount и balance.reserved (reserved может быть NULL).
         Делается через ORM объект (проще и безопаснее).
         """
-        bal = await self.get_balance(curr)
+        bal = await self.get_balance(account_id, curr=curr)
         if bal is None:
             # если валюты нет — создаём (по желанию можно запрещать)
-            bal = Im_Balance(curr=curr, amount=D0, reserved=D0)
+            bal = Im_Balance(account_id=account_id, curr=curr, amount=D0, reserved=D0)
             self.session.add(bal)
             await self.session.flush()
 

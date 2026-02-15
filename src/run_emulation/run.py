@@ -3,10 +3,11 @@ from datetime import datetime
 
 from numpy.ma.core import get_mask
 
+from src.api.emulatorcexio.emulator_api import EmulatorApi
 from src.run_emulation.balances_init import set_balance
 
 from src.api.emulatorcexio.matcher import emulation_check_orders
-from src.database.queries.get_new_history import get_new_data
+from src.database.trade_queries.get_new_history import get_new_data
 
 l_algos = [
     {"name": "algo_1", "usd": 100, "btc": 1},
@@ -16,6 +17,10 @@ l_algos = [
 t_start = '2023-07-22 15:00:00'
 
 period = 60
+
+
+
+api = EmulatorApi('test_user', 1689533488861)
 
 
 def traiding():
@@ -38,8 +43,16 @@ def traiding():
         asyncio.run(get_new_data())
 
         # После установки ордера заносим ответ в active_orders
-        # save_active_order_execution_report()
+        # save_active_order()
 
+        # Запрос к источнику, получить список ордеров
+        # И убрать закрытые
+        # Если что-то исчезло, то запрос transaction по ордеру (мог сработать)
+
+        # так же делать запрос к балансу
+
+        # менять Balance после выставления ордеров и после исполнения
+        # так же сравнивать с источником  (добавить два стобца)
 
 
         #check orders
@@ -58,7 +71,11 @@ if __name__ == '__main__':
 
     # asyncio.run(set_balance(l_algos))
 
-    asyncio.run(get_new_data(pair='BTC/USD', unix_curr_time=1690089694 * 1000))
+    # asyncio.run(get_new_data(pair='BTC/USD', unix_curr_time=1690089694 * 1000))
+
+    l_orders = asyncio.run(api.open_orders())
+
+    print(l_orders)
 
     #traiding()
 
