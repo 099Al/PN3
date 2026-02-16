@@ -13,3 +13,6 @@ def parse_iso_z_to_naive(iso_z: str) -> datetime:
     # fromisoformat не понимает 'Z', заменяем на '+00:00'
     dt = datetime.fromisoformat(iso_z.replace("Z", "+00:00"))
     return dt.astimezone(timezone.utc).replace(tzinfo=None)
+
+def _format_iso_z(dt):
+    return dt.strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"

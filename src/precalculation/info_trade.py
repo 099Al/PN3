@@ -124,14 +124,14 @@ def info_expected_price_sellBTC(x_exp, btc, sell_commis):
 
 if __name__ == "__main__":
 
-    print("---BUY---")
-    price = 78075.6
-    x = 15
+    # print("---BUY---")
+    price = 66800
+    x = 13
     info_parameters_to_buy_BTC(price, x)
     # print("----SELL----")
     # mk_tk = 0.25
     # taker = 0.16
-    # info_parameters_to_sell_BTC(0.00057585, price, mk_tk, taker)
+    # info_parameters_to_sell_BTC(0.00019, price, mk_tk, taker)
     #
     # print("----PRICE------")
     # x_exp = 15

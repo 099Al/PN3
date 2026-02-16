@@ -10,3 +10,10 @@ def to_decimal(x: Any) -> Decimal:
 
 def to_int(x: Any) -> int:
     return int(x)
+
+def _d(x: Any) -> Decimal:
+    return Decimal(str(x or 0))
+
+
+def _fmt8(x: Decimal) -> str:
+    return f"{x:.8f}"
