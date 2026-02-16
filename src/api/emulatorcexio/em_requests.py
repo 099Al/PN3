@@ -8,7 +8,7 @@ from certifi import where
 from sqlalchemy import select, desc, update, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.database.models.models_img import Im_CexHistoryTik, Im_ActiveOrder, Im_Balance
+from src.database.models.models_img import Im_CexHistoryTik, Im_ActiveOrder, Im_Balance, Im_Transaction
 
 
 class EmulatorHistoryRepo:
@@ -44,6 +44,18 @@ class EmulatorHistoryRepo:
         )
         return (await self.session.execute(stmt)).scalars().first()
 
+
+
+    async def get_transactions(self, accountId: str) -> list[Im_Transaction]:
+        stmt = (
+                select(Im_Transaction)
+                .where(Im_Transaction.account_id == accountId)
+                .order_by(desc(Im_Transaction.unix_ms))
+        )
+
+        rows = (await self.session.execute(stmt)).scalars().all()
+
+        return rows
 
 class EmulatorOrdersRepo:
     def __init__(self, session: AsyncSession):

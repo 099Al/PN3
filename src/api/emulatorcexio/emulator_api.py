@@ -4,10 +4,14 @@ from datetime import datetime, timezone
 from decimal import Decimal
 from typing import Any, Optional, Dict
 
+from sqlalchemy import select, desc
+
 from src.api.emulatorcexio.order_state import build_active_order, calc_quote_needed_for_buy
+from src.database.models import Im_Transaction
 from src.database.trade_queries.save_orders import save_active_order
 # твои константы
 from src.trade_parameters import TradeConfig
+from src.trade_utils.date_unix import _format_iso_z
 from src.trade_utils.util_decimal import _fmt8, _d
 
 BASE_MIN = TradeConfig.BASE_MIN
@@ -297,6 +301,29 @@ class EmulatorApi(BaseApi):
                     "balancesPerAccounts": per_account,
                 },
             }
+
+    async def transaction_history(self, accountId: str) -> JsonDict:
+        async with self.db.get_session_maker()() as session:
+            repo = EmulatorHistoryRepo(session)
+            rows = await repo.get_transactions(self.username)
+
+            data = []
+            for row in rows:
+                data.append(
+                    {
+                        "transactionId": row.transaction_id,
+                        "timestamp": _format_iso_z(row.timestamp),
+                        "accountId": row.account_id,
+                        "type": row.type,
+                        "amount": str(row.amount),
+                        "details": row.details,
+                        "currency": row.currency,
+                    }
+                )
+
+            return {"ok": "ok", "data": data}
+
+
 
     # -------- helpers --------
     def _transact_time(self) -> str:
