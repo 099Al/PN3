@@ -10,7 +10,8 @@ from sqlalchemy.dialects.postgresql import JSONB
 import enum
 from sqlalchemy import Enum as SqlEnum
 
-from src.database.models.models_types import OrderTypeEnum, ActivityTypeEnum, SideTypeEnum, OrderStatusTypeEnum
+from src.database.models.models_types import OrderTypeEnum, ActivityTypeEnum, SideTypeEnum, OrderStatusTypeEnum, \
+    SideType
 from src.database.models.base import Base
 
 
@@ -33,7 +34,7 @@ class ActiveOrder(Base):
     sys_date: Mapped[DateTime] = mapped_column(DateTime)
 
     def __repr__(self):
-        return f"<ActiveOrder {self.id}> date: {self.date} side: {self.side} amount: {self.amount} price: {self.price}"
+        return f"<ActiveOrder {self.orderId}> date: {self.date} side: {self.side} amount: {self.amount} price: {self.price}"
 
 class Balance(Base):
     __tablename__ = "balance"
@@ -118,6 +119,19 @@ class DepositFee(Base):
     descr:          Mapped[str] = mapped_column(String, nullable=True)
 
 
+class LogDoneTransactions(Base):
+    __tablename__ = "log_done_transactions"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    date: Mapped[DateTime] = mapped_column(DateTime)
+    unix_date: Mapped[int] = mapped_column(Integer)
+    curr: Mapped[str] = mapped_column(String(5))
+    amount: Mapped[Decimal] = mapped_column(Numeric(15, 8))
+    commission: Mapped[Decimal] = mapped_column(Numeric(15, 8))
+    algo_name: Mapped[str] = mapped_column(String(20))
+    tid: Mapped[str] = mapped_column(String(30))
+    order_side: Mapped[str] = mapped_column(SideTypeEnum)
+    sys_date: Mapped[DateTime] = mapped_column(DateTime)
 
 
 class LogBalance(Base):
