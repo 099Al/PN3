@@ -1,0 +1,47 @@
+Api к сайту
+    src/api/cexio/cexioNewApi.py
+
+Api симуляции
+    src/api/emulatorcexio/emulator_api.py
+
+Общий интефейс для api
+    src/api/provider.py
+
+
+Подключение к БД
+    src/database/connect.py
+
+Команды при работе с алгоритмами. Основные команды:
+    установка ордеров, сохранение в БД, синхронизация
+    src/database/trade_queries/
+    При снятии ордера, должен так же менятся баланс в таблицах Balance_Algo и Balance
+    Чтобы при попытки синхронизации н ебыло повторного начисления
+
+
+
+Ручное управление
+    src/manualTrading/traiding.py
+    Так же здесь внесение на депозит. Информация для рассчета
+
+
+Подготовка данных для симуляции:
+    src/prepareData
+
+
+Симуляция задается в config.py
+    src/config   CALC_MODE
+
+Запуск симуляции:
+    src/run_emulation/run.py
+
+    Установка баланса перед запуском:
+    src/run_emulation/balances_init.py
+
+
+Хранение исторических данных
+    hist_data
+подготовка данных для симуляции:
+    src/prepareData/prepare_data.py
+
+
+Алгоритмы

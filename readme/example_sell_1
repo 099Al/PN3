@@ -1,0 +1,29 @@
+
+(amount=0.00019, price=67000.0, sell_buy='SELL'))
+
+{'bestBid': '66664.9', 'bestAsk': '66706.1'}
+
+{'ok': 'ok', 'data': {'messageType': 'executionReport', 'clientId': 'up112344963', 'orderId': '2690264', 'clientOrderId': '1770792877069', 'accountId': 'trade_test', 'status': 'NEW', 'currency1': 'BTC', 'currency2': 'USD', 'side': 'SELL', 'executedAmountCcy1': '0.00000000', 'executedAmountCcy2': '0.00000000', 'requestedAmountCcy1': '0.00019000', 'requestedAmountCcy2': None, 'orderType': 'Limit', 'timeInForce': 'GTC', 'comment': None, 'executionType': 'New', 'executionId': '1770356297097_101_8835', 'transactTime': '2026-02-11T06:54:37.656Z', 'expireTime': None, 'effectiveTime': None, 'price': '67000.0', 'averagePrice': None, 'feeAmount': '0.00000000', 'feeCurrency': 'USD', 'clientCreateTimestamp': 1770792877069, 'serverCreateTimestamp': 1770792877574, 'lastUpdateTimestamp': 1770792877651}}
+
+
+orders {'ok': 'ok', 'data': [{'orderId': '2690264', 'clientOrderId': '1770792877069', 'clientId': 'up112344963', 'accountId': 'trade_test', 'status': 'NEW', 'statusIsFinal': False, 'currency1': 'BTC', 'currency2': 'USD', 'side': 'SELL', 'orderType': 'Limit', 'timeInForce': 'GTC', 'comment': None, 'rejectCode': None, 'rejectReason': None, 'initialOnHoldAmountCcy1': '0.00019000', 'initialOnHoldAmountCcy2': None, 'executedAmountCcy1': None, 'executedAmountCcy2': None, 'requestedAmountCcy1': '0.00019000', 'requestedAmountCcy2': None, 'feeAmount': '0.00000000', 'feeCurrency': 'USD', 'price': '67000.0', 'averagePrice': None, 'clientCreateTimestamp': 1770792877069, 'serverCreateTimestamp': 1770792877574, 'lastUpdateTimestamp': 1770792877772, 'expireTime': None, 'effectiveTime': None}]}
+
+
+{'ok': 'ok', 'data': {'convertedCurrency': 'USD', 'balancesPerAccounts': {'trade_test': {'USD': {'balance': '6.80125337', 'balanceOnHold': '0.00000000', 'balanceAvailable': '6.80125337', 'balanceInConvertedCurrency': '6.80125337'}, 'BTC': {'balance': '0.00019458', 'balanceOnHold': '0.00019000', 'balanceAvailable': '0.00000458', 'balanceInConvertedCurrency': '12.97831087'}}}}}
+
+
+
+Ордер сработал
+
+{'ok': 'ok', 'data': {'convertedCurrency': 'USD', 'balancesPerAccounts':
+{'trade_test': {'USD': {'balance': '19.49942837', 'balanceOnHold': '0.00000000', 'balanceAvailable': '19.49942837', 'balanceInConvertedCurrency': '19.49942837'}
+              , 'BTC': {'balance': '0.00000458', 'balanceOnHold': '0.00000000', 'balanceAvailable': '0.00000458', 'balanceInConvertedCurrency': '0.30687786'}}}}}
+
+
+#Транзакция
+ {'ok': 'ok', 'data': [
+ {'transactionId': '68799273', 'timestamp': '2026-02-11T07:34:34.331Z', 'accountId': 'trade_test',
+ 'type': 'commission', 'amount': '-0.03182500', 'details': 'Commission for orderId=2690264 for up112344963', 'currency': 'USD'},
+ {'transactionId': '68799267', 'timestamp': '2026-02-11T07:34:34.200Z', 'accountId': 'trade_test', 'type': 'trade', 'amount': '12.73000000', 'details': 'Trade orderId=2690264 for up112344963', 'currency': 'USD'}
+ , {'transactionId': '68799258', 'timestamp': '2026-02-11T07:34:34.200Z', 'accountId': 'trade_test', 'type': 'trade', 'amount': '-0.00019000', 'details': 'Trade orderId=2690264 for up112344963', 'currency': 'BTC'}
+
