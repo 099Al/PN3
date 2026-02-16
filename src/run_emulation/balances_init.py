@@ -9,15 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.database.connect import DataBase
 from src.database.models import Balance, Balance_Algo
 
-
-def _d(x: Any) -> Decimal:
-    """Безопасное приведение к Decimal (избегаем ошибок float)."""
-    if x is None:
-        return Decimal("0")
-    if isinstance(x, Decimal):
-        return x
-    return Decimal(str(x))
-
+from src.trade_utils.util_decimal import _d2 as _d
 
 async def init_balance(
     session: AsyncSession,
