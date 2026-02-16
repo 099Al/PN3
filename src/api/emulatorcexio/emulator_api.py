@@ -8,7 +8,7 @@ from sqlalchemy import select, desc
 
 from src.api.emulatorcexio.order_state import build_active_order, calc_quote_needed_for_buy
 from src.database.models import Im_Transaction
-from src.database.trade_queries.save_orders import save_active_order
+from src.database.trade_queries.set_orders import save_active_order
 # твои константы
 from src.trade_parameters import TradeConfig
 from src.trade_utils.date_unix import _format_iso_z
