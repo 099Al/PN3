@@ -31,7 +31,7 @@ class TradeConfig:
     BASE_MIN: float = 0.00042278
     QUOTE_MIN: float = 10.0
 
-    BUY_FEE: float = 0.18513
+    BUY_FEE: float = 0.25 # 0.18513
     SELL_FEE: float = 0.25
 
     MAKER_TAKER: float = 0.25

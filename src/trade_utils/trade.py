@@ -24,7 +24,7 @@ SELL_FEE = TradeConfig.SELL_FEE
 buy_maxBTC_v1 тоже верно высчитывает, при использовании X_for_buyBTC_v3
 
 """
-BUYBTC_VERSION=3
+BUYBTC_VERSION = 3
 X_FOR_BUY_VERSION = 3
 
 #Оставить n знаков после запятой
@@ -152,7 +152,7 @@ def buy_maxBTC_v2(X,price,comiss=None):
 
 
 #Величина получается больше, чем при maxBTC. Так же ордер может выставиться
-#Но по обраьной формуле X_for_buyBTC величина X будет больше
+#Но по обратной формуле X_for_buyBTC величина X будет больше
 def buy_maxBTC_v3(X,price,comiss=None):
     if comiss is None:
         comiss = BUY_FEE   # По этой формуле на брать комиссию 0.25
