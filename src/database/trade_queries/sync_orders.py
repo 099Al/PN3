@@ -9,7 +9,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.provider import ApiProvider
 from src.database.connect import DataBase
-from src.database.models import ActiveOrder, Balance, Balance_Algo, LogDoneTransactions
+from src.database.models import ActiveOrder, Balance, Balance_Algo, LogDoneTransactions, LogBalance, LogBalance_Algo
+from src.trade_utils.date_unix import utcnow_dt
 
 
 def _d(x: Any) -> Decimal:
@@ -93,6 +94,67 @@ async def _balance_apply(
         )
     )
     await session.execute(stmt)
+
+async def _save_balance_snapshot(session, order_id=None) -> int:
+    """
+    Копирует текущие значения из Balance в LogBalance как snapshot.
+    Возвращает кол-во записей.
+    """
+    snapshot_dt = utcnow_dt()
+
+    rows = (await session.execute(select(Balance))).scalars().all()
+
+    if not rows:
+        return 0
+
+    for b in rows:
+        session.add(
+            LogBalance(
+                curr=b.curr,
+                amount=b.amount or Decimal("0"),
+                reserved=b.reserved,
+                calc_amount=b.calc_amount or Decimal("0"),
+                calc_reserved=b.calc_reserved,
+                order_id=order_id,
+                snapshot_dt=snapshot_dt,
+            )
+        )
+    await session.commit()
+    return len(rows)
+
+
+async def _save_balance_algo_snapshot(session, algo_name, order_id=None) -> int:
+    """
+    Копирует текущие значения из Balance в LogBalance как snapshot.
+    Возвращает кол-во записей.
+    """
+    snapshot_dt = utcnow_dt()
+
+    rows = (await session.execute(
+        select(Balance_Algo)
+        .where(Balance_Algo.algo == algo_name)
+    )).scalars().all()
+
+    if not rows:
+        return 0
+
+    for b in rows:
+        session.add(
+            LogBalance_Algo(
+                algo=b.algo,
+                curr=b.curr,
+                amount=b.amount or Decimal("0"),
+                reserved=b.reserved,
+                calc_amount=b.calc_amount or Decimal("0"),
+                calc_reserved=b.calc_reserved,
+                order_id=order_id,
+                snapshot_dt=snapshot_dt,
+            )
+        )
+    await session.commit()
+    return len(rows)
+
+
 
 
 async def _balance_algo_apply(
@@ -226,7 +288,9 @@ async def sync_orders(*, account_id: str) -> dict:
             # commission в примере отрицательная -> в лог лучше положительное число комиссии
             commission_abs = abs(commission_sum)
 
-            for t in order_txs:
+            price = _d(order.price)
+
+            for t in order_txs:  #запись в транзакции на одну сделку состоит из 3х частей (BTC, USD, commission)
                 curr = str(t.get("currency"))
                 amt = _d(t.get("amount"))
                 typ = str(t.get("type") or "").lower()
@@ -234,6 +298,11 @@ async def sync_orders(*, account_id: str) -> dict:
                 # Баланс меняем для любого типа (trade/commission)
                 await _balance_apply(session, curr=curr, delta_amount=amt)
                 await _balance_algo_apply(session, algo=algo, curr=curr, delta_amount=amt)
+
+
+                await _save_balance_snapshot(session, order_id=oid)
+                await _save_balance_algo_snapshot(session, algo_name=algo, order_id=oid)
+
 
                 # --- C) логируем совершённые сделки ---
                 # В LogDoneTransactions пишем только trade (как "сделки"),
@@ -247,6 +316,7 @@ async def sync_orders(*, account_id: str) -> dict:
                         curr=curr,
                         amount=amt,
                         commission=commission_abs,
+                        price=price,
                         algo_name=algo,
                         tid=str(t.get("transactionId")),
                         order_side=side,  # enum sidetype принимает 'buy'/'sell'
