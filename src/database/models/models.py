@@ -128,6 +128,7 @@ class LogDoneTransactions(Base):
     curr: Mapped[str] = mapped_column(String(5))
     amount: Mapped[Decimal] = mapped_column(Numeric(15, 8))
     commission: Mapped[Decimal] = mapped_column(Numeric(15, 8))
+    price: Mapped[Decimal] = mapped_column(Numeric(15, 8))
     algo_name: Mapped[str] = mapped_column(String(20))
     tid: Mapped[str] = mapped_column(String(30))
     order_side: Mapped[str] = mapped_column(SideTypeEnum)
@@ -137,16 +138,25 @@ class LogDoneTransactions(Base):
 class LogBalance(Base):
     __tablename__ = "log_balance"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    date: Mapped[DateTime] = mapped_column(DateTime)
-    unix_date: Mapped[int] = mapped_column(Integer)
-    curr: Mapped[str] = mapped_column(String(5))
-    amount: Mapped[Decimal] = mapped_column(Numeric(15, 8))
-    algo_name: Mapped[str] = mapped_column(String(20))
-    tid: Mapped[str] = mapped_column(String(30))
-    activity: Mapped[str] = mapped_column(ActivityTypeEnum)
-    sys_date: Mapped[DateTime] = mapped_column(DateTime)
+    curr: Mapped[str] = mapped_column(String(5), primary_key=True,)
+    amount: Mapped[Decimal] = mapped_column(Numeric(15, 8), nullable=False, default=Decimal("0"),)
+    reserved: Mapped[Decimal] = mapped_column(Numeric(15, 8), nullable=True)
+    calc_amount: Mapped[Decimal] = mapped_column(Numeric(15, 8), nullable=True, default=Decimal("0"), )
+    calc_reserved: Mapped[Decimal] = mapped_column(Numeric(15, 8), nullable=True)
+    order_id: Mapped[str] = mapped_column(String(20), nullable=True)
+    snapshot_dt: Mapped[DateTime] = mapped_column(DateTime)
 
+
+class LogBalance_Algo(Base):
+    __tablename__ = "log_balance_algo"
+
+    algo: Mapped[str] = mapped_column(String(20), primary_key=True,)
+    curr: Mapped[str] = mapped_column(String(5), primary_key=True, )
+    amount_limit: Mapped[Decimal] = mapped_column(Numeric(15, 8), nullable=False, default=Decimal("0"), )
+    amount: Mapped[Decimal] = mapped_column(Numeric(15, 8), nullable=False, default=Decimal("0"), )
+    reserved: Mapped[Decimal] = mapped_column(Numeric(15, 8), nullable=True)
+    order_id: Mapped[str] = mapped_column(String(20), nullable=True)
+    snapshot_dt: Mapped[DateTime] = mapped_column(DateTime)
 
 class LogOrders(Base):
     __tablename__ = "log_orders"
