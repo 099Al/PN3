@@ -25,6 +25,9 @@ class Algo_1:
 
     position_curr: какая валюта считается "позиционной" (обычно base, например BTC)
     """
+
+    # TODO: заменить методы на метьоды из Api и trade request. Чтобы коррекетро считался баланс
+
     account_id: str
     algo_name: str
     pair: str  # "BTC/USD"
