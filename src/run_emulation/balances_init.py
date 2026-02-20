@@ -4,10 +4,11 @@ from __future__ import annotations
 from decimal import Decimal
 from typing import Iterable, Mapping, Any
 
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database.connect import DataBase
-from src.database.models import Balance, Balance_Algo
+from src.database.models import Balance, Balance_Algo, LogBalance_Algo, LogBalance, LogDoneTransactions
 
 from src.trade_utils.util_decimal import _d2 as _d
 
@@ -37,6 +38,10 @@ async def init_balance(
     usd_reserved = _d(usd_reserved)
     btc_amount = _d(btc_amount)
     btc_reserved = _d(btc_reserved)
+
+    await _truncate_table(LogBalance_Algo.__tablename__, cascade=True)
+    await _truncate_table(LogBalance.__tablename__, cascade=True)
+    await _truncate_table(LogDoneTransactions.__tablename__, cascade=True)
 
     # --- 1) upsert balance ---
     await _upsert_balance(session, "USD", usd_amount, usd_reserved)
@@ -135,6 +140,22 @@ async def _upsert_balance_algo(
         row.amount_limit = amount_limit
         if row.reserved is None:
             row.reserved = Decimal("0")
+
+async def _truncate_table(table_name: str, *, cascade: bool = False) -> None:
+    """
+    Полностью очищает таблицу LogDoneTransactions.
+    cascade=True → добавляет CASCADE (если есть FK-зависимости)
+    """
+
+    db = DataBase()
+
+    async with db.get_session_maker()() as session:
+        sql = f"TRUNCATE TABLE {table_name}"
+        if cascade:
+            sql += " CASCADE"
+
+        await session.execute(text(sql))
+        await session.commit()
 
 
 async def set_balance(l_algos):
