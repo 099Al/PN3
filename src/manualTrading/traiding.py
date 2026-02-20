@@ -30,7 +30,7 @@ if __name__ == '__main__':
     # res = asyncio.run(api.cancel_order(OrderId=2698772))
     #print(res)
 
-    res = asyncio.run(api.set_order(amount=0.00022332, price=67000, sell_buy='BUY'))
+    #res = asyncio.run(api.set_order(amount=0.00022332, price=67000, sell_buy='BUY'))
 
     #res = asyncio.run(api.set_order(amount=0.00022142, price=68110.0, sell_buy='SELL'))
     print(res)
@@ -47,8 +47,8 @@ if __name__ == '__main__':
 
     #res = asyncio.run(api.get_myfee())
 
-    #res = asyncio.run(api.transaction_history(accountId='trade_test'))
-    #print('transactions',res)
+    res = asyncio.run(api.transaction_history(accountId='trade_test'))
+    print('transactions',res)
 
     # {'bestBid': '68560.6', 'bestAsk': '68579.6'}
     # {'bestBid': '68160.6', 'bestAsk': '68175.5'}
