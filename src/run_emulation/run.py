@@ -1,8 +1,8 @@
 import asyncio
 from datetime import datetime
 
-from src.algos.first_algo import Algo_1
-from src.algos.first_algo.config import FIRST_ALGO_CONFIG
+from src.algos.first_algo.config import FIRST_ALGO_NAME
+from src.algos.registry import build_algorithm
 from src.api.emulatorcexio.emulator_api import EmulatorApi
 from src.run_emulation.balances_init import set_balance
 from src.run_emulation.settings import ALGO_BALANCE_LIMITS, EMULATION_SETTINGS
@@ -20,7 +20,7 @@ api = EmulatorApi(
 
 
 def build_selected_algo():
-    return Algo_1(**dict(FIRST_ALGO_CONFIG))
+    return build_algorithm(FIRST_ALGO_NAME)
 
 
 def traiding():
