@@ -1,0 +1,131 @@
+# {'ok': 'ok', 'data': {'accountId': 'trade_test'}}
+
+
+#set order answer  REJECTED
+# {'ok': 'ok', 'data': {'messageType': 'executionReport', 'clientId': 'up112344963', 'orderId': 'NONE', 'clientOrderId': '1770093125', 'accountId': 'trade_test', 'status': 'REJECTED', 'currency1': 'BTC', 'currency2': 'USD', 'side': 'BUY', 'executedAmountCcy1': '0.00000000', 'executedAmountCcy2': '0.00000000', 'requestedAmountCcy1': '0.00019188', 'requestedAmountCcy2': None, 'orderType': 'Limit', 'timeInForce': 'GTC', 'comment': None, 'executionType': 'Rejected', 'executionId': '1762740627955_101_227453', 'transactTime': '2026-02-03T04:32:06.831Z', 'expireTime': None, 'effectiveTime': None, 'price': '78025.6', 'averagePrice': None, 'feeAmount': None, 'feeCurrency': None, 'orderRejectReason': '{"code":424,"reason":"ClientTime should be within 30000 ms timeframe. But difference was 1768323033704 ms. ClientTime 19700121-11:41:33.125, ServerTime 20260203-04:32:06.829"}', 'rejectCode': 424, 'rejectReason': 'ClientTime should be within 30000 ms timeframe. But difference was 1768323033704 ms. ClientTime 19700121-11:41:33.125, ServerTime 20260203-04:32:06.829', 'clientCreateTimestamp': 1770093125, 'serverCreateTimestamp': 1770093126814}}
+
+# set order OK
+# {'ok': 'ok', 'data': {'messageType': 'executionReport', 'clientId': 'up112344963', 'orderId': '2675648', 'clientOrderId': '1770093248850', 'accountId': 'trade_test', 'status': 'NEW', 'currency1': 'BTC', 'currency2': 'USD', 'side': 'BUY', 'executedAmountCcy1': '0.00000000', 'executedAmountCcy2': '0.00000000', 'requestedAmountCcy1': '0.00019188', 'requestedAmountCcy2': None, 'orderType': 'Limit', 'timeInForce': 'GTC', 'comment': None, 'executionType': 'New', 'executionId': '1762740627955_101_227454', 'transactTime': '2026-02-03T04:34:10.233Z', 'expireTime': None, 'effectiveTime': None, 'price': '78025.6', 'averagePrice': None, 'feeAmount': '0.00000000', 'feeCurrency': 'USD', 'clientCreateTimestamp': 1770093248850, 'serverCreateTimestamp': 1770093249848, 'lastUpdateTimestamp': 1770093250227}}
+# now 1770093296163 ~ 03.02.2026 04:34:56
+# 'requestedAmountCcy1': '0.00019188'
+# 'price': '78025.6'
+btc max= 0.00019188 price= 78025.6 x= 15.00
+
+# open orders
+# {'ok': 'ok', 'data': [{'orderId': '2675648', 'clientOrderId': '1770093248850', 'clientId': 'up112344963', 'accountId': 'trade_test', 'status': 'NEW', 'statusIsFinal': False, 'currency1': 'BTC', 'currency2': 'USD', 'side': 'BUY', 'orderType': 'Limit', 'timeInForce': 'GTC', 'comment': None, 'rejectCode': None, 'rejectReason': None, 'initialOnHoldAmountCcy1': None, 'initialOnHoldAmountCcy2': '15.00898101', 'executedAmountCcy1': None, 'executedAmountCcy2': None, 'requestedAmountCcy1': '0.00019188', 'requestedAmountCcy2': None, 'feeAmount': '0.00000000', 'feeCurrency': 'USD', 'price': '78025.6', 'averagePrice': None, 'clientCreateTimestamp': 1770093248850, 'serverCreateTimestamp': 1770093249848, 'lastUpdateTimestamp': 1770093250442, 'expireTime': None, 'effectiveTime': None}]}
+'initialOnHoldAmountCcy2': '15.00898101'
+
+# account_status
+# {'ok': 'ok', 'data': {'convertedCurrency': 'USD', 'balancesPerAccounts': {'': {'USD': {'balance': '0.00000000', 'balanceOnHold': '0.00000000', 'balanceAvailable': '0.00000000'}, 'BTC': {'balance': '0.00000000', 'balanceOnHold': '0.00000000', 'balanceAvailable': '0.00000000'}}, 'test_trader2': {'USD': {'balance': '0.00000000', 'balanceOnHold': '0.00000000', 'balanceAvailable': '0.00000000'}}, 'trade_test': {'USD': {'balance': '20.00000000', 'balanceOnHold': '15.00898101', 'balanceAvailable': '4.99101899', 'balanceInConvertedCurrency': '20.00000000'}, 'BTC': {'balance': '0.00000000', 'balanceOnHold': '0.00000000', 'balanceAvailable': '0.00000000'}}}}}
+# test_traider
+{'ok': 'ok', 'data': {'convertedCurrency': 'USD', 'balancesPerAccounts': {'trade_test': {'USD': {'balance': '20.00000000', 'balanceOnHold': '0.00000000', 'balanceAvailable': '20.00000000', 'balanceInConvertedCurrency': '20.00000000'}, 'BTC': {'balance': '0.00000000', 'balanceOnHold': '0.00000000', 'balanceAvailable': '0.00000000'}}}}}
+
+# transaction_history
+# {'ok': 'ok', 'data': [{'transactionId': '68374471', 'timestamp': '2026-02-03T04:08:12.730Z', 'accountId': 'trade_test', 'type': 'deposit', 'amount': '20.00000000', 'details': 'Deposit fundingId=2802107 clientId=up112344963 walletTxId=81595353455', 'currency': 'USD'}]}
+
+
+# api.cancel_order(2675648)
+# {'ok': 'ok', 'data': {}}
+
+#После снятия open_orders
+# {'ok': 'ok', 'data': []}
+
+
+===========================
+# Покупка за   (0.00019033 по price=68175.0)  DsВыставлен ордер
+# 'ok': 'ok', 'data': {'messageType': 'executionReport', 'clientId': 'up112344963', 'orderId': '2690028', 'clientOrderId': '1770783381748', 'accountId': 'trade_test', 'status': 'NEW', 'currency1': 'BTC', 'currency2': 'USD', 'side': 'BUY', 'executedAmountCcy1': '0.00000000', 'executedAmountCcy2': '0.00000000', 'requestedAmountCcy1': '0.00019033', 'requestedAmountCcy2': None, 'orderType': 'Limit', 'timeInForce': 'GTC', 'comment': None, 'executionType': 'New', 'executionId': '1770356297097_101_8540', 'transactTime': '2026-02-11T04:16:22.243Z', 'expireTime': None, 'effectiveTime': None, 'price': '68175.0', 'averagePrice': None, 'feeAmount': '0.00000000', 'feeCurrency': 'USD', 'clientCreateTimestamp': 1770783381748, 'serverCreateTimestamp': 1770783382134, 'lastUpdateTimestamp': 1770783382238}}
+# 'requestedAmountCcy1': '0.00019033'
+# 'price': '68175.0'
+
+
+
+# Но была куплена за 68035.6 т.к. цена упала до постановки ордера
+# trade_hist:
+{'tradeId': '1770783382381-0', 'dateISO': '2026-02-11T04:16:22.381Z', 'side': 'BUY', 'price': '68035.6', 'amount': '0.00019033'}
+
+# Покупка произошла  account_status
+{'ok': 'ok', 'data': {'convertedCurrency': 'USD', 'balancesPerAccounts': {'': {'USD': {'balance': '0.00000000', 'balanceOnHold': '0.00000000', 'balanceAvailable': '0.00000000'}, 'BTC': {'balance': '0.00000000', 'balanceOnHold': '0.00000000', 'balanceAvailable': '0.00000000'}}, 'test_trader2': {'USD': {'balance': '0.00000000', 'balanceOnHold': '0.00000000', 'balanceAvailable': '0.00000000'}}, 'trade_test': {'USD': {'balance': '7.01841122', 'balanceOnHold': '0.00000000', 'balanceAvailable': '7.01841122', 'balanceInConvertedCurrency': '7.01841122'}, 'BTC': {'balance': '0.00019033', 'balanceOnHold': '0.00000000', 'balanceAvailable': '0.00019033', 'balanceInConvertedCurrency': '12.94445749'}}}}}
+# 'BTC': {'balance': '0.00019033'
+# {'USD': {'balance': '7.01841122'
+
+# 20 - 7.01841122 = 12.98158878
+
+# Транзакция после покупки
+# {'ok': 'ok', 'data': [{'transactionId': '68790744', 'timestamp': '2026-02-11T04:16:22.502Z', 'accountId': 'trade_test', 'type': 'commission', 'amount': '-0.03237304', 'details': 'Commission for orderId=2690028 for up112344963', 'currency': 'USD'}, {'transactionId': '68790738', 'timestamp': '2026-02-11T04:16:22.419Z', 'accountId': 'trade_test', 'type': 'trade', 'amount': '0.00019033', 'details': 'Trade orderId=2690028 for up112344963', 'currency': 'BTC'}, {'transactionId': '68790729', 'timestamp': '2026-02-11T04:16:22.419Z', 'accountId': 'trade_test', 'type': 'trade', 'amount': '-12.94921574', 'details': 'Trade orderId=2690028 for up112344963', 'currency': 'USD'}, {'transactionId': '68374471', 'timestamp': '2026-02-03T04:08:12.730Z', 'accountId': 'trade_test', 'type': 'deposit', 'amount': '20.00000000', 'details': 'Deposit fundingId=2802107 clientId=up112344963 walletTxId=81595353455', 'currency': 'USD'}]}
+# 'commission', 'amount': '-0.03237304'
+# 'type': 'trade', 'amount': '0.00019033'
+# 'type': 'trade', 'amount': '-12.94921574'
+
+# 12,94921574 + 0,03237304 = 12,98158878   - реально списалось
+
+
+======================================
+
+
+============SELL====================
+{'ok': 'ok', 'data': {'messageType': 'executionReport', 'clientId': 'up112344963', 'orderId': '2690120', 'clientOrderId': '1770788481706', 'accountId': 'trade_test', 'status': 'NEW', 'currency1': 'BTC', 'currency2': 'USD', 'side': 'SELL', 'executedAmountCcy1': '0.00000000', 'executedAmountCcy2': '0.00000000', 'requestedAmountCcy1': '0.00019000', 'requestedAmountCcy2': None, 'orderType': 'Limit', 'timeInForce': 'GTC', 'comment': None, 'executionType': 'New', 'executionId': '1770356297097_101_8685', 'transactTime': '2026-02-11T05:41:22.315Z', 'expireTime': None, 'effectiveTime': None, 'price': '79000.0', 'averagePrice': None, 'feeAmount': '0.00000000', 'feeCurrency': 'USD', 'clientCreateTimestamp': 1770788481706, 'serverCreateTimestamp': 1770788482228, 'lastUpdateTimestamp': 1770788482309}}
+amount=0.00019, price=79000.0
+'requestedAmountCcy1': '0.00019000'
+
+#balance
+{'ok': 'ok', 'data': {'convertedCurrency': 'USD', 'balancesPerAccounts': {'': {'USD': {'balance': '0.00000000', 'balanceOnHold': '0.00000000', 'balanceAvailable': '0.00000000'}, 'BTC': {'balance': '0.00000000', 'balanceOnHold': '0.00000000', 'balanceAvailable': '0.00000000'}}, 'test_trader2': {'USD': {'balance': '0.00000000', 'balanceOnHold': '0.00000000', 'balanceAvailable': '0.00000000'}}, 'trade_test': {'USD': {'balance': '7.01841122', 'balanceOnHold': '0.00000000', 'balanceAvailable': '7.01841122', 'balanceInConvertedCurrency': '7.01841122'}, 'BTC': {'balance': '0.00019033', 'balanceOnHold': '0.00019000', 'balanceAvailable': '0.00000033', 'balanceInConvertedCurrency': '12.83975696'}}}}}
+{'USD': {'balance': '7.01841122', 'balanceOnHold': '0.00000000', 'balanceAvailable': '7.01841122'
+'BTC': {'balance': '0.00019033', 'balanceOnHold': '0.00019000', 'balanceAvailable': '0.00000033'
+
+
+
+
+https://wallet.cex.io/dashboard/assets
+https://wallet.cex.io/dashboard/transactions
+
+
+Пример
+==============================================================================================
+---btc max= 0.00022332 price= 67000 x= 15.00  - Покупка на 15
+ "USD": {
+          "balance": "19.69232091",
+          "balanceOnHold": "14.99984610",  # 15 - сумма зарезервировалась
+          "balanceAvailable": "4.69247481",
+          "balanceInConvertedCurrency": "19.69232091"
+
+
+Ордер сработал
+
+{
+  "ok": "ok",
+  "data": {
+    "convertedCurrency": "USD",
+    "balancesPerAccounts": {
+      "trade_test": {
+        "USD": {
+          "balance": "4.69247481",              #Зарезервированная сумма вся списалась
+          "balanceOnHold": "0.00000000",
+          "balanceAvailable": "4.69247481",
+          "balanceInConvertedCurrency": "4.69247481"
+        },
+        "BTC": {
+          "balance": "0.00022332",         # Купили столько сколько заказали
+          "balanceOnHold": "0.00000000",
+          "balanceAvailable": "0.00022332",
+          "balanceInConvertedCurrency": "15.15259698"
+        }
+      }
+    }
+  }
+}
+
+Транзакция
+
+  {'transactionId': '69085303', 'timestamp': '2026-02-17T14:44:00.420Z', 'accountId': 'trade_test'
+ , 'type': 'commission', 'amount': '-0.03740610', 'details': 'Commission for orderId=2698773 for up112344963', 'currency': 'USD'}
+
+, {'transactionId': '69085293', 'timestamp': '2026-02-17T14:44:00.342Z', 'accountId':
+  , 'type': 'trade', 'amount': '0.00022332', 'details': 'Trade orderId=2698773 for up112344963', 'currency': 'BTC'}
+
+, {'transactionId': '69085278', 'timestamp': '2026-02-17T14:44:00.342Z', 'accountId': 'trade_test'
+, 'type': 'trade', 'amount': '-14.96244000', 'details': 'Trade orderId=2698773 for up112344963', 'currency': 'USD'}
+
+
+14,96244000 + 0,03740610 = 14,9998461  ~15
+
+================================================================================================

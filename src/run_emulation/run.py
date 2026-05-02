@@ -1,8 +1,10 @@
 import asyncio
 from datetime import datetime
+from decimal import Decimal
 
 from numpy.ma.core import get_mask
 
+from src.algos.algo_1 import Algo_1
 from src.api.emulatorcexio.emulator_api import EmulatorApi
 from src.run_emulation.balances_init import set_balance
 
@@ -23,6 +25,18 @@ period = 60
 api = EmulatorApi('test_user', 1689533488861)
 
 
+algo_1 = Algo_1(
+    account_id="trade_test",
+    algo_name="algo_1",
+    pair="BTC/USD",
+    amount=Decimal("0.005"),
+    price1=Decimal("30000"),   # BUY
+    price2=Decimal("31000"),   # SELL
+    position_curr="BTC",
+)
+
+
+
 def traiding():
 
     t_start_unix = int(datetime.strptime(t_start, '%Y-%m-%d %H:%M:%S').timestamp())
@@ -39,21 +53,11 @@ def traiding():
         #В случае эмуляции  проверяем ордера на исполнение
         asyncio.run(emulation_check_orders(curr_unix_time))
 
-        # get data from source and save to DB
-        asyncio.run(get_new_data())
+        # 2) подгружаем тики и пишем в CexHistoryTik
+        asyncio.run(get_new_data(pair="BTC/USD", unix_curr_time=curr_unix_time))
 
-        # После установки ордера заносим ответ в active_orders
-        # save_active_order()
-
-        # Запрос к источнику, получить список ордеров
-        # И убрать закрытые
-        # Если что-то исчезло, то запрос transaction по ордеру (мог сработать)
-
-        # так же делать запрос к балансу
-
-        # менять Balance после выставления ордеров и после исполнения
-        # так же сравнивать с источником  (добавить два стобца)
-
+        # 3) запускаем алгоритм (ставит BUY/SELL через algo_set_order)
+        asyncio.run(algo_1.run())
 
         #check orders
         #check_orders(curr_unix_time)
