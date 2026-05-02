@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from decimal import Decimal
 
 
-@dataclass
+@dataclass(kw_only=True)
 class BaseAlgorithm(ABC):
     account_id: str
     algo_name: str

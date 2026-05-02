@@ -8,7 +8,6 @@ from sqlalchemy import select, desc
 
 from src.api.emulatorcexio.order_state import build_active_order, calc_quote_needed_for_buy
 from src.database.models import Im_Transaction
-from src.database.trade_queries.set_orders import save_active_order
 # твои константы
 from src.trade_parameters import TradeConfig
 from src.trade_utils.date_unix import _format_iso_z
@@ -17,7 +16,6 @@ from src.trade_utils.util_decimal import _fmt8, _d
 BASE_MIN = TradeConfig.BASE_MIN
 
 # если хочешь сохранить генератор id как сейчас
-from perfomance.cache.values import ValuesOrder
 from src.api.base_api import BaseApi, JsonDict, PairsList
 from src.api.emulatorcexio.em_requests import EmulatorHistoryRepo, EmulatorOrdersRepo, EmulatorBalanceRepo
 from src.database.connect import DataBase
@@ -63,7 +61,7 @@ class EmulatorApi(BaseApi):
     async def open_orders(self, params: Optional[JsonDict] = None) -> JsonDict:
         async with self.db.get_session_maker()() as session:
             repo = EmulatorOrdersRepo(session)
-            orders = await repo.list_active_orders()
+            orders = await repo.list_active_orders(self.account_id)
 
             data = []
             for o in orders:
@@ -122,7 +120,7 @@ class EmulatorApi(BaseApi):
         async with self.db.get_session_maker()() as session:
             repo = EmulatorOrdersRepo(session)
 
-            bal_amount = await repo.get_balance_amount(base)
+            bal_amount = await repo.get_balance_amount(self.account_id, base)
             bal_amount = Decimal(str(bal_amount or 0))
 
             if bal_amount < amount:
@@ -142,7 +140,7 @@ class EmulatorApi(BaseApi):
             order = await repo.upsert_active_order(order)  # сохраняем в БД
 
             # reserve base (пример: уменьшаем amount, увеличиваем reserved)
-            await repo.update_balance(curr=base, amount_delta=-order.reserved, reserved_delta=order.reserved)
+            await repo.update_balance(self.account_id, curr=base, amount_delta=-order.reserved, reserved_delta=order.reserved)
 
             res = self._new_order_response(order_id=order.id, side="SELL", base=base, quote=quote, amount=amount, price=price, clientOrderId=clientOrderId)
 
@@ -171,7 +169,7 @@ class EmulatorApi(BaseApi):
         async with self.db.get_session_maker()() as session:
             repo = EmulatorOrdersRepo(session)
 
-            bal_quote = await repo.get_balance_amount(quote)
+            bal_quote = await repo.get_balance_amount(self.account_id, quote)
             bal_quote = Decimal(str(bal_quote or 0))
 
             if bal_quote < need_quote:
@@ -189,7 +187,7 @@ class EmulatorApi(BaseApi):
             order = await repo.upsert_active_order(order)
 
             # reserve quote
-            await repo.update_balance(curr=quote, amount_delta=-need_quote, reserved_delta=need_quote)
+            await repo.update_balance(self.account_id, curr=quote, amount_delta=-need_quote, reserved_delta=need_quote)
 
             res = self._new_order_response(order_id=order.id, side="BUY", base=base, quote=quote, amount=amount, price=price, clientOrderId=clientOrderId)
 
@@ -214,6 +212,7 @@ class EmulatorApi(BaseApi):
                 if side == "SELL":
                     # SELL резервируется base (BTC)
                     await repo.update_balance(
+                        self.account_id,
                         curr=order.base,
                         amount_delta=reserved,
                         reserved_delta=-reserved,
@@ -221,6 +220,7 @@ class EmulatorApi(BaseApi):
                 elif side == "BUY":
                     # BUY резервируется quote (USD)
                     await repo.update_balance(
+                        self.account_id,
                         curr=order.quote,
                         amount_delta=reserved,
                         reserved_delta=-reserved,
@@ -268,7 +268,7 @@ class EmulatorApi(BaseApi):
             last_price = await hist_repo.get_last_price_at(t)
             last_price = _d(last_price)  # если None -> 0
 
-            rows = await bal_repo.get_balance(self.username)
+            rows = await bal_repo.get_balance(self.account_id)
 
             per_account: Dict[str, Dict[str, dict]] = {}
 
@@ -306,7 +306,7 @@ class EmulatorApi(BaseApi):
     async def transaction_history(self, accountId: str) -> JsonDict:
         async with self.db.get_session_maker()() as session:
             repo = EmulatorHistoryRepo(session)
-            rows = await repo.get_transactions(self.username)
+            rows = await repo.get_transactions(accountId)
 
             data = []
             for row in rows:
@@ -427,6 +427,7 @@ class EmulatorApi(BaseApi):
 
 
 async def main():
+    from src.database.trade_queries.set_orders import save_active_order
 
 
     api = EmulatorApi('test_user', 1689533488861, account_id='trade_test')
