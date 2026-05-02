@@ -21,6 +21,7 @@ from perfomance.cache.values import ValuesOrder
 from src.api.base_api import BaseApi, JsonDict, PairsList
 from src.api.emulatorcexio.em_requests import EmulatorHistoryRepo, EmulatorOrdersRepo, EmulatorBalanceRepo
 from src.database.connect import DataBase
+from src.run_emulation.settings import EMULATION_SETTINGS
 
 
 class EmulatorApi(BaseApi):
@@ -434,7 +435,7 @@ async def main():
     # res = asyncio.run(api.open_orders())
 
     res = await api.set_order(0.005, 30000, "BUY")
-    await save_active_order(res, algo="algo_1")
+    await save_active_order(res, algo=str(EMULATION_SETTINGS["selected_algo_name"]))
 
     #res = await api.cancel_order(14)
 

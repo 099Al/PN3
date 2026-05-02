@@ -21,6 +21,7 @@ from src.trade_utils.date_unix import utcnow_dt, parse_iso_z_to_naive
 
 """
 async def algo_set_order(amount, price, sell_buy, accountId, algo_name):
+    algo_name = _normalize_algo_name(algo_name)
 
     api_provider = ApiProvider.get(account_id=accountId)
 
@@ -35,6 +36,7 @@ async def save_active_order(
     *,
     algo: str = "",
 ) -> None:
+    algo = _normalize_algo_name(algo)
 
     db = DataBase()
     async with db.get_session_maker()() as session:
@@ -109,6 +111,12 @@ async def save_active_order(
 
         await session.commit()
 
+
+def _normalize_algo_name(algo_name: str) -> str:
+    value = str(algo_name).strip()
+    if not value:
+        raise ValueError("Algorithm name must be provided for order persistence.")
+    return value
 
 
 def _calc_reserved(side: str, amount: Decimal, price: Decimal) -> Decimal:

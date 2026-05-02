@@ -1,14 +1,18 @@
 import asyncio
 from datetime import datetime
 
-from src.algos.first_algo.config import FIRST_ALGO_NAME
-from src.algos.registry import build_algorithm
+from src.algos.registry import (
+    build_algorithm,
+    get_algorithm_definition,
+    get_registered_balance_limits,
+)
 from src.api.emulatorcexio.emulator_api import EmulatorApi
 from src.run_emulation.balances_init import set_balance
-from src.run_emulation.settings import ALGO_BALANCE_LIMITS, EMULATION_SETTINGS
+from src.run_emulation.settings import EMULATION_SETTINGS
 
 from src.api.emulatorcexio.matcher import emulation_check_orders
 from src.database.trade_queries.get_new_history import get_new_data
+
 
 t_start = EMULATION_SETTINGS["t_start"]
 period = int(EMULATION_SETTINGS["period"])
@@ -19,8 +23,14 @@ api = EmulatorApi(
 )
 
 
+def get_selected_algo_name() -> str:
+    selected_algo_name = str(EMULATION_SETTINGS["selected_algo_name"])
+    get_algorithm_definition(selected_algo_name)
+    return selected_algo_name
+
+
 def build_selected_algo():
-    return build_algorithm(FIRST_ALGO_NAME)
+    return build_algorithm(get_selected_algo_name())
 
 
 def traiding():
@@ -60,7 +70,7 @@ def traiding():
 
 if __name__ == '__main__':
 
-    # asyncio.run(set_balance(ALGO_BALANCE_LIMITS))
+    # asyncio.run(set_balance(get_registered_balance_limits()))
 
     # asyncio.run(get_new_data(pair='BTC/USD', unix_curr_time=1690089694 * 1000))
 

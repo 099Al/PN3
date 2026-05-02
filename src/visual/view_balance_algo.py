@@ -6,6 +6,7 @@ from sqlalchemy import select
 
 from src.database.connect import DataBase
 from src.database.models import LogBalance_Algo
+from src.run_emulation.settings import EMULATION_SETTINGS
 
 
 async def plot_log_balance_algo(
@@ -61,7 +62,7 @@ async def plot_log_balance_algo(
 if __name__ == '__main__':
     asyncio.run(
         plot_log_balance_algo(
-            algo="algo_1",
+            algo=str(EMULATION_SETTINGS["selected_algo_name"]),
             curr="USD",
             date_from=datetime(2026, 1, 1),
             date_to=datetime(2026, 12, 31),

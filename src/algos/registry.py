@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
+from src.algos.base import BaseAlgorithm
 from src.algos.first_algo import Algo_1
 from src.algos.first_algo.config import (
     FIRST_ALGO_BALANCE_LIMIT,
@@ -14,7 +15,7 @@ from src.algos.first_algo.config import (
 @dataclass(frozen=True)
 class AlgorithmDefinition:
     name: str
-    algo_class: type
+    algo_class: type[BaseAlgorithm]
     default_config: dict[str, Any]
     balance_limit: dict[str, Any]
 
@@ -36,9 +37,16 @@ def get_algorithm_definition(algo_name: str) -> AlgorithmDefinition:
         raise KeyError(f"Algorithm {algo_name!r} is not registered") from exc
 
 
-def build_algorithm(algo_name: str, **overrides: Any):
+def get_registered_algorithm_names() -> list[str]:
+    return list(ALGORITHM_REGISTRY.keys())
+
+
+def get_registered_balance_limits() -> list[dict[str, Any]]:
+    return [dict(definition.balance_limit) for definition in ALGORITHM_REGISTRY.values()]
+
+
+def build_algorithm(algo_name: str, **overrides: Any) -> BaseAlgorithm:
     definition = get_algorithm_definition(algo_name)
     algo_config = dict(definition.default_config)
     algo_config.update(overrides)
     return definition.algo_class(**algo_config)
-

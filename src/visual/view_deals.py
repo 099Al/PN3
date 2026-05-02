@@ -10,6 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database.connect import DataBase
 from src.database.models import CexHistoryTik, LogDoneTransactions
+from src.run_emulation.settings import EMULATION_SETTINGS
 
 
 def _parse_dt(s: str | datetime) -> datetime:
@@ -127,6 +128,6 @@ if __name__ == "__main__":
         plot_ticks_with_my_trades(
             date_from="2026-02-10 00:00:00",
             date_to="2026-02-11 23:59:59",
-            algo_name="algo_1",
+            algo_name=str(EMULATION_SETTINGS["selected_algo_name"]),
         )
     )

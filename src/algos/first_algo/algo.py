@@ -7,6 +7,7 @@ from typing import Optional
 from sqlalchemy import desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.algos.base import BaseAlgorithm
 from src.database.connect import DataBase
 from src.database.models import ActiveOrder, CexHistoryTik
 from src.database.trade_queries.set_orders import algo_set_order
@@ -17,7 +18,7 @@ def _d(x) -> Decimal:
 
 
 @dataclass
-class Algo_1:
+class Algo_1(BaseAlgorithm):
     """
     Простейшая логика:
     - если нет позиции -> BUY по price1
@@ -25,14 +26,8 @@ class Algo_1:
 
     position_curr: какая валюта считается "позиционной" (обычно base, например BTC)
     """
-
-    account_id: str
-    algo_name: str
-    pair: str
-    amount: Decimal
     price1: Decimal
     price2: Decimal
-    position_curr: str = "BTC"
 
     async def _last_price(self, session: AsyncSession) -> Optional[Decimal]:
         stmt = select(CexHistoryTik.price).order_by(desc(CexHistoryTik.unixdate)).limit(1)
@@ -92,4 +87,3 @@ class Algo_1:
                     accountId=self.account_id,
                     algo_name=self.algo_name,
                 )
-
