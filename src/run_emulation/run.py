@@ -1,43 +1,30 @@
 import asyncio
 from datetime import datetime
-from decimal import Decimal
 
-from numpy.ma.core import get_mask
-
-from src.algos.algo_1 import Algo_1
+from src.algos.first_algo import Algo_1
+from src.algos.first_algo.config import FIRST_ALGO_CONFIG
 from src.api.emulatorcexio.emulator_api import EmulatorApi
 from src.run_emulation.balances_init import set_balance
+from src.run_emulation.settings import ALGO_BALANCE_LIMITS, EMULATION_SETTINGS
 
 from src.api.emulatorcexio.matcher import emulation_check_orders
 from src.database.trade_queries.get_new_history import get_new_data
 
-l_algos = [
-    {"name": "algo_1", "usd": 100, "btc": 1},
-    {"name": "algo_2", "usd": 0,   "btc": 0.2},
-]
+t_start = EMULATION_SETTINGS["t_start"]
+period = int(EMULATION_SETTINGS["period"])
 
-t_start = '2023-07-22 15:00:00'
-
-period = 60
-
-
-
-api = EmulatorApi('test_user', 1689533488861)
-
-
-algo_1 = Algo_1(
-    account_id="trade_test",
-    algo_name="algo_1",
-    pair="BTC/USD",
-    amount=Decimal("0.005"),
-    price1=Decimal("30000"),   # BUY
-    price2=Decimal("31000"),   # SELL
-    position_curr="BTC",
+api = EmulatorApi(
+    EMULATION_SETTINGS["api_user"],
+    EMULATION_SETTINGS["api_start_time"],
 )
 
 
+def build_selected_algo():
+    return Algo_1(**dict(FIRST_ALGO_CONFIG))
+
 
 def traiding():
+    algo = build_selected_algo()
 
     t_start_unix = int(datetime.strptime(t_start, '%Y-%m-%d %H:%M:%S').timestamp())
 
@@ -57,7 +44,7 @@ def traiding():
         asyncio.run(get_new_data(pair="BTC/USD", unix_curr_time=curr_unix_time))
 
         # 3) запускаем алгоритм (ставит BUY/SELL через algo_set_order)
-        asyncio.run(algo_1.run())
+        asyncio.run(algo.run())
 
         #check orders
         #check_orders(curr_unix_time)
@@ -73,7 +60,7 @@ def traiding():
 
 if __name__ == '__main__':
 
-    # asyncio.run(set_balance(l_algos))
+    # asyncio.run(set_balance(ALGO_BALANCE_LIMITS))
 
     # asyncio.run(get_new_data(pair='BTC/USD', unix_curr_time=1690089694 * 1000))
 
