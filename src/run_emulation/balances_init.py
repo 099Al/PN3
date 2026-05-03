@@ -9,6 +9,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database.connect import DataBase
 from src.database.models import Balance, Balance_Algo, LogBalance_Algo, LogBalance, LogDoneTransactions
+from src.algos.registry import get_registered_initial_balance_algos
+from src.run_emulation.settings import EMULATION_SETTINGS
 
 from src.trade_utils.util_decimal import _d2 as _d
 
@@ -27,10 +29,10 @@ async def init_balance(
        BTC: amount=1,   reserved=0
 
     2) Заносит список алгоритмов в balance_algo:
-       - usd и btc пишет в amount_limit
+       - usd и btc пишет в allocation_limit
        - amount оставляет 0 (по умолчанию), reserved = 0
 
-    3) Перед вставкой проверяет, что сумма лимитов по USD (amount_limit)
+    3) Перед вставкой проверяет, что сумма лимитов по USD (allocation_limit)
        по всем алгоритмам не превышает balance.USD.amount.
     """
 
@@ -87,13 +89,17 @@ async def init_balance(
             session,
             algo=str(algo_name),
             curr="USD",
-            amount_limit=usd_limit,
+            allocation_limit=usd_limit,
+            amount=_d(a.get("USD_amount", usd_limit)),
+            reserved=_d(a.get("USD_reserved", 0)),
         )
         await _upsert_balance_algo(
             session,
             algo=str(algo_name),
             curr="BTC",
-            amount_limit=btc_limit,
+            allocation_limit=btc_limit,
+            amount=_d(a.get("BTC_amount", btc_limit)),
+            reserved=_d(a.get("BTC_reserved", 0)),
         )
 
     await session.commit()
@@ -118,11 +124,13 @@ async def _upsert_balance_algo(
     *,
     algo: str,
     curr: str,
-    amount_limit: Decimal,
+    allocation_limit: Decimal,
+    amount: Decimal,
+    reserved: Decimal,
 ) -> None:
     """
     Upsert строки balance_algo по составному PK: (algo, curr).
-    amount_limit обновляем, amount оставляем как есть (или 0 при создании),
+    allocation_limit обновляем, amount оставляем как есть (или 0 при создании),
     reserved держим не-NULL (0 при создании; при NULL в БД — приводим к 0).
     """
     row = await session.get(Balance_Algo, (algo, curr))
@@ -131,15 +139,15 @@ async def _upsert_balance_algo(
             Balance_Algo(
                 algo=algo,
                 curr=curr,
-                amount_limit=amount_limit,
-                amount=Decimal("0"),
-                reserved=Decimal("0"),
+                allocation_limit=allocation_limit,
+                amount=amount,
+                reserved=reserved,
             )
         )
     else:
-        row.amount_limit = amount_limit
-        if row.reserved is None:
-            row.reserved = Decimal("0")
+        row.allocation_limit = allocation_limit
+        row.amount = amount
+        row.reserved = reserved
 
 async def _truncate_table(table_name: str, *, cascade: bool = False) -> None:
     """
@@ -159,10 +167,38 @@ async def _truncate_table(table_name: str, *, cascade: bool = False) -> None:
 
 
 async def set_balance(l_algos):
-
     db = DataBase()
-
     async_sessionmaker = db.get_session_maker()
+    initial_balance = EMULATION_SETTINGS.get("initial_balance", {})
+    initial_balance_algo = get_registered_initial_balance_algos()
+    usd_balance = initial_balance.get("USD", {})
+    btc_balance = initial_balance.get("BTC", {})
+    prepared_algos: list[dict[str, Any]] = []
+
+    for algo_data in l_algos:
+        algo_name = str(algo_data["name"])
+        algo_balance = initial_balance_algo.get(algo_name, {})
+        usd_amount = algo_balance.get("USD", {}).get("amount", algo_data.get("usd", 0))
+        usd_reserved = algo_balance.get("USD", {}).get("reserved", 0)
+        btc_amount = algo_balance.get("BTC", {}).get("amount", algo_data.get("btc", 0))
+        btc_reserved = algo_balance.get("BTC", {}).get("reserved", 0)
+
+        prepared_algos.append(
+            {
+                **algo_data,
+                "USD_amount": usd_amount,
+                "USD_reserved": usd_reserved,
+                "BTC_amount": btc_amount,
+                "BTC_reserved": btc_reserved,
+            }
+        )
 
     async with async_sessionmaker() as session:
-        await init_balance(session, l_algos=l_algos)
+        await init_balance(
+            session,
+            usd_amount=usd_balance.get("amount", 100),
+            usd_reserved=usd_balance.get("reserved", 0),
+            btc_amount=btc_balance.get("amount", 1),
+            btc_reserved=btc_balance.get("reserved", 0),
+            l_algos=prepared_algos,
+        )

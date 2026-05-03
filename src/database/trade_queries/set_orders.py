@@ -137,7 +137,7 @@ async def _ensure_balance_algo_row(session: AsyncSession, *, algo: str, curr: st
             Balance_Algo(
                 algo=algo,
                 curr=curr,
-                amount_limit=Decimal("0"),
+                allocation_limit=Decimal("0"),
                 amount=Decimal("0"),
                 reserved=Decimal("0"),
             )

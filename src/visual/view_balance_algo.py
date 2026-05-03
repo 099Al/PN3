@@ -37,7 +37,7 @@ async def plot_log_balance_algo(
     df = pd.DataFrame([
         {
             "snapshot_dt": r.snapshot_dt,
-            "amount_limit": float(r.amount_limit or 0),
+            "allocation_limit": float(r.allocation_limit or 0),
             "amount": float(r.amount or 0),
             "reserved": float(r.reserved or 0),
         }
@@ -47,7 +47,7 @@ async def plot_log_balance_algo(
     df.sort_values("snapshot_dt", inplace=True)
 
     plt.figure()
-    plt.plot(df["snapshot_dt"], df["amount_limit"])
+    plt.plot(df["snapshot_dt"], df["allocation_limit"])
     plt.plot(df["snapshot_dt"], df["amount"])
     plt.plot(df["snapshot_dt"], df["reserved"])
 

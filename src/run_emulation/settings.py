@@ -4,4 +4,8 @@ EMULATION_SETTINGS = {
     "period": 60,
     "api_user": "test_user",
     "api_start_time": 1689533488861,
+    "initial_balance": {
+        "USD": {"amount": 120, "reserved": 0},
+        "BTC": {"amount": 0.005, "reserved": 0},
+    },
 }

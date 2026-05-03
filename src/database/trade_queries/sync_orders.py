@@ -52,7 +52,7 @@ async def _ensure_balance_algo_row(session: AsyncSession, *, algo: str, curr: st
             Balance_Algo(
                 algo=algo,
                 curr=curr,
-                amount_limit=Decimal("0"),
+                allocation_limit=Decimal("0"),
                 amount=Decimal("0"),
                 reserved=Decimal("0"),
             )
@@ -143,10 +143,9 @@ async def _save_balance_algo_snapshot(session, algo_name, order_id=None) -> int:
             LogBalance_Algo(
                 algo=b.algo,
                 curr=b.curr,
+                allocation_limit=b.allocation_limit or Decimal("0"),
                 amount=b.amount or Decimal("0"),
                 reserved=b.reserved,
-                calc_amount=b.calc_amount or Decimal("0"),
-                calc_reserved=b.calc_reserved,
                 order_id=order_id,
                 snapshot_dt=snapshot_dt,
             )

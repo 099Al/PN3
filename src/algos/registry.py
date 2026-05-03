@@ -8,6 +8,7 @@ from src.algos.first_algo import Algo_1
 from src.algos.first_algo.config import (
     FIRST_ALGO_CAPITAL_ALLOCATION,
     FIRST_ALGO_CONFIG,
+    FIRST_ALGO_INITIAL_BALANCE,
     FIRST_ALGO_NAME,
 )
 
@@ -18,6 +19,7 @@ class AlgorithmDefinition:
     algo_class: type[BaseAlgorithm]
     default_config: dict[str, Any]
     capital_allocation: dict[str, Any]
+    initial_balance: dict[str, Any]
 
 
 ALGORITHM_REGISTRY: dict[str, AlgorithmDefinition] = {
@@ -26,6 +28,7 @@ ALGORITHM_REGISTRY: dict[str, AlgorithmDefinition] = {
         algo_class=Algo_1,
         default_config=FIRST_ALGO_CONFIG,
         capital_allocation=FIRST_ALGO_CAPITAL_ALLOCATION,
+        initial_balance=FIRST_ALGO_INITIAL_BALANCE,
     ),
 }
 
@@ -43,6 +46,13 @@ def get_registered_algorithm_names() -> list[str]:
 
 def get_registered_capital_allocations() -> list[dict[str, Any]]:
     return [dict(definition.capital_allocation) for definition in ALGORITHM_REGISTRY.values()]
+
+
+def get_registered_initial_balance_algos() -> dict[str, dict[str, Any]]:
+    return {
+        algo_name: dict(definition.initial_balance)
+        for algo_name, definition in ALGORITHM_REGISTRY.items()
+    }
 
 
 def build_algorithm(algo_name: str, **overrides: Any) -> BaseAlgorithm:
