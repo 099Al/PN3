@@ -4,7 +4,7 @@ from decimal import Decimal
 
 
 FIRST_ALGO_NAME = "algo_1"
-FIRST_ALGO_BALANCE_LIMIT = {"name": FIRST_ALGO_NAME, "usd": 100, "btc": 1}
+FIRST_ALGO_BALANCE_LIMIT = {"name": FIRST_ALGO_NAME, "usd": 100, "btc": 0}
 
 
 FIRST_ALGO_CONFIG = {
