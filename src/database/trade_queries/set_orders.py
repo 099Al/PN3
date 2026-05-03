@@ -20,10 +20,10 @@ from src.trade_utils.date_unix import utcnow_dt, parse_iso_z_to_naive
 В локальной базе для аналитики
 
 """
-async def algo_set_order(amount, price, sell_buy, accountId, algo_name):
+async def algo_set_order(amount, price, sell_buy, accountId, algo_name, unix_curr_time=None):
     algo_name = _normalize_algo_name(algo_name)
 
-    api_provider = ApiProvider.get(account_id=accountId)
+    api_provider = ApiProvider.get(account_id=accountId, unix_curr_time=unix_curr_time)
 
     res = await api_provider.set_order(amount, price, sell_buy)
     if res.get("data", {}).get("status") == "NEW":

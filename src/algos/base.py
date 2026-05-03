@@ -14,6 +14,6 @@ class BaseAlgorithm(ABC):
     position_curr: str = "BTC"
 
     @abstractmethod
-    async def run(self) -> None:
+    async def run(self, unix_curr_time: int | None = None) -> None:
         raise NotImplementedError
 

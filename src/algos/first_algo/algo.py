@@ -51,7 +51,7 @@ class Algo_1(BaseAlgorithm):
             return Decimal("0")
         return _d(row.calc_amount if row.calc_amount is not None else row.amount)
 
-    async def run(self) -> None:
+    async def run(self, unix_curr_time: int | None = None) -> None:
         db = DataBase()
         async with db.get_session_maker()() as session:
             last_price = await self._last_price(session)
@@ -72,6 +72,7 @@ class Algo_1(BaseAlgorithm):
                         sell_buy="BUY",
                         accountId=self.account_id,
                         algo_name=self.algo_name,
+                        unix_curr_time=unix_curr_time,
                     )
                 return
 
@@ -86,4 +87,5 @@ class Algo_1(BaseAlgorithm):
                     sell_buy="SELL",
                     accountId=self.account_id,
                     algo_name=self.algo_name,
+                    unix_curr_time=unix_curr_time,
                 )

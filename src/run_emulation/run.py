@@ -38,7 +38,7 @@ def build_selected_algo():
     return build_algorithm(get_selected_algo_name())
 
 
-def traiding():
+async def trading():
     algo = build_selected_algo()
 
     t_start_unix = int(datetime.strptime(t_start, '%Y-%m-%d %H:%M:%S').timestamp())
@@ -53,13 +53,13 @@ def traiding():
         curr_unix_time = curr_unix_time + period
 
         #В случае эмуляции  проверяем ордера на исполнение
-        asyncio.run(emulation_check_orders(curr_unix_time))
+        await emulation_check_orders(curr_unix_time)
 
         # 2) подгружаем тики и пишем в CexHistoryTik
-        asyncio.run(get_new_data(pair="BTC/USD", unix_curr_time=curr_unix_time))
+        await get_new_data(pair="BTC/USD", unix_curr_time=curr_unix_time)
 
         # 3) запускаем алгоритм (ставит BUY/SELL через algo_set_order)
-        asyncio.run(algo.run())
+        await algo.run(curr_unix_time)
 
         #check orders
         #check_orders(curr_unix_time)
@@ -71,17 +71,11 @@ def traiding():
         if n > 15:
             break
 
+async def main():
+    await set_balance(get_registered_capital_allocations())
+    await trading()
 
 
 if __name__ == '__main__':
-
-    asyncio.run(set_balance(get_registered_capital_allocations()))
-
-    # asyncio.run(get_new_data(pair='BTC/USD', unix_curr_time=1690089694 * 1000))
-
-    #l_orders = asyncio.run(api.open_orders())
-
-    #print(l_orders)
-
-    #traiding()
+    asyncio.run(main())
 

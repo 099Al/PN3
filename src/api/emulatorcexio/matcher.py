@@ -30,7 +30,7 @@ class OrderMatcher:
         filled_count = 0
 
         # Чтобы autoflush не сработал "раньше времени" во время SELECT:
-        async with self.repo.session.no_autoflush:
+        with self.repo.session.no_autoflush:
             orders = await self.repo.list_active_orders()
 
         for order in orders:
@@ -69,8 +69,8 @@ class OrderMatcher:
             # 2) баланс:
             # В момент выставления SELL ты резервировал base: amount -> reserved
             # Теперь: reserved(base) -= amount; amount(quote) += net_quote
-            await self.repo.apply_balance_delta(curr=base, amount_delta=D0, reserved_delta=-amount_base)
-            await self.repo.apply_balance_delta(curr=quote, amount_delta=net_quote, reserved_delta=D0)
+            await self.repo.apply_balance_delta(account_id=order.accountId, curr=base, amount_delta=D0, reserved_delta=-amount_base)
+            await self.repo.apply_balance_delta(account_id=order.accountId, curr=quote, amount_delta=net_quote, reserved_delta=D0)
 
             # 3) транзакции (как в примере, но для SELL будет -BTC, +USD, -USD fee)
             order_id = order.id

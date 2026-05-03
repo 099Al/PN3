@@ -24,12 +24,11 @@ class EmulatorMatchRepo:
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def list_active_orders(self, account_id: str) -> list[Im_ActiveOrder]:
-        stmt = (
-            select(Im_ActiveOrder)
-            .where(Im_ActiveOrder.accountId == account_id)
-            .order_by(Im_ActiveOrder.unix_date.asc())
-        )
+    async def list_active_orders(self, account_id: str | None = None) -> list[Im_ActiveOrder]:
+        stmt = select(Im_ActiveOrder)
+        if account_id is not None:
+            stmt = stmt.where(Im_ActiveOrder.accountId == account_id)
+        stmt = stmt.order_by(Im_ActiveOrder.unix_date.asc())
         res = await self.session.execute(stmt)
         return list(res.scalars().all())
 
