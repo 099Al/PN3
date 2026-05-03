@@ -9,7 +9,7 @@ if __package__ is None or __package__ == "":
 from src.algos.registry import (
     build_algorithm,
     get_algorithm_definition,
-    get_registered_balance_limits,
+    get_registered_capital_allocations,
 )
 from src.api.emulatorcexio.emulator_api import EmulatorApi
 from src.run_emulation.balances_init import set_balance
@@ -75,13 +75,13 @@ def traiding():
 
 if __name__ == '__main__':
 
-    # asyncio.run(set_balance(get_registered_balance_limits()))
+    asyncio.run(set_balance(get_registered_capital_allocations()))
 
     # asyncio.run(get_new_data(pair='BTC/USD', unix_curr_time=1690089694 * 1000))
 
-    l_orders = asyncio.run(api.open_orders())
+    #l_orders = asyncio.run(api.open_orders())
 
-    print(l_orders)
+    #print(l_orders)
 
     #traiding()
 

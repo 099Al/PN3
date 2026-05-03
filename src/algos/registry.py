@@ -6,7 +6,7 @@ from typing import Any
 from src.algos.base import BaseAlgorithm
 from src.algos.first_algo import Algo_1
 from src.algos.first_algo.config import (
-    FIRST_ALGO_BALANCE_LIMIT,
+    FIRST_ALGO_CAPITAL_ALLOCATION,
     FIRST_ALGO_CONFIG,
     FIRST_ALGO_NAME,
 )
@@ -17,7 +17,7 @@ class AlgorithmDefinition:
     name: str
     algo_class: type[BaseAlgorithm]
     default_config: dict[str, Any]
-    balance_limit: dict[str, Any]
+    capital_allocation: dict[str, Any]
 
 
 ALGORITHM_REGISTRY: dict[str, AlgorithmDefinition] = {
@@ -25,7 +25,7 @@ ALGORITHM_REGISTRY: dict[str, AlgorithmDefinition] = {
         name=FIRST_ALGO_NAME,
         algo_class=Algo_1,
         default_config=FIRST_ALGO_CONFIG,
-        balance_limit=FIRST_ALGO_BALANCE_LIMIT,
+        capital_allocation=FIRST_ALGO_CAPITAL_ALLOCATION,
     ),
 }
 
@@ -41,8 +41,8 @@ def get_registered_algorithm_names() -> list[str]:
     return list(ALGORITHM_REGISTRY.keys())
 
 
-def get_registered_balance_limits() -> list[dict[str, Any]]:
-    return [dict(definition.balance_limit) for definition in ALGORITHM_REGISTRY.values()]
+def get_registered_capital_allocations() -> list[dict[str, Any]]:
+    return [dict(definition.capital_allocation) for definition in ALGORITHM_REGISTRY.values()]
 
 
 def build_algorithm(algo_name: str, **overrides: Any) -> BaseAlgorithm:

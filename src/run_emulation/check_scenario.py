@@ -8,7 +8,7 @@ from sqlalchemy import func, select
 from src.algos.registry import (
     get_algorithm_definition,
     get_registered_algorithm_names,
-    get_registered_balance_limits,
+    get_registered_capital_allocations,
 )
 from src.database.connect import DataBase
 from src.database.models import ActiveOrder, Balance_Algo, LogDoneTransactions
@@ -31,7 +31,7 @@ def get_selected_algo_name() -> str:
 
 
 async def init_balances_for_registered_algorithms() -> None:
-    await set_balance(get_registered_balance_limits())
+    await set_balance(get_registered_capital_allocations())
 
 
 async def collect_algo_state(algo_name: str) -> AlgoStateSummary:
@@ -73,7 +73,7 @@ async def run_check_scenario() -> dict:
     return {
         "selected_algo_name": selected_algo_name,
         "registered_algorithms": registered_algorithms,
-        "registered_balance_limits": get_registered_balance_limits(),
+        "registered_capital_allocations": get_registered_capital_allocations(),
         "selected_algo_state": asdict(selected_algo_state),
         "second_algo_ready": len(registered_algorithms) > 1,
         "note": (
