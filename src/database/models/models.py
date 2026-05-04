@@ -138,23 +138,25 @@ class LogDoneTransactions(Base):
 class LogBalance(Base):
     __tablename__ = "log_balance"
 
-    curr: Mapped[str] = mapped_column(String(5), primary_key=True,)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    curr: Mapped[str] = mapped_column(String(5), nullable=False)
     amount: Mapped[Decimal] = mapped_column(Numeric(15, 8), nullable=False, default=Decimal("0"),)
     reserved: Mapped[Decimal] = mapped_column(Numeric(15, 8), nullable=True)
     calc_amount: Mapped[Decimal] = mapped_column(Numeric(15, 8), nullable=True, default=Decimal("0"), )
     calc_reserved: Mapped[Decimal] = mapped_column(Numeric(15, 8), nullable=True)
-    snapshot_dt: Mapped[DateTime] = mapped_column(DateTime)
+    snapshot_dt: Mapped[DateTime] = mapped_column(DateTime, nullable=False)
 
 
 class LogBalance_Algo(Base):
     __tablename__ = "log_balance_algo"
 
-    algo: Mapped[str] = mapped_column(String(20), primary_key=True,)
-    curr: Mapped[str] = mapped_column(String(5), primary_key=True, )
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    algo: Mapped[str] = mapped_column(String(20), nullable=False)
+    curr: Mapped[str] = mapped_column(String(5), nullable=False)
     allocation_limit: Mapped[Decimal] = mapped_column(Numeric(15, 8), nullable=False, default=Decimal("0"), )
     amount: Mapped[Decimal] = mapped_column(Numeric(15, 8), nullable=False, default=Decimal("0"), )
     reserved: Mapped[Decimal] = mapped_column(Numeric(15, 8), nullable=True)
-    snapshot_dt: Mapped[DateTime] = mapped_column(DateTime)
+    snapshot_dt: Mapped[DateTime] = mapped_column(DateTime, nullable=False)
 
 class LogOrders(Base):
     __tablename__ = "log_orders"

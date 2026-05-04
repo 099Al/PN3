@@ -260,8 +260,9 @@ async def sync_orders(*, account_id: str) -> dict:
                 flag_reason=f"TRADING_{order_status}",
                 event_id=f"{order.orderId}:{order_status}",
             )
-            await save_balance_snapshot(session, order_id=oid)
-            await save_balance_algo_snapshot(session, algo_name=algo, order_id=oid)
+            if order_status == "DONE":
+                await save_balance_snapshot(session, order_id=oid)
+                await save_balance_algo_snapshot(session, algo_name=algo, order_id=oid)
 
             await session.execute(delete(ActiveOrder).where(ActiveOrder.orderId == oid))
             processed.append(oid)

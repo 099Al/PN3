@@ -5,7 +5,7 @@ from decimal import Decimal
 from enum import Enum
 from typing import Optional
 
-from sqlalchemy import delete, insert, select
+from sqlalchemy import insert, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database.models import Balance, Balance_Algo, LogBalance, LogBalance_Algo, LogOrders
@@ -57,7 +57,6 @@ async def save_balance_snapshot(session: AsyncSession, *, order_id: int | str | 
         }
         for row in rows
     ]
-    await session.execute(delete(LogBalance))
     await session.execute(insert(LogBalance), payload)
     return len(payload)
 
@@ -92,7 +91,6 @@ async def save_balance_algo_snapshot(
         }
         for row in rows
     ]
-    await session.execute(delete(LogBalance_Algo).where(LogBalance_Algo.algo == algo_name))
     await session.execute(insert(LogBalance_Algo), payload)
     return len(payload)
 
