@@ -86,7 +86,7 @@ class EmulatorMatchRepo:
         bal = await self.get_balance(account_id, curr=curr)
         if bal is None:
             # если валюты нет — создаём (по желанию можно запрещать)
-            bal = Im_Balance(account_id=account_id, curr=curr, amount=D0, reserved=D0)
+            bal = Im_Balance(accountId=account_id, curr=curr, amount=D0, reserved=D0)
             self.session.add(bal)
             await self.session.flush()
 

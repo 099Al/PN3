@@ -6,6 +6,6 @@ EMULATION_SETTINGS = {
     "api_start_time": 1689533488861,
     "initial_balance": {
         "USD": {"amount": 120, "reserved": 0},
-        "BTC": {"amount": 0.005, "reserved": 0},
+        "BTC": {"amount": 0, "reserved": 0},
     },
 }

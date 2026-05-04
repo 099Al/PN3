@@ -34,6 +34,7 @@ def calc_reserved(side: str, amount: Decimal, price: Decimal) -> Decimal:
 def build_active_order(
     *,
     unix_ms: int,
+    account_id: str | None,
     base: str,
     quote: str,
     side: str,
@@ -48,6 +49,7 @@ def build_active_order(
     reserved = calc_reserved(side=side, amount=amount, price=price)
 
     return Im_ActiveOrder(
+        accountId=account_id,
         # id автогенерируется БД
         date=dt_from_unix_ms(unix_ms),
         unix_date=unix_ms,

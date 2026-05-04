@@ -78,9 +78,9 @@ class EmulatorOrdersRepo:
         return (await self.session.execute(stmt)).scalar_one_or_none()
 
     async def upsert_active_order(self, order: Im_ActiveOrder) -> Im_ActiveOrder:
-        merged = await self.session.merge(order)
+        self.session.add(order)
         await self.session.flush()
-        return merged
+        return order
 
     async def update_balance(self, account_id: str, curr: str, amount_delta, reserved_delta=0) -> None:
         stm = (
@@ -90,7 +90,7 @@ class EmulatorOrdersRepo:
         )
         bal = (await self.session.execute(stm)).scalar_one_or_none()
         if bal is None:
-            bal = Im_Balance(account_id=account_id, curr=curr, amount=0, reserved=0)
+            bal = Im_Balance(accountId=account_id, curr=curr, amount=0, reserved=0)
             self.session.add(bal)
 
         if amount_delta:
@@ -133,12 +133,7 @@ class EmulatorBalanceRepo:
         if row is not None:
             return row
 
-        row = Im_Balance(
-            accountId=account_id,
-            curr=curr,
-            amount=Decimal("0"),
-            reserved=Decimal("0"),
-        )
+        row = Im_Balance(accountId=account_id, curr=curr, amount=Decimal("0"), reserved=Decimal("0"))
         self.session.add(row)
         await self.session.flush()
         return row

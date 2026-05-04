@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import datetime
 from decimal import Decimal
 from typing import Optional
 
@@ -29,8 +30,11 @@ class Algo_1(BaseAlgorithm):
     price1: Decimal
     price2: Decimal
 
-    async def _last_price(self, session: AsyncSession) -> Optional[Decimal]:
-        stmt = select(CexHistoryTik.price).order_by(desc(CexHistoryTik.unixdate)).limit(1)
+    async def _last_price(self, session: AsyncSession, unix_curr_time: int | None = None) -> Optional[Decimal]:
+        stmt = select(CexHistoryTik.price)
+        if unix_curr_time is not None:
+            stmt = stmt.where(CexHistoryTik.date <= datetime.utcfromtimestamp(unix_curr_time / 1000))
+        stmt = stmt.order_by(desc(CexHistoryTik.unixdate)).limit(1)
         return (await session.execute(stmt)).scalar_one_or_none()
 
     async def _has_active_order(self, session: AsyncSession, side: str) -> bool:
@@ -54,7 +58,7 @@ class Algo_1(BaseAlgorithm):
     async def run(self, unix_curr_time: int | None = None) -> None:
         db = DataBase()
         async with db.get_session_maker()() as session:
-            last_price = await self._last_price(session)
+            last_price = await self._last_price(session, unix_curr_time)
             if last_price is None:
                 return
 

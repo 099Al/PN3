@@ -1,5 +1,5 @@
 import asyncio
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 import sys
 
@@ -21,17 +21,27 @@ from src.database.trade_queries.get_new_history import get_new_data
 
 t_start = EMULATION_SETTINGS["t_start"]
 period = int(EMULATION_SETTINGS["period"])
-
-api = EmulatorApi(
-    EMULATION_SETTINGS["api_user"],
-    EMULATION_SETTINGS["api_start_time"],
-)
+period_ms = period * 1000
 
 
 def get_selected_algo_name() -> str:
     selected_algo_name = str(EMULATION_SETTINGS["selected_algo_name"])
     get_algorithm_definition(selected_algo_name)
     return selected_algo_name
+
+
+def get_selected_account_id() -> str | None:
+    account_id = str(
+        get_algorithm_definition(get_selected_algo_name()).default_config.get("account_id", "")
+    ).strip()
+    return account_id or None
+
+
+api = EmulatorApi(
+    EMULATION_SETTINGS["api_user"],
+    EMULATION_SETTINGS["api_start_time"],
+    account_id=get_selected_account_id(),
+)
 
 
 def build_selected_algo():
@@ -41,7 +51,9 @@ def build_selected_algo():
 async def trading():
     algo = build_selected_algo()
 
-    t_start_unix = int(datetime.strptime(t_start, '%Y-%m-%d %H:%M:%S').timestamp())
+    t_start_unix = int(
+        datetime.strptime(t_start, '%Y-%m-%d %H:%M:%S').replace(tzinfo=timezone.utc).timestamp() * 1000
+    )
 
     curr_unix_time = t_start_unix
 
@@ -50,7 +62,7 @@ async def trading():
 
     while True:
         n = n + 1
-        curr_unix_time = curr_unix_time + period
+        curr_unix_time = curr_unix_time + period_ms
 
         #В случае эмуляции  проверяем ордера на исполнение
         await emulation_check_orders(curr_unix_time)

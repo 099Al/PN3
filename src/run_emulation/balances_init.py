@@ -7,9 +7,19 @@ from typing import Iterable, Mapping, Any
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.algos.registry import get_algorithm_definition, get_registered_initial_balance_algos
 from src.database.connect import DataBase
-from src.database.models import Balance, Balance_Algo, LogBalance_Algo, LogBalance, LogDoneTransactions
-from src.algos.registry import get_registered_initial_balance_algos
+from src.database.models import (
+    ActiveOrder,
+    Balance,
+    Balance_Algo,
+    Im_ActiveOrder,
+    Im_Balance,
+    Im_Transaction,
+    LogBalance_Algo,
+    LogBalance,
+    LogDoneTransactions,
+)
 from src.run_emulation.settings import EMULATION_SETTINGS
 
 from src.trade_utils.util_decimal import _d2 as _d
@@ -44,6 +54,9 @@ async def init_balance(
     await _truncate_table(LogBalance_Algo.__tablename__, cascade=True)
     await _truncate_table(LogBalance.__tablename__, cascade=True)
     await _truncate_table(LogDoneTransactions.__tablename__, cascade=True)
+    await _truncate_table(ActiveOrder.__tablename__, cascade=True)
+    await _truncate_table("emulator.im_active_orders", cascade=True)
+    await _truncate_table("emulator.im_transactions", cascade=True)
 
     # --- 1) upsert balance ---
     await _upsert_balance(session, "USD", usd_amount, usd_reserved)
@@ -113,8 +126,42 @@ async def _upsert_balance(
 ) -> None:
     row = await session.get(Balance, curr)
     if row is None:
-        session.add(Balance(curr=curr, amount=amount, reserved=reserved))
+        session.add(
+            Balance(
+                curr=curr,
+                amount=amount,
+                reserved=reserved,
+                calc_amount=amount,
+                calc_reserved=reserved,
+            )
+        )
     else:
+        row.amount = amount
+        row.reserved = reserved
+        row.calc_amount = amount
+        row.calc_reserved = reserved
+
+
+async def _upsert_emulator_balance(
+    session: AsyncSession,
+    *,
+    account_id: str,
+    curr: str,
+    amount: Decimal,
+    reserved: Decimal,
+) -> None:
+    row = await session.get(Im_Balance, curr)
+    if row is None:
+        session.add(
+            Im_Balance(
+                accountId=account_id,
+                curr=curr,
+                amount=amount,
+                reserved=reserved,
+            )
+        )
+    else:
+        row.accountId = account_id
         row.amount = amount
         row.reserved = reserved
 
@@ -177,6 +224,7 @@ async def set_balance(l_algos):
 
     for algo_data in l_algos:
         algo_name = str(algo_data["name"])
+        algo_definition = get_algorithm_definition(algo_name)
         algo_balance = initial_balance_algo.get(algo_name, {})
         usd_amount = algo_balance.get("USD", {}).get("amount", algo_data.get("usd", 0))
         usd_reserved = algo_balance.get("USD", {}).get("reserved", 0)
@@ -190,6 +238,7 @@ async def set_balance(l_algos):
                 "USD_reserved": usd_reserved,
                 "BTC_amount": btc_amount,
                 "BTC_reserved": btc_reserved,
+                "account_id": str(algo_definition.default_config.get("account_id", "")),
             }
         )
 
@@ -202,3 +251,22 @@ async def set_balance(l_algos):
             btc_reserved=btc_balance.get("reserved", 0),
             l_algos=prepared_algos,
         )
+        for algo_data in prepared_algos:
+            account_id = str(algo_data.get("account_id", "")).strip()
+            if not account_id:
+                continue
+            await _upsert_emulator_balance(
+                session,
+                account_id=account_id,
+                curr="USD",
+                amount=_d(usd_balance.get("amount", 100)),
+                reserved=_d(usd_balance.get("reserved", 0)),
+            )
+            await _upsert_emulator_balance(
+                session,
+                account_id=account_id,
+                curr="BTC",
+                amount=_d(btc_balance.get("amount", 1)),
+                reserved=_d(btc_balance.get("reserved", 0)),
+            )
+        await session.commit()

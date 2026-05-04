@@ -129,6 +129,7 @@ class EmulatorApi(BaseApi):
             # create active order
             order = build_active_order(
                 unix_ms=self.unix_curr_time,
+                account_id=self.account_id,
                 base=base,
                 quote=quote,
                 side="SELL",
@@ -177,6 +178,7 @@ class EmulatorApi(BaseApi):
 
             order = build_active_order(
                 unix_ms=self.unix_curr_time,
+                account_id=self.account_id,
                 base=base,
                 quote=quote,
                 side="BUY",
