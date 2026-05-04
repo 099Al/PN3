@@ -143,7 +143,6 @@ class LogBalance(Base):
     reserved: Mapped[Decimal] = mapped_column(Numeric(15, 8), nullable=True)
     calc_amount: Mapped[Decimal] = mapped_column(Numeric(15, 8), nullable=True, default=Decimal("0"), )
     calc_reserved: Mapped[Decimal] = mapped_column(Numeric(15, 8), nullable=True)
-    order_id: Mapped[str] = mapped_column(String(20), nullable=True)
     snapshot_dt: Mapped[DateTime] = mapped_column(DateTime)
 
 
@@ -155,7 +154,6 @@ class LogBalance_Algo(Base):
     allocation_limit: Mapped[Decimal] = mapped_column(Numeric(15, 8), nullable=False, default=Decimal("0"), )
     amount: Mapped[Decimal] = mapped_column(Numeric(15, 8), nullable=False, default=Decimal("0"), )
     reserved: Mapped[Decimal] = mapped_column(Numeric(15, 8), nullable=True)
-    order_id: Mapped[str] = mapped_column(String(20), nullable=True)
     snapshot_dt: Mapped[DateTime] = mapped_column(DateTime)
 
 class LogOrders(Base):

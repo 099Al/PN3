@@ -52,42 +52,28 @@ async def trading():
     algo = build_selected_algo()
 
     t_start_unix = int(
-        datetime.strptime(t_start, '%Y-%m-%d %H:%M:%S').replace(tzinfo=timezone.utc).timestamp() * 1000
+        datetime.strptime(t_start, "%Y-%m-%d %H:%M:%S").replace(tzinfo=timezone.utc).timestamp() * 1000
     )
 
     curr_unix_time = t_start_unix
-
     n = 0
-    curr_unix_time = curr_unix_time
 
     while True:
-        n = n + 1
-        curr_unix_time = curr_unix_time + period_ms
+        n += 1
+        curr_unix_time += period_ms
 
-        #В случае эмуляции  проверяем ордера на исполнение
         await emulation_check_orders(curr_unix_time)
-
-        # 2) подгружаем тики и пишем в CexHistoryTik
         await get_new_data(pair="BTC/USD", unix_curr_time=curr_unix_time)
-
-        # 3) запускаем алгоритм (ставит BUY/SELL через algo_set_order)
         await algo.run(curr_unix_time)
-
-        #check orders
-        #check_orders(curr_unix_time)
-
-        #algorithms.algo_1.run()
-
-
 
         if n > 15:
             break
+
 
 async def main():
     await set_balance(get_registered_capital_allocations())
     await trading()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     asyncio.run(main())
-

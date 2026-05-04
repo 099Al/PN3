@@ -11,6 +11,7 @@ from src.api.emulatorcexio.order_state import calc_quote_needed_for_buy
 from src.api.provider import ApiProvider
 from src.database.connect import DataBase
 from src.database.models import ActiveOrder, Balance, Balance_Algo
+from src.database.trade_queries.log_helpers import log_order_event, save_balance_algo_snapshot, save_balance_snapshot
 from src.trade_utils.date_unix import utcnow_dt, parse_iso_z_to_naive
 
 
@@ -108,6 +109,27 @@ async def save_active_order(
                 delta_reserved=reserved,
             )
 
+        await log_order_event(
+            session,
+            status="NEW",
+            order_id=order.orderId,
+            side=order.side,
+            date=order.date,
+            unix_ms=order.unix_date,
+            base=order.base,
+            quote=order.quote,
+            amount=order.amount,
+            price=order.price,
+            reserved=order.reserved,
+            fee=Decimal("0"),
+            order_type=order.order_type,
+            full_trade=order.full_traid,
+            algo=order.algo,
+            flag_reason="EMULATION_NEW",
+            event_id=f"{order.orderId}:NEW",
+        )
+        await save_balance_snapshot(session, order_id=order.orderId)
+        await save_balance_algo_snapshot(session, algo_name=algo, order_id=order.orderId)
 
         await session.commit()
 

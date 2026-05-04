@@ -10,6 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.api.provider import ApiProvider
 from src.database.connect import DataBase
 from src.database.models import ActiveOrder, Balance, Balance_Algo
+from src.database.trade_queries.log_helpers import log_order_event, save_balance_algo_snapshot, save_balance_snapshot
 from src.trade_utils.date_unix import utcnow_dt
 
 
@@ -72,6 +73,27 @@ async def _cancel_active_order_tx(*, session: AsyncSession, order_id: int) -> No
             raise ValueError(f"Unknown side={order.side!r} for orderId={order_id}")
 
     # 2) удалить ActiveOrder
+    await log_order_event(
+        session,
+        status="CANCELED",
+        order_id=order.orderId,
+        side=order.side,
+        date=order.date,
+        unix_ms=order.unix_date,
+        base=order.base,
+        quote=order.quote,
+        amount=Decimal(str(order.amount or 0)),
+        price=Decimal(str(order.price or 0)),
+        reserved=reserved,
+        fee=Decimal("0"),
+        order_type=order.order_type,
+        full_trade=order.full_traid,
+        algo=algo,
+        flag_reason="EMULATION_CANCEL",
+        event_id=f"{order.orderId}:CANCELED",
+    )
+    await save_balance_snapshot(session, order_id=order.orderId)
+    await save_balance_algo_snapshot(session, algo_name=algo, order_id=order.orderId)
     await session.execute(delete(ActiveOrder).where(ActiveOrder.orderId == order_id))
 
 

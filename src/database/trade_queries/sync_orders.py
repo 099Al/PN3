@@ -95,6 +95,7 @@ async def _balance_apply(
     )
     await session.execute(stmt)
 
+
 async def _save_balance_snapshot(session, order_id=None) -> int:
     """
     Копирует текущие значения из Balance в LogBalance как snapshot.
@@ -152,8 +153,6 @@ async def _save_balance_algo_snapshot(session, algo_name, order_id=None) -> int:
         )
     await session.commit()
     return len(rows)
-
-
 
 
 async def _balance_algo_apply(
@@ -289,7 +288,7 @@ async def sync_orders(*, account_id: str) -> dict:
 
             price = _d(order.price)
 
-            for t in order_txs:  #запись в транзакции на одну сделку состоит из 3х частей (BTC, USD, commission)
+            for t in order_txs:  # запись в транзакции на одну сделку состоит из 3х частей (BTC, USD, commission)
                 curr = str(t.get("currency"))
                 amt = _d(t.get("amount"))
                 typ = str(t.get("type") or "").lower()
@@ -298,28 +297,24 @@ async def sync_orders(*, account_id: str) -> dict:
                 await _balance_apply(session, curr=curr, delta_amount=amt)
                 await _balance_algo_apply(session, algo=algo, curr=curr, delta_amount=amt)
 
-
                 await _save_balance_snapshot(session, order_id=oid)
                 await _save_balance_algo_snapshot(session, algo_name=algo, order_id=oid)
-
 
                 # --- C) логируем совершённые сделки ---
                 # В LogDoneTransactions пишем только trade (как "сделки"),
                 # commission записываем полем commission (одинаковое для обеих trade-строк ордера)
                 if typ == "trade":
-                    # timestamp приходит как ISO Z -> можно хранить как "сейчас" или распарсить
-                    # тут берём unix_date из order.unix_date (у тебя BIGINT ms)
                     log_row = LogDoneTransactions(
                         date=order.date,
-                        unix_date=int(order.unix_date // 1000) if order.unix_date else 0,  # если в секундах нужно
+                        unix_date=int(order.unix_date // 1000) if order.unix_date else 0,
                         curr=curr,
                         amount=amt,
                         commission=commission_abs,
                         price=price,
                         algo_name=algo,
                         tid=str(t.get("transactionId")),
-                        order_side=side,  # enum sidetype принимает 'buy'/'sell'
-                        sys_date=func.now(),  # или utcnow_dt()
+                        order_side=side,
+                        sys_date=func.now(),
                     )
                     session.add(log_row)
 
