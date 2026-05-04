@@ -2,9 +2,10 @@ from __future__ import annotations
 
 import hashlib
 from decimal import Decimal
+from enum import Enum
 from typing import Optional
 
-from sqlalchemy import insert, select
+from sqlalchemy import delete, insert, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database.models import Balance, Balance_Algo, LogBalance, LogBalance_Algo, LogOrders
@@ -33,6 +34,12 @@ def _fit_event_id(event_id: str) -> str:
     return f"{head}:{digest}"[:20]
 
 
+def _enum_aware_str(value: object, *, upper: bool = False) -> str:
+    raw = value.value if isinstance(value, Enum) else value
+    text = str(raw)
+    return text.upper() if upper else text.lower()
+
+
 async def save_balance_snapshot(session: AsyncSession, *, order_id: int | str | None = None) -> int:
     rows = (await session.execute(select(Balance))).scalars().all()
     if not rows:
@@ -50,6 +57,7 @@ async def save_balance_snapshot(session: AsyncSession, *, order_id: int | str | 
         }
         for row in rows
     ]
+    await session.execute(delete(LogBalance))
     await session.execute(insert(LogBalance), payload)
     return len(payload)
 
@@ -84,6 +92,7 @@ async def save_balance_algo_snapshot(
         }
         for row in rows
     ]
+    await session.execute(delete(LogBalance_Algo).where(LogBalance_Algo.algo == algo_name))
     await session.execute(insert(LogBalance_Algo), payload)
     return len(payload)
 
@@ -115,9 +124,9 @@ async def log_order_event(
 
     await session.execute(
         insert(LogOrders).values(
-            status=str(status).upper(),
+            status=_enum_aware_str(status, upper=True),
             id=event_id,
-            side=str(side).lower(),
+            side=_enum_aware_str(side),
             date=date,
             unixdate=_normalize_log_unixdate(unix_ms),
             base=base,
@@ -127,7 +136,7 @@ async def log_order_event(
             reserved=reserved,
             fee=fee,
             reject_reason=reject_reason,
-            order_type=str(order_type).lower(),
+            order_type=_enum_aware_str(order_type),
             expire=expire,
             full_traid=full_trade,
             algo=algo,

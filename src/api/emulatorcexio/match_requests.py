@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from datetime import timezone
 from decimal import Decimal
 from typing import Optional
 
@@ -42,24 +43,27 @@ class EmulatorMatchRepo:
         """
         side = str(order.side).upper()
 
+        order_dt = order.date
+        until_dt = dt_from_unix_ms(until_unix_ms)
+
         if side == "SELL":
             stmt = (
                 select(Im_CexHistoryTik)
-                .where(Im_CexHistoryTik.unixdate > order.unix_date)
-                .where(Im_CexHistoryTik.unixdate <= until_unix_ms)
+                .where(Im_CexHistoryTik.date > order_dt)
+                .where(Im_CexHistoryTik.date <= until_dt)
                 .where(Im_CexHistoryTik.side.ilike("BUY"))
                 .where(Im_CexHistoryTik.price >= order.price)
-                .order_by(Im_CexHistoryTik.unixdate.asc())
+                .order_by(Im_CexHistoryTik.date.asc(), Im_CexHistoryTik.tid.asc())
                 .limit(1)
             )
         elif side == "BUY":
             stmt = (
                 select(Im_CexHistoryTik)
-                .where(Im_CexHistoryTik.unixdate > order.unix_date)
-                .where(Im_CexHistoryTik.unixdate <= until_unix_ms)
+                .where(Im_CexHistoryTik.date > order_dt)
+                .where(Im_CexHistoryTik.date <= until_dt)
                 .where(Im_CexHistoryTik.side.ilike("SELL"))
                 .where(Im_CexHistoryTik.price <= order.price)
-                .order_by(Im_CexHistoryTik.unixdate.asc())
+                .order_by(Im_CexHistoryTik.date.asc(), Im_CexHistoryTik.tid.asc())
                 .limit(1)
             )
         else:
@@ -69,9 +73,11 @@ class EmulatorMatchRepo:
         if not row:
             return None
 
-        return Fill(tid=row.tid, unix_ms=row.unixdate, price=row.price, side=str(row.side).upper())
+        fill_unix_ms = int(row.date.replace(tzinfo=timezone.utc).timestamp() * 1000)
+        return Fill(tid=row.tid, unix_ms=fill_unix_ms, price=row.price, side=str(row.side).upper())
 
-    async def delete_active_order(self, order_id: int) -> None:
+    async def delete_active_order(self, order_or_id: Im_ActiveOrder | int) -> None:
+        order_id = order_or_id.id if isinstance(order_or_id, Im_ActiveOrder) else int(order_or_id)
         await self.session.execute(delete(Im_ActiveOrder).where(Im_ActiveOrder.id == order_id))
 
     async def get_balance(self, account_id: str, curr: str) -> Optional[Im_Balance]:

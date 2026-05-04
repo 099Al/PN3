@@ -9,6 +9,7 @@ from sqlalchemy import select, desc, update, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database.models.models_img import Im_CexHistoryTik, Im_ActiveOrder, Im_Balance, Im_Transaction
+from src.trade_utils.date_unix import dt_from_unix_ms
 
 
 class EmulatorHistoryRepo:
@@ -16,10 +17,11 @@ class EmulatorHistoryRepo:
         self.session = session
 
     async def get_trades_before(self, unix_ms: int, limit: int = 1000) -> list[dict]:
+        until_dt = dt_from_unix_ms(unix_ms)
         stmt = (
             select(Im_CexHistoryTik.trade_data)
-            .where(Im_CexHistoryTik.unixdate <= unix_ms)
-            .order_by(Im_CexHistoryTik.unixdate.desc())
+            .where(Im_CexHistoryTik.date <= until_dt)
+            .order_by(Im_CexHistoryTik.date.desc(), Im_CexHistoryTik.tid.desc())
             .limit(limit)
         )
         rows: Sequence[tuple[str | None]] = (await self.session.execute(stmt)).all()
@@ -36,10 +38,11 @@ class EmulatorHistoryRepo:
         Берём цену последней сделки на момент времени curr_unixdate:
         max(unixdate) where unixdate <= curr_unixdate
         """
+        until_dt = dt_from_unix_ms(curr_unixdate)
         stmt = (
             select(Im_CexHistoryTik.price)
-            .where(Im_CexHistoryTik.unixdate <= curr_unixdate)
-            .order_by(desc(Im_CexHistoryTik.unixdate))
+            .where(Im_CexHistoryTik.date <= until_dt)
+            .order_by(desc(Im_CexHistoryTik.date), desc(Im_CexHistoryTik.tid))
             .limit(1)
         )
         return (await self.session.execute(stmt)).scalars().first()

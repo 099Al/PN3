@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime
-from decimal import Decimal
+from decimal import Decimal, ROUND_UP
 from typing import Optional
 
 from sqlalchemy import desc, select
@@ -10,8 +10,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.algos.base import BaseAlgorithm
 from src.database.connect import DataBase
-from src.database.models import ActiveOrder, CexHistoryTik
+from src.database.models import ActiveOrder, CexHistoryTik, LogOrders
 from src.database.trade_queries.set_orders import algo_set_order
+from src.trade_parameters import TradeConfig
+from src.trade_utils.trade import X_for_buyBTC
 
 
 def _d(x) -> Decimal:
@@ -20,15 +22,13 @@ def _d(x) -> Decimal:
 
 @dataclass
 class Algo_1(BaseAlgorithm):
-    """
-    Простейшая логика:
-    - если нет позиции -> BUY по price1
-    - если есть позиция -> SELL по price2
+    """Alternating one-order strategy: BUY on price1, then SELL on price2."""
 
-    position_curr: какая валюта считается "позиционной" (обычно base, например BTC)
-    """
     price1: Decimal
     price2: Decimal
+    buy_fee_percent: Decimal = _d(TradeConfig.BUY_FEE)
+    sell_fee_percent: Decimal = _d(TradeConfig.SELL_FEE)
+    min_profit_quote: Decimal = Decimal("0.05")
 
     async def _last_price(self, session: AsyncSession, unix_curr_time: int | None = None) -> Optional[Decimal]:
         stmt = select(CexHistoryTik.price)
@@ -37,12 +37,11 @@ class Algo_1(BaseAlgorithm):
         stmt = stmt.order_by(desc(CexHistoryTik.unixdate)).limit(1)
         return (await session.execute(stmt)).scalar_one_or_none()
 
-    async def _has_active_order(self, session: AsyncSession, side: str) -> bool:
+    async def _has_active_order(self, session: AsyncSession) -> bool:
         stmt = (
             select(ActiveOrder.orderId)
             .where(ActiveOrder.accountId == self.account_id)
             .where(ActiveOrder.algo == self.algo_name)
-            .where(ActiveOrder.side == side.lower())
             .limit(1)
         )
         return (await session.execute(stmt)).scalar_one_or_none() is not None
@@ -55,6 +54,27 @@ class Algo_1(BaseAlgorithm):
             return Decimal("0")
         return _d(row.calc_amount if row.calc_amount is not None else row.amount)
 
+    async def _last_filled_buy_price(self, session: AsyncSession) -> Optional[Decimal]:
+        stmt = (
+            select(LogOrders.price)
+            .where(LogOrders.algo == self.algo_name)
+            .where(LogOrders.status == "DONE")
+            .where(LogOrders.side == "buy")
+            .order_by(desc(LogOrders.date), desc(LogOrders.id))
+            .limit(1)
+        )
+        return (await session.execute(stmt)).scalar_one_or_none()
+
+    def _min_profitable_sell_price(self, buy_price: Decimal, sell_amount: Decimal) -> Decimal:
+        buy_cost = _d(X_for_buyBTC(sell_amount, buy_price, float(self.buy_fee_percent)))
+        target_net_quote = buy_cost + self.min_profit_quote
+        sell_multiplier = Decimal("1") - (self.sell_fee_percent / Decimal("100"))
+        if sell_multiplier <= Decimal("0"):
+            raise ValueError("sell_fee_percent must be lower than 100")
+
+        min_price = target_net_quote / (sell_amount * sell_multiplier)
+        return min_price.quantize(Decimal("0.01"), rounding=ROUND_UP)
+
     async def run(self, unix_curr_time: int | None = None) -> None:
         db = DataBase()
         async with db.get_session_maker()() as session:
@@ -62,13 +82,11 @@ class Algo_1(BaseAlgorithm):
             if last_price is None:
                 return
 
+            if await self._has_active_order(session):
+                return
+
             pos = await self._get_position_amount(session)
-
-            # ====== BUY logic ======
             if pos <= Decimal("0"):
-                if await self._has_active_order(session, "buy"):
-                    return
-
                 if last_price <= self.price1:
                     await algo_set_order(
                         amount=self.amount,
@@ -80,14 +98,19 @@ class Algo_1(BaseAlgorithm):
                     )
                 return
 
-            # ====== SELL logic ======
-            if await self._has_active_order(session, "sell"):
+            sell_amount = min(pos, self.amount)
+            if sell_amount <= Decimal("0"):
                 return
 
-            if last_price >= self.price2:
+            last_buy_price = await self._last_filled_buy_price(session)
+            reference_buy_price = _d(last_buy_price) if last_buy_price is not None else self.price1
+            profitable_sell_price = self._min_profitable_sell_price(reference_buy_price, sell_amount)
+            sell_price = max(self.price2, profitable_sell_price)
+
+            if last_price >= sell_price:
                 await algo_set_order(
-                    amount=self.amount,
-                    price=self.price2,
+                    amount=sell_amount,
+                    price=sell_price,
                     sell_buy="SELL",
                     accountId=self.account_id,
                     algo_name=self.algo_name,

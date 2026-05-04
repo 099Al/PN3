@@ -16,7 +16,10 @@ FIRST_ALGO_CONFIG = {
     "algo_name": FIRST_ALGO_NAME,
     "pair": "BTC/USD",
     "amount": Decimal("0.001"),
-    "price1": Decimal("30000"),
-    "price2": Decimal("31000"),
+    "price1": Decimal("29877.3"),
+    "price2": Decimal("29880.5"),
+    "buy_fee_percent": Decimal("0.005"),
+    "sell_fee_percent": Decimal("0.005"),
+    "min_profit_quote": Decimal("0.001"),
     "position_curr": "BTC",
 }

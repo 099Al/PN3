@@ -1,4 +1,5 @@
 from decimal import Decimal
+from enum import Enum
 from typing import Optional
 
 from sqlalchemy import delete, func, select, update
@@ -14,6 +15,14 @@ from src.trade_utils.util_decimal import D0, D100
 
 def _as_dec(x) -> Decimal:
     return x if isinstance(x, Decimal) else Decimal(str(x))
+
+
+def _as_lower_str(x, default: str = "") -> str:
+    if x is None:
+        return default
+    if isinstance(x, Enum):
+        return str(x.value).lower()
+    return str(x).lower()
 
 
 async def _ensure_balance_row(session: AsyncSession, curr: str) -> None:
@@ -153,8 +162,8 @@ class OrderMatcher:
     ) -> None:
         public_order = await _get_public_order(self.repo.session, order.id)
         algo = public_order.algo if public_order is not None else ""
-        public_side = public_order.side if public_order is not None else side.lower()
-        public_order_type = public_order.order_type if public_order is not None else "limit"
+        public_side = _as_lower_str(public_order.side, side.lower()) if public_order is not None else side.lower()
+        public_order_type = _as_lower_str(public_order.order_type, "limit") if public_order is not None else "limit"
         public_full_trade = public_order.full_traid if public_order is not None else "{}"
         reserved_public = _as_dec(public_order.reserved) if public_order is not None else _as_dec(order.reserved)
 
@@ -257,7 +266,7 @@ class OrderMatcher:
     ) -> None:
         public_order = await _get_public_order(self.repo.session, order.id)
         algo = public_order.algo if public_order is not None else ""
-        log_side = (public_order.side if public_order is not None else side.lower()).lower()
+        log_side = _as_lower_str(public_order.side, side.lower()) if public_order is not None else side.lower()
         event_date = dt_from_unix_ms(fill.unix_ms)
         event_unix_s = int(fill.unix_ms // 1000)
         commission_abs = abs(fee)
@@ -296,7 +305,7 @@ class OrderMatcher:
             fee = self._fee(gross_quote)
             net_quote = gross_quote - fee
 
-            await self.repo.delete_active_order(order.id)
+            await self.repo.delete_active_order(order)
             await self.repo.apply_balance_delta(account_id=order.accountId, curr=order.base, amount_delta=D0, reserved_delta=-amount_base)
             await self.repo.apply_balance_delta(account_id=order.accountId, curr=order.quote, amount_delta=net_quote, reserved_delta=D0)
 
@@ -337,7 +346,7 @@ class OrderMatcher:
             fee = self._fee(gross_quote)
             total_quote = gross_quote + fee
 
-            await self.repo.delete_active_order(order.id)
+            await self.repo.delete_active_order(order)
 
             reserved_quote = _as_dec(order.reserved or D0)
             refund = reserved_quote - total_quote

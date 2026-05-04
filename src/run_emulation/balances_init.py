@@ -19,6 +19,7 @@ from src.database.models import (
     LogBalance_Algo,
     LogBalance,
     LogDoneTransactions,
+    LogOrders,
 )
 from src.run_emulation.settings import EMULATION_SETTINGS
 
@@ -54,6 +55,7 @@ async def init_balance(
     await _truncate_table(LogBalance_Algo.__tablename__, cascade=True)
     await _truncate_table(LogBalance.__tablename__, cascade=True)
     await _truncate_table(LogDoneTransactions.__tablename__, cascade=True)
+    await _truncate_table(LogOrders.__tablename__, cascade=True)
     await _truncate_table(ActiveOrder.__tablename__, cascade=True)
     await _truncate_table("emulator.im_active_orders", cascade=True)
     await _truncate_table("emulator.im_transactions", cascade=True)

@@ -21,6 +21,7 @@ from src.database.trade_queries.get_new_history import get_new_data
 
 t_start = EMULATION_SETTINGS["t_start"]
 period = int(EMULATION_SETTINGS["period"])
+steps = int(EMULATION_SETTINGS.get("steps", 15))
 period_ms = period * 1000
 
 
@@ -66,7 +67,7 @@ async def trading():
         await get_new_data(pair="BTC/USD", unix_curr_time=curr_unix_time)
         await algo.run(curr_unix_time)
 
-        if n > 15:
+        if n >= steps:
             break
 
 
