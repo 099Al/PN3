@@ -12,6 +12,7 @@ from src.api.provider import ApiProvider
 from src.database.connect import DataBase
 from src.database.models import ActiveOrder, Balance, Balance_Algo
 from src.database.trade_queries.log_helpers import log_order_event, save_balance_algo_snapshot, save_balance_snapshot
+from src.config import prj_configs
 from src.trade_utils.date_unix import utcnow_dt, parse_iso_z_to_naive
 
 
@@ -27,8 +28,11 @@ async def algo_set_order(amount, price, sell_buy, accountId, algo_name, unix_cur
     api_provider = ApiProvider.get(account_id=accountId, unix_curr_time=unix_curr_time)
 
     res = await api_provider.set_order(amount, price, sell_buy)
-    if res.get("data", {}).get("status") == "NEW":
+    status = str(res.get("data", {}).get("status") or "").upper()
+    if status == "NEW":
         await save_active_order(res, algo=algo_name)
+    elif status == "REJECTED":
+        await save_rejected_order(res, algo=algo_name)
 
 
 
@@ -125,7 +129,7 @@ async def save_active_order(
             order_type=order.order_type,
             full_trade=order.full_traid,
             algo=order.algo,
-            flag_reason="EMULATION_NEW",
+            flag_reason=f"{_event_mode_prefix()}_NEW",
             event_id=f"{order.orderId}:NEW",
         )
         await save_balance_snapshot(session, order_id=order.orderId)
@@ -134,11 +138,61 @@ async def save_active_order(
         await session.commit()
 
 
+async def save_rejected_order(
+    execution_report: dict,
+    *,
+    algo: str = "",
+) -> None:
+    algo = _normalize_algo_name(algo)
+    data = execution_report["data"]
+
+    order_id_raw = data.get("orderId")
+    order_id = order_id_raw if order_id_raw not in (None, "", "NONE") else str(data.get("clientOrderId") or "REJECTED")
+    side = str(data.get("side") or "").lower() or "buy"
+    base = str(data.get("currency1") or "")
+    quote = str(data.get("currency2") or "")
+    amount = Decimal(str(data.get("requestedAmountCcy1") or 0))
+    price = Decimal(str(data.get("price") or 0))
+    transact_time = data.get("transactTime")
+    date = parse_iso_z_to_naive(str(transact_time)) if transact_time else utcnow_dt()
+    unix_ms = int(data.get("clientCreateTimestamp") or 0)
+    if not unix_ms:
+        unix_ms = int(data.get("serverCreateTimestamp") or 0)
+
+    db = DataBase()
+    async with db.get_session_maker()() as session:
+        await log_order_event(
+            session,
+            status="REJECTED",
+            order_id=order_id,
+            side=side,
+            date=date,
+            unix_ms=unix_ms,
+            base=base,
+            quote=quote,
+            amount=amount,
+            price=price,
+            reserved=Decimal("0"),
+            fee=Decimal("0"),
+            reject_reason=str(data.get("rejectReason") or data.get("orderRejectReason") or ""),
+            order_type=str(data.get("orderType") or "limit").lower(),
+            full_trade=json.dumps(data, ensure_ascii=False),
+            algo=algo,
+            flag_reason=f"{_event_mode_prefix()}_REJECTED",
+            event_id=f"{order_id}:REJECTED",
+        )
+        await session.commit()
+
+
 def _normalize_algo_name(algo_name: str) -> str:
     value = str(algo_name).strip()
     if not value:
         raise ValueError("Algorithm name must be provided for order persistence.")
     return value
+
+
+def _event_mode_prefix() -> str:
+    return str(prj_configs.CALC_MODE or "").strip().upper() or "UNKNOWN"
 
 
 def _calc_reserved(side: str, amount: Decimal, price: Decimal) -> Decimal:

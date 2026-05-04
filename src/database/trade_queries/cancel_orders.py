@@ -11,6 +11,7 @@ from src.api.provider import ApiProvider
 from src.database.connect import DataBase
 from src.database.models import ActiveOrder, Balance, Balance_Algo
 from src.database.trade_queries.log_helpers import log_order_event, save_balance_algo_snapshot, save_balance_snapshot
+from src.config import prj_configs
 from src.trade_utils.date_unix import utcnow_dt
 
 
@@ -89,7 +90,7 @@ async def _cancel_active_order_tx(*, session: AsyncSession, order_id: int) -> No
         order_type=order.order_type,
         full_trade=order.full_traid,
         algo=algo,
-        flag_reason="EMULATION_CANCEL",
+        flag_reason=f"{_event_mode_prefix()}_CANCELED",
         event_id=f"{order.orderId}:CANCELED",
     )
     await save_balance_snapshot(session, order_id=order.orderId)
@@ -163,3 +164,7 @@ async def _apply_balance_release(
         .values(values)
     )
     await session.execute(stmt)
+
+
+def _event_mode_prefix() -> str:
+    return str(prj_configs.CALC_MODE or "").strip().upper() or "UNKNOWN"
